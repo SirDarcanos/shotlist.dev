@@ -1,0 +1,40 @@
+---
+import { Code } from 'astro:components'
+import Arrow from './Arrow.astro'
+import { codeTheme } from '../lib/code-theme'
+
+interface Props {
+  code: string
+  /** Shown in the panel's header bar, as the file this would be saved as. */
+  file?: string
+  lang?: 'yaml' | 'bash' | 'ts'
+  class?: string
+}
+
+const { code, file, lang = 'yaml', class: className = '' } = Astro.props
+---
+
+<div
+  class:list={[
+    // `min-w-0` matters: without it a grid or flex parent sizes its track to the widest
+    // line of code, and the block pushes the page sideways instead of scrolling itself.
+    //
+    // `tone-light` because the card brings its own white ground. Dropped into a section
+    // with a dark or red tone it would otherwise inherit that section's near-paper
+    // `--muted`, and the file path would vanish against the card's own fill.
+    'tone-light min-w-0 overflow-hidden rounded-lg border border-(--rule-strong) bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04),0_12px_32px_-12px_rgba(28,25,23,0.12)]',
+    className,
+  ]}
+>
+  {
+    file && (
+      <div class="flex items-center gap-3 border-b border-(--rule) py-2.5 pr-4 pl-4">
+        <Arrow class="w-4 shrink-0" />
+        <span class="font-mono text-xs text-(--muted)">{file}</span>
+      </div>
+    )
+  }
+  <div class="p-5 sm:p-6">
+    <Code code={code.trimEnd()} lang={lang} theme={codeTheme as never} />
+  </div>
+</div>

@@ -1,0 +1,129 @@
+---
+/**
+ * The full-name lockup: the box beside the word.
+ *
+ * The word is real text at its natural width — an earlier version set it in SVG and
+ * pinned it with `textLength` so the box could be authored around it, which forces the
+ * glyphs to a width they were not drawn for and reads as stretched.
+ *
+ * Everything is sized from `font-size`, so the lockup scales as one thing.
+ */
+import Logo from './Logo.astro'
+
+interface Props {
+  size?: number
+  class?: string
+}
+
+const { size = 26, class: className = '' } = Astro.props
+---
+
+<span class:list={['wordmark', className]} style={`font-size:${size}px`}>
+  <Logo decorative />
+  <span>shotlist</span>
+</span>
+
+<style>
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.34em;
+    /* Line-height 1 puts the line box's middle near the middle of the x-height, which is
+       where the box wants to centre itself. */
+    line-height: 1;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-variation-settings:
+      'SOFT' 0,
+      'WONK' 1;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+
+  .wordmark :global(svg) {
+    width: 0.82em;
+    height: 0.82em;
+    flex: none;
+  }
+</style>
+
+<script>
+  /*
+   * The box spins and breathes while the name is hovered, and spins down when it is not.
+   *
+   * This is scripted rather than a `:hover` rule because a CSS animation cannot be let go
+   * of gently. Removing it on unhover snaps the property back to its base value in one
+   * frame, and a `transition` does not soften that — transitions do not fire on a change
+   * that comes from an animation ending. So on leaving we read where the box actually got
+   * to, cancel the loops, and run one last animation from there round to a whole turn,
+   * easing out. 360° and 0° look identical, so it comes to rest exactly where it started.
+   */
+  const SPIN_MS = 2600
+  const BREATHE_MS = 2000
+  const SETTLE_MS = 900
+
+  function animateMark(mark: HTMLElement) {
+    const box = mark.querySelector('svg')
+    if (!box) return
+
+    let loops: Animation[] = []
+    let settling: Animation | null = null
+
+    mark.addEventListener('pointerenter', () => {
+      settling?.cancel()
+      settling = null
+      if (loops.length) return
+      loops = [
+        box.animate([{ rotate: '0deg' }, { rotate: '360deg' }], {
+          duration: SPIN_MS,
+          iterations: Infinity,
+          easing: 'linear',
+        }),
+        box.animate([{ scale: 1 }, { scale: 1.18 }, { scale: 1 }], {
+          duration: BREATHE_MS,
+          iterations: Infinity,
+          easing: 'ease-in-out',
+        }),
+      ]
+    })
+
+    mark.addEventListener('pointerleave', () => {
+      if (!loops.length) return
+      // `commitStyles` writes where the box actually got to into its inline style, which
+      // is the only reliable way to read it: these run on the compositor, and
+      // `getComputedStyle` is not guaranteed to reflect that.
+      for (const loop of loops) {
+        try {
+          loop.commitStyles()
+        } catch {
+          // Only throws if the box is not rendered, in which case there is nothing to
+          // settle and the starting values below stand in fine.
+        }
+        loop.cancel()
+      }
+      loops = []
+
+      // Forward to the next whole turn rather than back to zero: unwinding reverses the
+      // direction it was just travelling, which reads as a stumble.
+      const from = { rotate: box.style.rotate || '0deg', scale: box.style.scale || '1' }
+      settling = box.animate([from, { rotate: '360deg', scale: '1' }], {
+        duration: SETTLE_MS,
+        easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+        // Held to the end value, so the committed mid-spin inline style cannot flash back
+        // for a frame before it is cleared below.
+        fill: 'forwards',
+      })
+      settling.addEventListener('finish', () => {
+        box.style.rotate = ''
+        box.style.scale = ''
+        settling?.cancel()
+        settling = null
+      })
+    })
+  }
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll<HTMLElement>('.wordmark').forEach(animateMark)
+  }
+</script>

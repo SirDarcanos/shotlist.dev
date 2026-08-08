@@ -1,0 +1,253 @@
+---
+import Base from '../layouts/Base.astro'
+import RecipeCard from '../components/RecipeCard.astro'
+import { heroRecipe, minimalRecipe, configExample } from '../lib/recipes'
+
+const anatomy = [
+  {
+    n: 1,
+    key: 'setup:',
+    title: 'Drive the page to a state',
+    body: 'Twenty verbs — click, fill, hover, select, wait, and the rest — run against your site until the thing you want to photograph is on screen. Steps shared between shots go in a macro.',
+  },
+  {
+    n: 2,
+    key: 'clip:',
+    title: 'Clip a region of it',
+    body: 'The whole viewport, the whole page, or whatever an element query finds: the smallest box holding a name and an amount, a modal card climbed out of its overlay.',
+  },
+  {
+    n: 3,
+    key: 'callouts:',
+    title: 'Draw on top',
+    body: 'Say which side of a mark a label belongs on. shotlist works out the position, grows the canvas when a label needs room outside the shot, and moves one that would collide with another.',
+  },
+]
+---
+
+<Base
+  title="shotlist — annotated UI screenshots, described as data"
+  description="shotlist opens your running site, drives it to the state you describe, clips a region, draws the callouts, and writes the image where you want it. Each screenshot is a YAML file."
+  bare
+>
+  <!-- Hero. Grid for the surface; the blooms are the dark section's alone. -->
+  <section class="relative overflow-hidden">
+    <div class="paper-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
+
+    <div
+      class="relative mx-auto grid min-w-0 max-w-6xl items-center gap-12 px-6 pt-16 pb-24 sm:pt-24 sm:pb-32 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-16"
+    >
+      <div>
+        <p class="mb-5 font-mono text-xs tracking-wide text-(--muted)">
+          <span class="text-mark">MIT</span> · Node 20+ · driven by Playwright
+        </p>
+
+        <h1 class="text-[clamp(2.6rem,6.5vw,4.25rem)] leading-[1.02] font-extrabold">
+          Annotated UI screenshots, <span class="text-mark">described as data</span>.
+        </h1>
+
+        <p class="mt-7 max-w-xl text-lg leading-relaxed text-(--muted)">
+          shotlist opens your running site, drives it to the state you describe, clips a region,
+          draws the callouts on it, and writes the image where you want it. Each screenshot is a
+          YAML file. There is no per-screenshot code.
+        </p>
+
+        <div class="mt-9 flex flex-wrap items-center gap-3">
+          <a
+            href="/docs"
+            class="rounded-lg bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-mark"
+          >
+            Read the docs
+          </a>
+          <code
+            class="rounded-lg border border-(--rule-strong) bg-white px-4 py-3 font-mono text-sm text-ink"
+          >
+            npm i -D shotlist playwright
+          </code>
+        </div>
+      </div>
+
+      <figure class="min-w-0 lg:-mr-4">
+        <RecipeCard code={heroRecipe} file="screenshots/recipes/recipe-anatomy.yaml" />
+        <figcaption class="mt-4 flex items-start gap-2.5 text-sm text-(--muted)">
+          <span class="mt-1.5 inline-block h-px w-6 shrink-0 bg-mark" aria-hidden="true"></span>
+          <span>
+            The recipe for a shot of this site's own docs page. Nothing here is a simplification —
+            it is the whole file.
+          </span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Anatomy -->
+  <section class="band-wash">
+    <div class="mx-auto max-w-6xl px-6 py-24 sm:py-28">
+      <h2 class="max-w-2xl text-[clamp(1.9rem,3.6vw,2.6rem)] leading-tight font-extrabold">
+        Three things a recipe says
+      </h2>
+      <p class="mt-4 max-w-2xl text-(--muted)">
+        A shot is described the way you would describe it out loud, and the file is read top to
+        bottom.
+      </p>
+
+      <ol class="mt-14 grid gap-10 md:grid-cols-3 md:gap-8">
+        {
+          anatomy.map((item) => (
+            <li>
+              <div class="flex items-center gap-3">
+                <span
+                  class="grid size-8 shrink-0 place-items-center rounded-full bg-mark font-mono text-sm font-medium text-paper"
+                  aria-hidden="true"
+                >
+                  {item.n}
+                </span>
+                <code class="font-mono text-sm font-medium text-mark">{item.key}</code>
+              </div>
+              <h3 class="mt-5 text-xl font-bold">{item.title}</h3>
+              <p class="mt-3 leading-relaxed text-(--muted)">{item.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!--
+    The constraint, inverted. The page has alternated two light tones by here, and this is
+    the one section that argues rather than explains — it gets to interrupt. A dark ground
+    also carries far more of the red before it registers as colour, so the blooms are the
+    strongest on the page.
+  -->
+  <section class="tone-dark relative overflow-hidden">
+    <div class="paper-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
+    <div
+      class="glow"
+      style="--glow-at: 14% 0%; --glow-size: 54rem 30rem; --glow-strength: 26%"
+      aria-hidden="true"
+    >
+    </div>
+    <div
+      class="glow"
+      style="--glow-at: 92% 100%; --glow-size: 44rem 26rem; --glow-strength: 20%"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div
+      class="relative mx-auto grid max-w-6xl gap-12 px-6 py-24 sm:py-28 lg:grid-cols-2 lg:items-center lg:gap-16"
+    >
+      <div>
+        <h2 class="text-[clamp(1.9rem,3.6vw,2.6rem)] leading-tight font-extrabold">
+          A recipe is data, and stays data
+        </h2>
+        <div class="mt-8 space-y-5 leading-relaxed text-(--muted)">
+          <p>
+            A recipe is a YAML file, and nothing in it runs. There is no JavaScript step, and no
+            plugin hook that turns into one.
+          </p>
+          <p>
+            Twenty verbs drive the page. A query language says what to point at — a row in a table,
+            a modal, the amount in a cell.
+          </p>
+          <p>
+            So anyone on the team can read a recipe and see what it does, and when a shot breaks,
+            anyone can fix it.
+          </p>
+        </div>
+      </div>
+
+      <div class="min-w-0">
+        <RecipeCard code={minimalRecipe} file="screenshots/recipes/order-row.yaml" />
+        <p class="mt-4 text-sm text-(--muted)">
+          Find an element by CSS, role, label or text, then narrow it down until one thing matches.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Staleness -->
+  <section class="band-wash">
+    {
+      /*
+      The terminal sits on the left here, the only section that leads with its artwork.
+      Done with `order` rather than by swapping the markup: stacked on a phone the
+      heading has to come first, or the section opens on output nothing has explained yet.
+    */
+    }
+    <div
+      class="mx-auto grid max-w-6xl gap-12 px-6 py-24 sm:py-28 lg:grid-cols-2 lg:items-center lg:gap-20"
+    >
+      <div class="lg:order-2">
+        <h2 class="text-[clamp(1.9rem,3.6vw,2.6rem)] leading-tight font-extrabold">
+          Screenshots go stale quietly
+        </h2>
+        <div class="mt-6 space-y-5 leading-relaxed text-(--muted)">
+          <p>
+            Nothing fails when an interface moves on without its documentation. The image keeps
+            rendering; it is simply no longer true, and usually nobody notices until a reader does.
+          </p>
+          <p>
+            <code class="font-mono text-sm text-ink">shotlist --check</code> re-shoots every recipe, compares
+            each against the committed image, and exits non-zero if any of them moved. Run it in CI and
+            a stale screenshot becomes a failing build instead of a slow embarrassment.
+          </p>
+        </div>
+      </div>
+
+      <div class="min-w-0 lg:order-1">
+        <div
+          class="overflow-hidden rounded-lg border border-(--rule-strong) bg-white p-5 font-mono text-[0.8125rem] leading-relaxed sm:p-6"
+        >
+          <p class="text-(--muted)">$ npx shotlist --check</p>
+          <p class="mt-3 text-(--muted)">
+            <span class="text-(--muted)">same</span>&nbsp;&nbsp;&nbsp;&nbsp; order-row
+          </p>
+          <p class="text-(--muted)">
+            <span class="text-(--muted)">same</span>&nbsp;&nbsp;&nbsp;&nbsp; modal-detail
+          </p>
+          <p class="font-medium text-mark">CHANGED&nbsp; billing-plan — 3.41% of pixels differ</p>
+          <p class="text-(--muted)">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; committed:
+            content/guide/images/billing-plan.png
+          </p>
+          <p class="mt-3 text-ink">1 of 3 need attention</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Get started. Solid deep red, straight edge, and the footer carries it on. -->
+  <section class="tone-red ground-red-ramp relative overflow-hidden">
+    <div class="paper-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
+
+    <div
+      class="relative mx-auto grid max-w-6xl gap-12 px-6 py-24 sm:py-28 lg:grid-cols-2 lg:gap-20"
+    >
+      <div>
+        <h2 class="text-[clamp(1.9rem,3.6vw,2.6rem)] leading-tight font-extrabold">
+          Getting started
+        </h2>
+        <p class="mt-6 leading-relaxed text-(--muted)">
+          Playwright is an optional peer dependency — shotlist does not install it, because its
+          postinstall downloads browsers and a project consuming shotlist should not pay for that on
+          every install.
+        </p>
+        <p class="mt-5 leading-relaxed text-(--muted)">
+          Configure the project once, write a recipe per screenshot, and shoot them with{' '}
+          <code class="font-mono text-sm text-white">npx shotlist --all --install</code>.
+        </p>
+        <a
+          href="/docs"
+          class="mt-8 inline-block rounded-lg bg-paper px-5 py-3 text-sm font-medium text-ink transition-colors hover:bg-white"
+        >
+          Read the docs
+        </a>
+      </div>
+
+      <div class="min-w-0 lg:pt-2">
+        <RecipeCard code={configExample} file="shotlist.config.yaml" />
+      </div>
+    </div>
+  </section>
+</Base>

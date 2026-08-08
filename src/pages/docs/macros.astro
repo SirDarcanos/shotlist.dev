@@ -1,0 +1,72 @@
+---
+import Docs from '../../layouts/Docs.astro'
+import RecipeCard from '../../components/RecipeCard.astro'
+
+const macro = `defaults:
+  who: sam@example.com
+steps:
+  - fill: { label: Email }
+    value: $who
+  - click: { role: button, name: Sign in }`
+
+const use = `setup:
+  - use: sign-in
+  - use: sign-in
+    with: { who: admin@example.com }`
+
+const data = `setup:
+  - each: $orders
+    as: order
+    steps:
+      - click: { text: '\${order.name}' }`
+---
+
+<Docs
+  title="Macros and data"
+  description="Sharing setup between recipes, and driving one from a list."
+>
+  <h1 class="text-4xl font-extrabold">Macros and data</h1>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    Setup shared between recipes goes in <code class="font-mono text-sm text-ink">paths.macros</code
+    >, one file per macro. The filename is its name.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={macro} file="screenshots/macros/sign-in.yaml" />
+  </div>
+  <div class="mt-4">
+    <RecipeCard code={use} file="screenshots/recipes/dashboard.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Data files</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    Files in <code class="font-mono text-sm text-ink">paths.data</code> are in scope by filename:
+    <code class="font-mono text-sm text-ink">screenshots/data/orders.yaml</code> is
+    <code class="font-mono text-sm text-ink">$orders</code>, and
+    <code class="font-mono text-sm text-ink">each: $orders</code> iterates it.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={data} file="screenshots/recipes/orders.yaml" />
+  </div>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    The filename becomes a <code class="font-mono text-sm text-ink">$name</code>, so keep it to
+    letters, digits and underscores — a <code class="font-mono text-sm text-ink">$</code> reference stops
+    at a hyphen, and <code class="font-mono text-sm text-ink">open-orders.yaml</code> cannot be reached.
+    Group what would have been several hyphenated files into one and read them by path:
+    <code class="font-mono text-sm text-ink">$orders.open</code>,
+    <code class="font-mono text-sm text-ink">$orders.shipped</code>.
+  </p>
+
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    A reference reads what the data holds and nothing else. Keys that belong to the language —
+    <code class="font-mono text-sm text-ink">__proto__</code>,
+    <code class="font-mono text-sm text-ink">constructor</code>,
+    <code class="font-mono text-sm text-ink">prototype</code> — resolve to nothing, and a reference that
+    matches nothing is an error rather than an empty string. A literal
+    <code class="font-mono text-sm text-ink">$</code> inside a longer string is left alone, so a shot
+    of "costs $5" survives.
+  </p>
+</Docs>

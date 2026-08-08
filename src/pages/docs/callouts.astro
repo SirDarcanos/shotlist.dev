@@ -1,0 +1,142 @@
+---
+import Docs from '../../layouts/Docs.astro'
+import DocTable from '../../components/DocTable.astro'
+import RecipeCard from '../../components/RecipeCard.astro'
+
+const numbered = `numbered:
+  marks: [header, abilities, defenses, traits]
+  box: false # number the sections without outlining them
+  badge: ml # anchored to the middle of the left edge
+  inside: false # pushed clear, into the margin`
+
+const masking = `name: dashboard
+clip: { css: '.panel' }
+mask:
+  - { within: clip, css: '.updated-at' }
+  - { css: '.avatar' }`
+
+const maskWays = `mask:
+  - { within: clip, css: span, nth: 2 } # the third span, whatever it says
+  - { within: clip, child: 2 } # the third child of the clip
+  - { rect: [172, 84, 52, 20] } # a literal box, measured once`
+---
+
+<Docs
+  title="Callouts"
+  description="Drawing on a shot: labels, numbered discs, where they go, and masking what the recipe does not decide."
+>
+  <h1 class="text-4xl font-extrabold">Callouts</h1>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    A callout marks one region. shotlist works out the position, extends the canvas if the label
+    needs room outside the image, and moves a label that would overlap one already drawn. The canvas
+    also grows for a box or a numbered disc that would otherwise be cut by the edge of the shot.
+  </p>
+
+  <DocTable
+    head={['Field', 'Default', 'What it does']}
+    rows={[
+      ['<code>mark</code>', 'required', 'Which mark to draw on'],
+      ['<code>text</code>', '—', 'Label text: one string, or a list with a line each'],
+      ['<code>n</code>', '—', 'Number shown in a disc, for matching a numbered list in the prose'],
+      [
+        '<code>place</code>',
+        '<code>auto</code>',
+        '<code>auto</code>, <code>left</code>, <code>right</code>, <code>top</code>, <code>bottom</code>, or <code>corner</code> for a disc',
+      ],
+      [
+        '<code>badge</code>',
+        '<code>tl</code>',
+        'Which anchor, with <code>place: corner</code>: <code>tl tc tr ml mr bl bc br</code>',
+      ],
+      ['<code>box</code>', '<code>true</code>', 'Whether to draw the outline'],
+      ['<code>inside</code>', 'see below', 'Whether the label or disc sits over the shot'],
+      ['<code>dx</code>', '<code>0</code>', 'Nudge across, in image pixels'],
+      ['<code>dy</code>', '<code>0</code>', 'Nudge down, in image pixels'],
+      ['<code>pad</code>', "style's", 'Distance between the outline and the element'],
+      ['<code>gap</code>', "style's", 'Distance between the label and the outline'],
+    ]}
+  />
+
+  <h2 class="mt-14 text-2xl font-bold">Where a label goes</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink"
+      ><code class="font-mono text-sm">place</code> defaults to <code class="font-mono text-sm"
+        >auto</code
+      >, which picks a side.</span
+    > A label to the left or right grows the canvas by its <em>width</em>, one above or below by its
+    <em>height</em> — on a wide shot that is a difference of hundreds of pixels.
+    <code class="font-mono text-sm text-ink">auto</code> weighs that against how far the arrow would have
+    to travel, and against whether its path would cross another mark or a masked region.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    It also decides whether the label goes <span class="font-medium text-ink">over the shot</span> or
+    in a margin. Over the shot costs no canvas at all and needs only a stub of an arrow, so it wins wherever
+    the shot has nothing there — which it works out by reading the pixels the label would cover. A region
+    of one flat colour counts as nothing: it is the detail in a region that is worth not covering, not
+    its darkness.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    What it cannot judge is what that detail is <em>for</em>. An arrow drawn across a paragraph is
+    not something it knows to avoid, so name a side when the shot needs one — an explicit
+    <code class="font-mono text-sm text-ink">place</code> is obeyed exactly, and so is an explicit
+    <code class="font-mono text-sm text-ink">inside</code>.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    Left unsaid, a disc (<code class="font-mono text-sm text-ink">place: corner</code>) sits inside,
+    on the box; a label on a named side sits outside, in a margin the canvas grows to make.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Numbered discs</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    <code class="font-mono text-sm text-ink">numbered: [a, b, c]</code> is shorthand for one numbered
+    disc per mark, in order. Give it the style every disc shares by writing it out.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={numbered} file="screenshots/recipes/statblock.yaml" />
+  </div>
+
+  <h2 id="masking" class="mt-14 text-2xl font-bold">Masking what the recipe does not decide</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    A shot holding a clock, a live total or a face differs on every re-shoot, and
+    <code class="font-mono text-sm text-ink">--check</code> on it only ever cries wolf.
+    <code class="font-mono text-sm text-ink">check: false</code> turns the check off for the whole image;
+    <code class="font-mono text-sm text-ink">mask</code> covers just the part that moves, and leaves the
+    rest checkable.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={masking} file="screenshots/recipes/dashboard.yaml" />
+  </div>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink"
+      >Key a mask on something that survives the value changing.</span
+    > A class, a test id, a position — never the content itself.
+    <code class="font-mono text-sm text-ink">{'{ text: $42.00 }'}</code> matches the figure you are hiding
+    today and nothing at all tomorrow, when it reads
+    <code class="font-mono text-sm text-ink">$51.00</code>. That failure is loud rather than silent
+    — a mask matching nothing stops the run — but it does mean a mask written against the content
+    breaks the run rather than degrading.
+  </p>
+
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    Any query works, so an element with no class and no test id is still reachable. A mask covers
+    <span class="font-medium text-ink">every element its query matches</span>, not the first: a page
+    has three avatars far more often than it has one. Naming
+    <code class="font-mono text-sm text-ink">pick</code> or
+    <code class="font-mono text-sm text-ink">nth</code> says you mean a single element and still gets
+    one.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={maskWays} file="screenshots/recipes/dashboard.yaml" />
+  </div>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    The regions are painted before the callouts are drawn, so a callout may still point at, and
+    outline, a masked box. Masking only helps if the rest of the shot holds still: a value that
+    changes <em>width</em> reflows what is beside it, and no mask covers that — give the column a width,
+    or mask the row. With <code class="font-mono text-sm text-ink">source: file</code> there is no page
+    to query, so a mask is a literal
+    <code class="font-mono text-sm text-ink">rect</code>, the same as a mark.
+  </p>
+</Docs>

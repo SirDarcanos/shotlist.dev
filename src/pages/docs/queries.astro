@@ -1,0 +1,200 @@
+---
+import Docs from '../../layouts/Docs.astro'
+import DocTable from '../../components/DocTable.astro'
+import RecipeCard from '../../components/RecipeCard.astro'
+
+const row = `# The smallest box holding both a name and an amount.
+clip:
+  css: 'li, div'
+  contains: Acme Corp
+  matching: '\\$\\d'
+  maxChildren: 12
+  pick: smallest`
+
+const panel = `# The card owning a heading, climbed out of its full-screen overlay.
+marks:
+  dialog:
+    heading: Edit order
+    ancestor: { narrowerThan: 95vw, pick: outermost }`
+
+const finders = `finders:
+  listRow:
+    css: 'li, div'
+    contains: $1
+    matching: '\\$\\d'
+    maxChildren: 12
+    pick: smallest
+
+  panel:
+    heading: $1
+    ancestor: { narrowerThan: 95vw, pick: outermost }`
+
+const finderUse = `clip: { listRow: Acme Corp }
+marks:
+  dialog: { panel: Edit order }`
+---
+
+<Docs
+  title="Queries"
+  description="The element query language: sources, filters, traversal, selection, and named finders."
+>
+  <h1 class="text-4xl font-extrabold">Queries</h1>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    A query says which element to act on or measure. Keys combine: sources choose the candidates,
+    filters narrow them, traversal moves from them, and selection picks one.
+  </p>
+
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">Key a query on what a person can see.</span>
+    <code class="font-mono text-sm text-ink">text</code>,
+    <code class="font-mono text-sm text-ink">heading</code>,
+    <code class="font-mono text-sm text-ink">role</code>+<code class="font-mono text-sm text-ink"
+      >name</code
+    > and <code class="font-mono text-sm text-ink">label</code> survive a restyle. A generated class name
+    does not survive the next build.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Sources</h2>
+  <DocTable
+    head={['Key', 'Matches']}
+    rows={[
+      ['<code>css</code>', 'A CSS selector'],
+      ['<code>role</code>+<code>name</code>', 'ARIA role and accessible name'],
+      ['<code>label</code>', 'Form control by its label'],
+      ['<code>placeholder</code>', 'Input by placeholder text'],
+      ['<code>testid</code>', '<code>data-testid</code>'],
+      ['<code>text</code>', 'Element whose trimmed text equals the value'],
+      ['<code>startsWith</code>', 'Element whose trimmed text begins with it'],
+      ['<code>heading</code>', '<code>h1</code>–<code>h6</code> with this exact text'],
+    ]}
+  />
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    <code class="font-mono text-sm text-ink">text</code> and
+    <code class="font-mono text-sm text-ink">startsWith</code> also narrow a source written alongside
+    them. <code class="font-mono text-sm text-ink">exact: true</code> makes
+    <code class="font-mono text-sm text-ink">role</code>+<code class="font-mono text-sm text-ink"
+      >name</code
+    >, <code class="font-mono text-sm text-ink">label</code> and
+    <code class="font-mono text-sm text-ink">placeholder</code> match the whole string, case-sensitively.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">
+      <code class="font-mono text-sm">role</code>, <code class="font-mono text-sm">label</code>,
+      <code class="font-mono text-sm">placeholder</code> and <code class="font-mono text-sm"
+        >testid</code
+      > cannot be used inside <code class="font-mono text-sm">span:</code> or
+      <code class="font-mono text-sm">within:</code>.</span
+    > The browser resolves them before the page is searched, so there is nothing for a nested one to narrow.
+    Use <code class="font-mono text-sm text-ink">css</code>,
+    <code class="font-mono text-sm text-ink">text</code>,
+    <code class="font-mono text-sm text-ink">startsWith</code> or
+    <code class="font-mono text-sm text-ink">contains</code> there.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Filters</h2>
+  <DocTable
+    head={['Key', 'Keeps elements that…']}
+    rows={[
+      ['<code>contains</code>', 'contain this text'],
+      ['<code>containingAll</code>', 'contain all of these strings'],
+      ['<code>matching</code>', 'have text matching this regular expression'],
+      [
+        '<code>maxChildren</code> / <code>minChildren</code>',
+        'have at most / at least this many children',
+      ],
+      ['<code>minWidth</code> <code>maxWidth</code>', 'are within these widths'],
+      ['<code>minHeight</code> <code>maxHeight</code>', 'are within these heights'],
+      ['<code>narrowerThan</code> / <code>widerThan</code>', 'are narrower / wider than this'],
+      ['<code>visible</code>', 'have a non-zero size'],
+      ['<code>within</code>', 'sit inside an already-resolved mark'],
+    ]}
+  />
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    Sizes take pixels (<code class="font-mono text-sm text-ink">400</code>) or viewport units (<code
+      class="font-mono text-sm text-ink">95vw</code
+    >, <code class="font-mono text-sm text-ink">50vh</code>).
+    <code class="font-mono text-sm text-ink">matching</code> is a regular expression run inside the page,
+    so one that backtracks is bounded by
+    <code class="font-mono text-sm text-ink">site.timeout</code> rather than hanging the run.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Traversal</h2>
+  <DocTable
+    head={['Key', 'Moves to']}
+    rows={[
+      ['<code>ancestor</code>', 'The first ancestor matching the filters given'],
+      ['<code>parent</code>', 'The parent element'],
+      ['<code>child: n</code>', 'The nth child; <code>-1</code> is the last one'],
+      ['<code>children</code>', 'All children'],
+    ]}
+  />
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    <code class="font-mono text-sm text-ink">ancestor</code> climbs from the element's parent — an element
+    is never its own ancestor, so a box that already fits the filters is not the answer. It takes <code
+      class="font-mono text-sm text-ink">pick: nearest</code
+    > (default) or
+    <code class="font-mono text-sm text-ink">pick: outermost</code>; outermost keeps climbing while
+    the parent also matches, which is how you reach a modal's card rather than stopping at the
+    heading inside it.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Selection and shape</h2>
+  <DocTable
+    head={['Key', 'Effect']}
+    rows={[
+      ['<code>pick: first | last | smallest | largest</code>', 'Which candidate to use'],
+      ['<code>nth: n</code>', 'The candidate at this position; <code>-1</code> is the last'],
+      ['<code>pad: n</code>', 'Grow the resulting box on all sides'],
+      ['<code>grow: { top, right, bottom, left }</code>', 'Grow it on specific sides'],
+      ['<code>span: [query, query]</code>', 'The bounding box of several queries'],
+      ['<code>rect: [x, y, width, height]</code>', 'A literal box, for recipes with no page'],
+    ]}
+  />
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    <code class="font-mono text-sm text-ink">nth</code> and
+    <code class="font-mono text-sm text-ink">child</code> count from the end when the number is negative,
+    the way <code class="font-mono text-sm text-ink">Array.at</code> does:
+    <code class="font-mono text-sm text-ink">-1</code> is the last,
+    <code class="font-mono text-sm text-ink">-2</code> the one before it.
+    <code class="font-mono text-sm text-ink">pad</code> and
+    <code class="font-mono text-sm text-ink">grow</code> add room around a box and cannot be negative.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Two queries worth knowing</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">
+      <code class="font-mono text-sm">pick: smallest</code> is what makes "the row containing X" work.</span
+    > Every ancestor of the row also contains the text, right up to the body — without it you clip the
+    whole page.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={row} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <p class="mt-8 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">
+      <code class="font-mono text-sm">ancestor</code> with <code class="font-mono text-sm"
+        >pick: outermost</code
+      > reaches a card inside an overlay.</span
+    > The width filter is doing real work: it is what separates the dialog's card from the full-screen
+    backdrop behind it, which also contains the heading.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={panel} file="screenshots/recipes/edit-order.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Finders</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    When the same shape appears in three recipes, name it once. A finder lives in the config and is
+    called by name; <code class="font-mono text-sm text-ink">$1</code>,
+    <code class="font-mono text-sm text-ink">$2</code> are the arguments. A project's recipes should read
+    like the product, not like CSS.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={finders} file="shotlist.config.yaml" />
+  </div>
+  <div class="mt-4">
+    <RecipeCard code={finderUse} file="screenshots/recipes/order-row.yaml" />
+  </div>
+</Docs>

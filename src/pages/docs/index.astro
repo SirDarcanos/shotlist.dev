@@ -1,0 +1,59 @@
+---
+import Docs from '../../layouts/Docs.astro'
+import RecipeCard from '../../components/RecipeCard.astro'
+import { minimalRecipe, configExample } from '../../lib/recipes'
+---
+
+<Docs
+  title="Introduction"
+  description="What shotlist is, what a recipe looks like, and how a screenshot is produced from one."
+>
+  <h1 class="text-4xl font-extrabold">Introduction</h1>
+
+  <p class="mt-6 text-lg leading-relaxed text-(--muted)">
+    shotlist takes annotated UI screenshots. It drives a running site with Playwright, clips a
+    region, draws callouts on it, and writes the image where the project asks.
+  </p>
+
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    Each screenshot is a YAML recipe. What the screenshots are for — a handbook, a landing page, a
+    release post, a store listing — is not the tool's concern, and nothing in it assumes one of
+    them.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">A recipe</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    A recipe names the region to capture, the regions inside it worth pointing at, and what to draw
+    on those. Everything else has a default.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={minimalRecipe} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">A project's config</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    One <code class="font-mono text-sm text-ink">shotlist.config.yaml</code> in the project root says
+    where the site runs and where images are installed. Every drawing constant — colour, stroke, radius,
+    font — is configurable here too, with a neutral default.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={configExample} file="shotlist.config.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">The rule everything serves</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    A recipe is data. Nothing in it runs — there is no step that evaluates JavaScript, and there
+    will not be one. That keeps a recipe readable by anyone, and keeps a broken screenshot fixable
+    by anyone.
+  </p>
+
+  <div class="mt-14 rounded-lg border border-(--rule-strong) bg-(--wash) p-6">
+    <p class="leading-relaxed text-(--muted)">
+      <span class="font-medium text-ink">Next:</span>
+      <a class="text-mark underline underline-offset-2" href="/docs/install">Install</a> and a first recipe,
+      then
+      <a class="text-mark underline underline-offset-2" href="/docs/config">Configuration</a> for every
+      key a project sets.
+    </p>
+  </div>
+</Docs>

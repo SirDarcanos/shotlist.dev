@@ -1,0 +1,97 @@
+---
+import Base from './Base.astro'
+
+interface Props {
+  title: string
+  description: string
+}
+
+const { title, description } = Astro.props
+const path = Astro.url.pathname
+
+/**
+ * The whole reference, in reading order.
+ *
+ * Flat on purpose: this is one document in eleven parts, not a manual with sections. If
+ * it ever stops being that, the shape here is what tells us.
+ *
+ * `ready: false` renders the entry without a link. The shape of the finished reference is
+ * worth showing early; sending a reader to a 404 to show it is not.
+ */
+const sections = [
+  {
+    label: 'Start',
+    items: [
+      { href: '/docs', label: 'Introduction', ready: true },
+      { href: '/docs/install', label: 'Install', ready: true },
+      { href: '/docs/config', label: 'Configuration', ready: true },
+    ],
+  },
+  {
+    label: 'Reference',
+    items: [
+      { href: '/docs/recipes', label: 'Recipes', ready: true },
+      { href: '/docs/steps', label: 'Steps', ready: true },
+      { href: '/docs/queries', label: 'Queries', ready: true },
+      { href: '/docs/callouts', label: 'Callouts', ready: true },
+      { href: '/docs/macros', label: 'Macros and data', ready: true },
+    ],
+  },
+  {
+    label: 'Running it',
+    items: [
+      { href: '/docs/cli', label: 'CLI', ready: true },
+      { href: '/docs/check', label: 'Checking for staleness', ready: true },
+      { href: '/docs/security', label: 'What a config can do', ready: true },
+    ],
+  },
+]
+---
+
+<Base title={title} description={description}>
+  <div
+    class="mx-auto max-w-6xl gap-12 px-6 py-12 lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:py-16"
+  >
+    <nav class="mb-12 lg:sticky lg:top-28 lg:mb-0 lg:self-start" aria-label="Documentation">
+      {
+        sections.map((section) => (
+          <div class="mb-7">
+            <p class="mb-3 font-mono text-[0.6875rem] tracking-wider text-(--muted) uppercase">
+              {section.label}
+            </p>
+            <ul class="space-y-2 text-sm">
+              {section.items.map((item) =>
+                item.ready ? (
+                  <li>
+                    <a
+                      href={item.href}
+                      aria-current={path === item.href ? 'page' : undefined}
+                      class:list={[
+                        'block border-l-2 py-0.5 pl-3 transition-colors',
+                        path === item.href
+                          ? 'border-mark font-medium text-mark'
+                          : 'border-(--rule) text-(--muted) hover:border-(--rule-strong) hover:text-ink',
+                      ]}
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ) : (
+                  <li>
+                    <span class="block cursor-default border-l-2 border-(--rule) py-0.5 pl-3 text-(--muted) opacity-45">
+                      {item.label}
+                    </span>
+                  </li>
+                ),
+              )}
+            </ul>
+          </div>
+        ))
+      }
+    </nav>
+
+    <article class="min-w-0 max-w-2xl">
+      <slot />
+    </article>
+  </div>
+</Base>

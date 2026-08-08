@@ -1,0 +1,61 @@
+---
+import { SEO } from 'astro-seo'
+import Nav from '../components/Nav.astro'
+import Footer from '../components/Footer.astro'
+import '../styles/global.css'
+
+interface Props {
+  title: string
+  description: string
+  /** Appended to the site name in the tab, unless this page is the site's front door. */
+  bare?: boolean
+}
+
+const { title, description, bare = false } = Astro.props
+const canonical = new URL(Astro.url.pathname, Astro.site).href
+const fullTitle = bare ? title : `${title} — shotlist`
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#FAF8F5" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=Inter:wght@400..600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+
+    {
+      /*
+      No `openGraph` block yet: it requires an image, and pointing at one that does not
+      exist is worse than omitting it. The card is a screenshot, so it is a recipe — it
+      lands when the site starts shooting itself.
+    */
+    }
+    <SEO
+      title={fullTitle}
+      description={description}
+      canonical={canonical}
+      twitter={{ card: 'summary', title: fullTitle, description }}
+    />
+  </head>
+
+  <body class="min-h-screen antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"
+    >
+      Skip to content
+    </a>
+    <Nav />
+    <main id="main"><slot /></main>
+    <Footer />
+  </body>
+</html>

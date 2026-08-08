@@ -1,0 +1,132 @@
+---
+import Docs from '../../layouts/Docs.astro'
+import DocTable from '../../components/DocTable.astro'
+import RecipeCard from '../../components/RecipeCard.astro'
+
+const annotated = `name: billing-settings
+source: file
+file: captures/billing-settings.png
+install: guide
+
+marks:
+  plan: { rect: [866, 874, 150, 50] }
+
+callouts:
+  - { mark: plan, text: The current plan, place: top }`
+
+const failing = `  ✓ modal → screenshots/out/modal.png
+  ✗ recipe "order-row": marks.amount — no element matched {"css":".amount"}
+1 of 2 failed: order-row`
+
+const retries = `name: order-row
+retries: 2 # three attempts in all`
+---
+
+<Docs
+  title="Recipes"
+  description="Every field of a recipe, annotating an existing PNG, and what happens when a shot fails."
+>
+  <h1 class="text-4xl font-extrabold">Recipes</h1>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    One YAML file per screenshot, in <code class="font-mono text-sm text-ink">paths.recipes</code>.
+    The filename is the recipe's name unless <code class="font-mono text-sm text-ink">name:</code> says
+    otherwise.
+  </p>
+
+  <DocTable
+    head={['Field', 'Default', 'What it does']}
+    rows={[
+      ['<code>name</code>', 'filename', 'Output filename, without the extension'],
+      [
+        '<code>source</code>',
+        '<code>app</code>',
+        '<code>app</code> drives the site; <code>file</code> annotates an existing PNG',
+      ],
+      ['<code>file</code>', '—', 'The PNG to annotate, with <code>source: file</code>'],
+      ['<code>install</code>', '—', 'Which named destination to copy to'],
+      ['<code>url</code>', '<code>site.url</code>', 'Page to open for this recipe'],
+      ['<code>viewport</code>', "site's", 'Viewport for this recipe'],
+      ['<code>scale</code>', "site's", 'Device pixel ratio for this recipe'],
+      ['<code>theme</code>', "site's", 'Colour scheme for this recipe'],
+      ['<code>style</code>', '—', 'Style overrides for this recipe'],
+      [
+        '<code>setup</code>',
+        '<code>[]</code>',
+        'Steps that drive the site into the state to capture',
+      ],
+      [
+        '<code>clip</code>',
+        '<code>viewport</code>',
+        'The region to capture: <code>viewport</code>, <code>full</code>, or a query',
+      ],
+      [
+        '<code>marks</code>',
+        '<code>{}</code>',
+        'Named regions, resolved after <code>setup</code> runs',
+      ],
+      [
+        '<code>mask</code>',
+        '<code>[]</code>',
+        'Regions painted over before the callouts are drawn',
+      ],
+      ['<code>callouts</code>', '<code>[]</code>', 'What to draw on those marks'],
+      ['<code>numbered</code>', '—', 'Marks to number 1…n with a disc, in the order given'],
+      [
+        '<code>retries</code>',
+        '<code>0</code>',
+        'How many times to shoot this again if it fails, up to 5',
+      ],
+      [
+        '<code>check</code>',
+        "project's",
+        "This recipe's <code>--check</code> limits and <code>ignore</code>, or <code>false</code>",
+      ],
+    ]}
+  />
+
+  <h2 class="mt-14 text-2xl font-bold">Annotating an existing image</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    For screens a script cannot reach — anything behind a sign-in you cannot automate, or a browser
+    extension's UI — point a recipe at a PNG. Callouts, style and install work the same way.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    There is no page to query, so marks are literal rectangles measured off the image:
+    <code class="font-mono text-sm text-ink">[x, y, width, height]</code> in image pixels.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={annotated} file="screenshots/recipes/billing-settings.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">When a shot fails</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    A run stops at the first recipe that fails, and says which recipe and which key in it could not
+    be resolved. <code class="font-mono text-sm text-ink">--keep-going</code> shoots the rest instead,
+    prints each failure as it happens, and names them all at the end.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={failing} lang="bash" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    Either way the exit code is non-zero, so CI still fails.
+    <code class="font-mono text-sm text-ink">--keep-going</code> works the same way with
+    <code class="font-mono text-sm text-ink">--check</code>, where a recipe that could not be shot
+    is reported <code class="font-mono text-sm text-ink">FAILED</code> alongside the ones that diffed.
+  </p>
+
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    A capture drives a real application, so some failures are gone a second later — an element that
+    had not rendered, a request that had not landed.
+    <code class="font-mono text-sm text-ink">retries</code> says a recipe is one of those.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={retries} file="screenshots/recipes/order-row.yaml" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    Each attempt is a fresh browser context, and the run reports the ones that failed while it is
+    still going rather than after the fact. A <code class="font-mono text-sm text-ink"
+      >source: file</code
+    > recipe never retries: it has no page to be flaky about, so shooting it again would only report the
+    same mistake more slowly.
+  </p>
+</Docs>

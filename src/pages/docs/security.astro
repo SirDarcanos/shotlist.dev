@@ -1,0 +1,177 @@
+---
+import Docs from '../../layouts/Docs.astro'
+import DocTable from '../../components/DocTable.astro'
+import RecipeCard from '../../components/RecipeCard.astro'
+
+const allow = `site:
+  url: https://rollful.dev/
+  allow: [accounts.google.com] # a sign-in the flow passes through`
+
+const untrusted = `npx shotlist --check --untrusted # or SHOTLIST_UNTRUSTED=1`
+
+const granted = `npx shotlist --check --untrusted --allow docs.example.com --allow-path /srv/shared`
+
+const deny = `deny:
+  - fake-secret # a folder, and everything under it
+  - '*.sqlite' # a file`
+
+const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path — contact the administrator`
+---
+
+<Docs
+  title="What a config can do"
+  description="What a shotlist.config.yaml is allowed to do to the machine that runs it, at a desk and in automation."
+>
+  <h1 class="text-4xl font-extrabold">What a config can do to the machine that runs it</h1>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    A <code class="font-mono text-sm text-ink">shotlist.config.yaml</code> is a file in a repository,
+    and whether that is fine depends on <span class="font-medium text-ink">whose repository</span>.
+    There are two answers, and most of the fence is up in both.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">A shot list covers its own site — always</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    <code class="font-mono text-sm text-ink">site.url</code> decides what a run may open: that host and
+    everything under it. With
+    <code class="font-mono text-sm text-ink">site.url: https://rollful.dev/</code>, a recipe may
+    shoot <code class="font-mono text-sm text-ink">rollful.dev/docs</code> and
+    <code class="font-mono text-sm text-ink">api.rollful.dev</code>, and is refused
+    <code class="font-mono text-sm text-ink">google.com</code>. A
+    <code class="font-mono text-sm text-ink">www.</code> host covers its apex too. There is no flag to
+    set — wandering off the site is a mistake far more often than an intention.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={allow} file="shotlist.config.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Some names are never touched — always</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    Whatever the mode, shotlist will not read or write a path that goes through any of these — on
+    disk, or in the path of a URL.
+  </p>
+  <DocTable
+    head={['', '']}
+    rows={[
+      ['<code>.env</code>, <code>.env.anything</code>', '<code>.git</code>'],
+      [
+        '<code>.ssh</code>, <code>.gnupg</code>, <code>.aws</code>',
+        '<code>.npmrc</code>, <code>.netrc</code>, <code>.htpasswd</code>',
+      ],
+      [
+        '<code>credentials</code>',
+        '<code>id_rsa</code>, <code>id_ed25519</code>, … (and <code>.pub</code>)',
+      ],
+      [
+        '<code>*.pem</code>, <code>*.key</code>, <code>*.p12</code>, <code>*.pfx</code>',
+        '<code>*.keystore</code>, <code>*.jks</code>',
+      ],
+    ]}
+  />
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    This is not about trust: a config you wrote has no reason to read your keys either, and a typo
+    in an <code class="font-mono text-sm text-ink">install</code> destination should not be able to write
+    into <code class="font-mono text-sm text-ink">.git</code>. There is no flag to turn it off.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Names your project puts out of bounds</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    Set shotlist up, decide <code class="font-mono text-sm text-ink">/fake-secret</code> is nobody's screenshot,
+    and say so once.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={deny} file="shotlist.config.yaml" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    Someone who later writes a recipe for it is told, and told who to ask:
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={refusal} lang="bash" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    Each entry matches <span class="font-medium text-ink">one segment of a path</span>, with
+    <code class="font-mono text-sm text-ink">*</code> standing for any run of characters — so a folder
+    name stops everything under it, and
+    <code class="font-mono text-sm text-ink">*.sqlite</code> stops a file wherever it sits. It is checked
+    against filesystem paths and URL paths alike.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">Three places can set it, and they are not equivalent.</span>
+    <code class="font-mono text-sm text-ink">deny:</code> in the config is the project's own declaration
+    — visible to everyone, and editable by anyone who can edit the config.
+    <code class="font-mono text-sm text-ink">--deny</code> belongs to whoever runs the command.
+    <code class="font-mono text-sm text-ink">SHOTLIST_DENY</code> — a list separated by commas or colons
+    — belongs to whoever set the machine or the CI image up, and is the one a recipe author cannot edit
+    their way out of. All three add up, and none of them can subtract.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">
+    <code class="font-mono">--untrusted</code>, for a config you did not write
+  </h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    In automation the config may not be yours. A pull request from a fork can edit it, and the
+    runner it lands on has your credentials, your network, and other people's work on it. A service
+    shooting what strangers submit is the same problem louder.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={untrusted} lang="bash" />
+  </div>
+
+  <DocTable
+    head={['', 'default', '--untrusted']}
+    rows={[
+      ['<code>site.serve</code> starts a process', 'yes', '<strong>refused</strong>'],
+      ['opens <code>file:</code> and <code>data:</code> URLs', 'yes', '<strong>refused</strong>'],
+      [
+        'opens localhost, 10/8, 192.168, 169.254, cloud metadata',
+        'yes',
+        '<strong>refused</strong>',
+      ],
+      ['reads or writes outside the project', 'yes', '<strong>refused</strong>'],
+      ['<code>site.allow</code> widens the scope', 'yes', '<strong>ignored</strong>'],
+    ]}
+  />
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    That last row is the point of the flag: <code class="font-mono text-sm text-ink"
+      >site.allow</code
+    > is a claim by the thing you are distrusting. What the operator typed still counts, and outlives
+    it.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={granted} lang="bash" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    Both are repeatable. Neither can be set from the config, because
+    <span class="font-medium text-ink">a control the config can switch off is not a control.</span>
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">What is true whatever the mode</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    A config cannot run code. There is no <code class="font-mono text-sm text-ink">eval:</code> step and
+    no way to reach one; queries travel into the page as data, never as source, so a malformed selector
+    is a <code class="font-mono text-sm text-ink">SyntaxError</code> rather than an execution.
+    <code class="font-mono text-sm text-ink">site.serve</code> runs a program directly with no shell.
+    And a run cannot be made to hang: <code class="font-mono text-sm text-ink">site.timeout</code> bounds
+    how long a query may take, viewport and scale are held to what a browser can paint, and
+    <code class="font-mono text-sm text-ink">retries</code> and
+    <code class="font-mono text-sm text-ink">repeat</code> are capped.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">What none of it does</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    The host check reads the name out of the URL. It cannot see that a name you allowed resolves to
+    an address it would have refused, so a determined DNS rebind gets through: it is a fence, not a
+    boundary. If you shoot what strangers submit, put the runner where it cannot reach anything it
+    should not, and rate-limit it — a run is one browser and amplifies nothing, but an open one is
+    still traffic you are sending.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">shotlist has no database and issues no SQL</span>, so there
+    is nothing in it to inject into. It does have a browser. A recipe is a script that types into
+    whatever it is pointed at, so a hosted instance that lets a stranger choose both the target and
+    the keystrokes is a proxy for anything a browser can do to that target — SQL injection through
+    somebody else's form included. The site scope is what keeps a submitted recipe aimed at the site
+    it came with.
+  </p>
+</Docs>

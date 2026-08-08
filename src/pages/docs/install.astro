@@ -1,0 +1,55 @@
+---
+import Docs from '../../layouts/Docs.astro'
+import RecipeCard from '../../components/RecipeCard.astro'
+
+const install = `npm i -D shotlist playwright`
+
+const scaffold = `npx shotlist --init`
+
+const first = `npx shotlist example`
+---
+
+<Docs
+  title="Install"
+  description="Installing shotlist, why Playwright is a peer dependency, and scaffolding a first recipe."
+>
+  <h1 class="text-4xl font-extrabold">Install</h1>
+
+  <div class="mt-6">
+    <RecipeCard code={install} lang="bash" />
+  </div>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    Playwright is an optional peer dependency, and shotlist does not install it. Its postinstall
+    downloads browsers, and a project that only depends on shotlist should not pay for that on every
+    install. When it is missing, shotlist prints the command that fixes it.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">A first recipe</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    This writes a commented <code class="font-mono text-sm text-ink">shotlist.config.yaml</code> and a
+    first recipe to edit. Neither is overwritten, so it is safe to run in a project that already has some.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={scaffold} lang="bash" />
+  </div>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    Start the site the config points at, then shoot it:
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={first} lang="bash" />
+  </div>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    The image lands in <code class="font-mono text-sm text-ink">screenshots/out/</code>, and
+    <code class="font-mono text-sm text-ink">--install</code> copies it to the destination the recipe
+    names.
+  </p>
+
+  <p class="mt-10 leading-relaxed text-(--muted)">
+    Node 20 or newer. The recipe file carries a
+    <code class="font-mono text-sm text-ink">yaml-language-server</code> line, so an editor completes
+    and validates the keys from the JSON Schemas the package ships.
+  </p>
+</Docs>

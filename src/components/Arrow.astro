@@ -1,0 +1,19 @@
+---
+/**
+ * The block arrow shotlist draws — a rectangular shaft with a triangular head.
+ *
+ * Built the same way as the one in the package's drawing layer, but at proportions that
+ * survive being a handful of pixels wide. The real default head is 38px long against a
+ * 6px shaft, which at this size would leave almost no shaft at all — so the head is
+ * generous without going that far.
+ */
+interface Props {
+  class?: string
+}
+
+const { class: className = '' } = Astro.props
+---
+
+<svg viewBox="0 0 48 22" fill="none" aria-hidden="true" class={className}>
+  <path d="M0 8H26V0L48 11L26 22V14H0Z" fill="var(--color-mark)"></path>
+</svg>

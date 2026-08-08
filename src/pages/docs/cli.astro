@@ -1,0 +1,107 @@
+---
+import Docs from '../../layouts/Docs.astro'
+import RecipeCard from '../../components/RecipeCard.astro'
+
+const cli = `npx shotlist --init               # write a starter config and recipe
+npx shotlist                      # list every recipe
+npx shotlist <name> [<name>…]     # shoot into paths.out
+npx shotlist <name> --install     # …and copy to its install destination
+npx shotlist --all --install      # shoot everything
+npx shotlist --all --keep-going   # …carrying on past a recipe that fails
+npx shotlist --check              # compare against committed images
+npx shotlist --check <name>       # …just these ones
+npx shotlist --check --diff       # …and write a before/after/changed image
+npx shotlist --check --json       # …and report it as JSON on stdout
+npx shotlist --config <file>      # use a specific config
+npx shotlist --help               # the same list, from the tool
+npx shotlist --version            # print the version`
+
+const trust = `npx shotlist --check --untrusted        # the config is not yours
+npx shotlist --allow docs.example.com  # …and this host too; repeatable
+npx shotlist --allow-path /srv/shared  # …and this directory too; repeatable
+npx shotlist --deny fixtures           # never touch this name; repeatable`
+
+const api = `import { check, loadConfig, loadLibrary, shoot, withNumbering } from 'shotlist'
+
+const loaded = loadConfig()
+const { paths, finders } = loaded.config
+const library = loadLibrary({ ...paths, finders })
+
+const recipe = withNumbering(library.recipes.get('order-row')!)
+await shoot(recipe, library, loaded, { install: true })
+
+const results = await check([recipe], library, loaded)`
+
+const schema = `# yaml-language-server: $schema=../../node_modules/shotlist/dist/recipe.schema.json`
+
+const skill = `mkdir -p .claude/skills
+cp -R node_modules/shotlist/skills/shotlist .claude/skills/`
+---
+
+<Docs
+  title="CLI"
+  description="Every command and flag, using shotlist from code, and the editor and agent integrations."
+>
+  <h1 class="text-4xl font-extrabold">CLI</h1>
+
+  <div class="mt-6">
+    <RecipeCard code={cli} lang="bash" />
+  </div>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    It exits non-zero when anything failed, and names the recipe and the key inside it that could
+    not be resolved — <code class="font-mono text-sm text-ink"
+      >recipe "order-row": marks.amount — no element matched</code
+    >.
+  </p>
+
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    For a config that is not yours, and what an operator grants it — see
+    <a class="text-mark underline underline-offset-2" href="/docs/security">what a config can do</a
+    >.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={trust} lang="bash" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Using it from code</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    The command line is a thin wrapper. Everything it does is available directly.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={api} lang="ts" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    Pass a <code class="font-mono text-sm text-ink">browser</code> to
+    <code class="font-mono text-sm text-ink">shoot</code> to reuse one across many recipes; without it
+    each call launches and closes its own.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Editor support</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    The JSON Schemas ship with the package, generated from the same definitions that validate at run
+    time. Point at them for autocomplete and inline validation.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={schema} file="screenshots/recipes/order-row.yaml" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    <code class="font-mono text-sm text-ink">dist/schema.json</code> is the config,
+    <code class="font-mono text-sm text-ink">dist/macro.schema.json</code> is a macro.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Agent support</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    A skill for coding agents ships with the package. It covers what reference cannot: how to choose
+    a query that survives a redesign, which side of a mark a label belongs on, and what each error
+    means. Copy it into a project and an agent will pick it up.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={skill} lang="bash" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    It is Markdown with YAML frontmatter and nothing else, so any agent that reads instruction files
+    can use it — point yours at
+    <code class="font-mono text-sm text-ink">node_modules/shotlist/skills/shotlist/SKILL.md</code>.
+  </p>
+</Docs>

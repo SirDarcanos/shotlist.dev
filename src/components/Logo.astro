@@ -1,0 +1,27 @@
+---
+/**
+ * The icon: the callout box on its own.
+ *
+ * The rounded rectangle shotlist draws around a mark, closed, with no letter in it. The
+ * lockup in `Wordmark.astro` is the one that opens this edge, because there it has an s
+ * to open it for. Alone, a gap would read as a mistake.
+ *
+ * `public/favicon.svg` is this shape with literal hex — a favicon is loaded as an image
+ * and never sees the site's CSS variables. Keep the two in step.
+ */
+interface Props {
+  size?: number
+  /** For use inside a lockup that already names itself — the word carries the label. */
+  decorative?: boolean
+  class?: string
+}
+
+const { size = 28, decorative = false, class: className = '' } = Astro.props
+
+const labelling = decorative ? { 'aria-hidden': 'true' } : { role: 'img', 'aria-label': 'shotlist' }
+---
+
+<svg width={size} height={size} viewBox="0 0 40 40" fill="none" class={className} {...labelling}>
+  <rect x="2.5" y="2.5" width="35" height="35" rx="7" stroke="var(--color-mark)" stroke-width="5"
+  ></rect>
+</svg>

@@ -1,0 +1,36 @@
+---
+const year = 2026
+---
+
+<!--
+  Solid red, picking up where the section above lands. No top rule: the ground either side
+  of the join is the same colour, and a line across it would be the only thing marking a
+  seam that otherwise does not exist.
+-->
+<footer class="tone-red ground-red-deep">
+  <div
+    class="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-12 text-sm text-(--muted) sm:flex-row sm:items-center sm:justify-between"
+  >
+    <p>MIT © {year} Nicola Mustone. Built with Astro.</p>
+    <ul class="flex gap-6">
+      <li>
+        <!-- Hover lifts to full paper. `hover:text-mark` would erase the link. -->
+        <a
+          class="transition-colors hover:text-paper"
+          href="https://github.com/SirDarcanos/shotlist"
+          target="_blank"
+          rel="noopener noreferrer">GitHub</a
+        >
+      </li>
+      <li>
+        <a
+          class="transition-colors hover:text-paper"
+          href="https://www.npmjs.com/package/shotlist"
+          target="_blank"
+          rel="noopener noreferrer">npm</a
+        >
+      </li>
+      <li><a class="transition-colors hover:text-paper" href="/docs">Docs</a></li>
+    </ul>
+  </div>
+</footer>

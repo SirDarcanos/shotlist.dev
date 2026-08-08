@@ -1,0 +1,133 @@
+---
+import Docs from '../../layouts/Docs.astro'
+import RecipeCard from '../../components/RecipeCard.astro'
+
+const run = `npx shotlist --check`
+
+const diff = `  CHANGED  order-row — 2.13% of pixels differ
+           committed: content/guide/images/order-row.png
+           re-shot:   screenshots/out/order-row.png
+           diff:      screenshots/out/diff/order-row.png`
+
+const json = `{
+  "changed": 1,
+  "total": 2,
+  "drift": [{ "field": "chromium", "was": "141.0.0.0", "now": "139.0.0.0" }],
+  "results": [
+    {
+      "name": "order-row",
+      "status": "changed",
+      "ratio": 0.0213,
+      "shot": "screenshots/out/order-row.png",
+      "against": "content/guide/images/order-row.png",
+      "diff": "screenshots/out/diff/order-row.png"
+    }
+  ]
+}`
+
+const machine = `! this is not the machine the committed images were taken on:
+    chromium: 141.0.0.0 → 139.0.0.0
+    platform: darwin → linux
+  Differences below may be that, rather than the site.`
+
+const ignore = `name: roll-form
+clip: { css: '.card' }
+check:
+  ignore:
+    - { css: 'output#result' }`
+---
+
+<Docs
+  title="Checking for staleness"
+  description="Re-shooting against the committed images: diffs, JSON, the machine that took them, and a shot whose subject changes."
+>
+  <h1 class="text-4xl font-extrabold">Checking for staleness</h1>
+
+  <div class="mt-6">
+    <RecipeCard code={run} lang="bash" />
+  </div>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    Re-shoots every recipe and compares each against the committed image, reporting the ones that
+    changed. Exits non-zero if any did, so it can run in CI. A recipe that installs nowhere is
+    skipped: there is nothing to compare against.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Seeing what moved</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    A percentage says a shot moved; it does not say what moved, which is the thing you need before
+    deciding whether to bless it or fix it. <code class="font-mono text-sm text-ink">--diff</code> writes
+    a three-up into <code class="font-mono text-sm text-ink">&lt;paths.out&gt;/diff/</code> for each one
+    that did — the committed image, the re-shot one, and the re-shot one again with every changed pixel
+    tinted.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={diff} lang="bash" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    When the two are different sizes there is nothing to overlay, so the image is the two panels and
+    the size change is the whole story.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Reporting it to something other than a person</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    <code class="font-mono text-sm text-ink">--json</code> puts the report on stdout and moves everything
+    written for a person to stderr, which is what makes
+    <code class="font-mono text-sm text-ink">--check --json &gt; report.json</code> leave a usable file.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={json} lang="ts" file="report.json" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    <code class="font-mono text-sm text-ink">status</code> is one of
+    <code class="font-mono text-sm text-ink">same</code>,
+    <code class="font-mono text-sm text-ink">changed</code>,
+    <code class="font-mono text-sm text-ink">new</code>,
+    <code class="font-mono text-sm text-ink">skipped</code> or
+    <code class="font-mono text-sm text-ink">failed</code>, and
+    <code class="font-mono text-sm text-ink">drift</code> is what the machine-mismatch warning would have
+    said — so a job can tell a re-render apart from a regression without parsing prose.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">What the images were taken with</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    <code class="font-mono text-sm text-ink">--install</code> writes
+    <code class="font-mono text-sm text-ink">shotlist.baseline.json</code> beside the config, recording
+    the shotlist, Playwright and Chromium versions and the platform. Commit it with the images.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    A different Chromium rasterises text differently, and a different platform has different faces
+    to rasterise — either moves pixels without the site moving at all. When
+    <code class="font-mono text-sm text-ink">--check</code> runs somewhere else, it says so before the
+    results, so a difference is not read as a regression that was never there.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={machine} lang="bash" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">A shot whose subject is what changes</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    <a class="text-mark underline underline-offset-2" href="/docs/callouts#masking">Masking</a> hides
+    a region in the image. When the region has to <em>stay</em> in the image — the result of a roll, a
+    live figure the screenshot is about — <code class="font-mono text-sm text-ink"
+      >check.ignore</code
+    > shoots it as it is and leaves its contents out of the comparison instead.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={ignore} file="screenshots/recipes/roll-form.yaml" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">Only the contents are excused, not the geometry.</span> The region
+    is blanked where it resolves to <em>now</em>, in both images — so if the box moves or changes
+    size, what it used to cover is still compared, and the difference is reported. A shot whose
+    widget renders nothing at all fails outright, because the query matches nothing. That is the
+    assertion
+    <code class="font-mono text-sm text-ink">check: false</code> gives up: it says the shot still works,
+    without saying anything about what is inside.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    A result that skipped something says so — <code class="font-mono text-sm text-ink"
+      >same order-row (1 region not compared)</code
+    > — so a pass is not read as covering the whole image.
+  </p>
+</Docs>

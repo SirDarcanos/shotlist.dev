@@ -1,0 +1,44 @@
+---
+// Scratch page for judging the marks at several sizes. Delete once they are settled.
+import Logo from '../components/Logo.astro'
+import Wordmark from '../components/Wordmark.astro'
+import '../styles/global.css'
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>logo proof</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=Inter:wght@400..600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+  </head>
+  <body class="bg-paper p-10">
+    <p class="mb-5 font-mono text-xs text-(--muted)">wordmark</p>
+    <div class="flex flex-col items-start gap-7">
+      <Wordmark size={72} />
+      <Wordmark size={40} />
+      <Wordmark size={26} />
+      <Wordmark size={18} />
+      <Wordmark size={14} />
+    </div>
+
+    <p class="mt-14 mb-5 font-mono text-xs text-(--muted)">icon / favicon</p>
+    <div class="flex flex-wrap items-end gap-8">
+      <Logo size={96} />
+      <Logo size={48} />
+      <Logo size={32} />
+      <Logo size={16} />
+    </div>
+
+    <p class="mt-14 mb-5 font-mono text-xs text-(--muted)">on white</p>
+    <div class="flex w-fit items-center gap-10 bg-white p-8">
+      <Wordmark size={40} />
+      <Logo size={40} />
+    </div>
+  </body>
+</html>

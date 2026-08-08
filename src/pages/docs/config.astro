@@ -1,0 +1,188 @@
+---
+import Docs from '../../layouts/Docs.astro'
+import DocTable from '../../components/DocTable.astro'
+import RecipeCard from '../../components/RecipeCard.astro'
+
+const serve = `site:
+  url: http://localhost:3000
+  serve: npm run dev`
+
+const serveLong = `site:
+  serve:
+    command: npm run dev
+    ready: 3000 # a http(s) URL, a port, or { log: <pattern> }
+    cwd: apps/web # resolved from the config file's directory
+    env: { PORT: '3000' }
+    timeout: 30000`
+
+const style = `style:
+  color: '#DC2626' # boxes, arrows, discs
+  canvas: '#FFFFFF' # fills space added around the image for labels
+  box: { width: 6, radius: 10, pad: 8 }
+  arrow: { shaft: 6, headHalf: 19, headLength: 38 }
+  label:
+    font: 'Arial, Helvetica, sans-serif'
+    weight: 700
+    size: 44
+    fill: '#FFFFFF' # glyph fill
+    stroke: '#DC2626' # outline around the glyphs; defaults to \`color\`
+    strokeWidth: 6 # centred on the outline, so half is under the fill
+    gap: 40 # distance from the box
+    fontUrl: # optional stylesheet to load before drawing
+  number:
+    radius: 26
+    size: 40
+    fill: '#DC2626' # the disc; defaults to \`color\`
+    text: '#FFFFFF' # the numeral
+  mask:
+    fill: '#94A3B8' # what a masked region is painted with`
+
+const font = `style:
+  label:
+    fontUrl: https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap
+    font: 'Inter, Arial, sans-serif'`
+---
+
+<Docs
+  title="Configuration"
+  description="Every key in shotlist.config.yaml: where the site is, how it is started, and every drawing constant."
+>
+  <h1 class="text-4xl font-extrabold">Configuration</h1>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    One <code class="font-mono text-sm text-ink">shotlist.config.yaml</code> in the project root. Every
+    path in it resolves from its own directory, not from wherever the command was run.
+  </p>
+
+  <DocTable
+    head={['Key', 'Default', 'What it sets']}
+    rows={[
+      ['<code>site.url</code>', 'required', 'Where the site is running'],
+      [
+        '<code>site.serve</code>',
+        '—',
+        'Command that starts the site, when nothing answers at <code>site.url</code>',
+      ],
+      [
+        '<code>site.allow</code>',
+        '<code>[]</code>',
+        "Hosts a shot may open besides this site's own and everything under it",
+      ],
+      ['<code>site.viewport</code>', '<code>1280 × 800</code>', 'Browser size'],
+      ['<code>site.scale</code>', '<code>2</code>', 'Device pixel ratio; <code>2</code> is Retina'],
+      [
+        '<code>site.theme</code>',
+        '<code>light</code>',
+        '<code>light</code>, <code>dark</code> or <code>no-preference</code>',
+      ],
+      ['<code>site.reducedMotion</code>', '<code>true</code>', 'Disables animation before capture'],
+      ['<code>site.ready</code>', '—', 'Selector waited for after each navigation'],
+      [
+        '<code>site.settle</code>',
+        '<code>0</code>',
+        'Extra milliseconds to wait after <code>ready</code>',
+      ],
+      ['<code>site.timeout</code>', '<code>15000</code>', 'How long a step or a query may take'],
+      ['<code>paths.recipes</code>', '<code>screenshots/recipes</code>', 'Where recipes live'],
+      ['<code>paths.macros</code>', '<code>screenshots/macros</code>', 'Where macros live'],
+      ['<code>paths.data</code>', '<code>screenshots/data</code>', 'Where data files live'],
+      ['<code>paths.out</code>', '<code>screenshots/out</code>', 'Where images are written'],
+      ['<code>install</code>', '<code>{}</code>', 'Named destinations a recipe refers to by name'],
+      [
+        '<code>deny</code>',
+        '<code>[]</code>',
+        'File or folder names this project will not have read, written or opened',
+      ],
+      ['<code>finders</code>', '<code>{}</code>', 'Named query aliases'],
+      [
+        '<code>check.threshold</code>',
+        '<code>0.002</code>',
+        'Fraction of pixels that may differ before a shot counts as changed',
+      ],
+      [
+        '<code>check.tolerance</code>',
+        '<code>8</code>',
+        'How far one channel may move, out of 255, before a pixel differs',
+      ],
+    ]}
+  />
+
+  <h2 class="mt-14 text-2xl font-bold">Starting the site</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    shotlist expects the site at <code class="font-mono text-sm text-ink">site.url</code> to be running.
+    <code class="font-mono text-sm text-ink">serve</code> lets a run start it.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={serve} file="shotlist.config.yaml" />
+  </div>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">A server already up is used as it is.</span> shotlist fetches
+    <code class="font-mono text-sm text-ink">site.url</code> first and starts nothing when something answers,
+    so this can stay in the config while you write recipes with the dev server open in another terminal.
+    CI, where nothing is listening, is where it actually launches one.
+  </p>
+
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    What a run starts, it stops — including on Ctrl-C. The command runs in its own process group,
+    because <code class="font-mono text-sm text-ink">npm run dev</code> is npm, which spawns the server:
+    signalling only the process shotlist launched would leave the one holding the port.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={serveLong} file="shotlist.config.yaml" />
+  </div>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    <code class="font-mono text-sm text-ink">ready</code> is what proves the server is up, and defaults
+    to fetching <code class="font-mono text-sm text-ink">site.url</code>. A URL is ready on any
+    response at all, including a 404: that something answered is the question, not what it said. A
+    port is ready when it accepts a connection, and
+    <code class="font-mono text-sm text-ink">{'{ log: … }'}</code> when the pattern matches the server's
+    output.
+  </p>
+
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">There is no shell.</span> The command is run directly, so
+    <code class="font-mono text-sm text-ink">&amp;&amp;</code>,
+    <code class="font-mono text-sm text-ink">|</code>, <code class="font-mono text-sm text-ink">
+      &gt;</code
+    > and a <code class="font-mono text-sm text-ink">VAR=value</code> prefix are refused rather than half-understood
+    — environment goes under <code class="font-mono text-sm text-ink">env:</code>, and anything
+    needing a shell goes in a script you run instead. A run of only
+    <code class="font-mono text-sm text-ink">source: file</code> recipes never opens the site, and does
+    not start one.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Style</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    Every drawing constant is configurable, and a recipe may override any of them under its own
+    <code class="font-mono text-sm text-ink">style:</code> key. Sizes are in image pixels, so they do
+    not change when <code class="font-mono text-sm text-ink">scale</code> does. These are the defaults.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={style} file="shotlist.config.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Fonts</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    A font has to be resolvable by the browser doing the drawing, which by default means installed
+    on the machine. A family that is not installed <span class="font-medium text-ink">
+      falls back silently</span
+    > — every label renders in another typeface with nothing to say so. shotlist measures the rendered
+    text to catch that and warns. It is a warning rather than an error: a fallback still produces an image,
+    and which faces a machine has is not something a recipe can know.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    To use a font that is not installed, give <code class="font-mono text-sm text-ink">fontUrl</code
+    > a stylesheet. It is fetched when the callouts are drawn, so this needs network access at shoot time.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={font} file="shotlist.config.yaml" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    <code class="font-mono text-sm text-ink">strokeWidth</code> is centred on the glyph outline, so half
+    of it is painted under the fill. A 6-pixel stroke reads as a 3-pixel outline; tools that draw the
+    stroke entirely outside need roughly double the number here to match.
+  </p>
+</Docs>

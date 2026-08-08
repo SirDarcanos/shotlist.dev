@@ -1,0 +1,52 @@
+---
+/**
+ * A reference table.
+ *
+ * Cells are written as HTML so a key can carry `<code>` without every page repeating the
+ * markup for it. The content is authored here, never supplied by a reader.
+ */
+interface Props {
+  head: string[]
+  rows: string[][]
+  class?: string
+}
+
+const { head, rows, class: className = '' } = Astro.props
+---
+
+<!-- Scrolls itself rather than pushing the page sideways on a narrow screen. -->
+<div class:list={['mt-6 overflow-x-auto', className]}>
+  <table class="w-full min-w-lg border-collapse text-left text-sm">
+    <thead>
+      <tr class="border-b border-(--rule-strong)">
+        {
+          head.map((cell) => (
+            <th class="py-2 pr-6 font-mono text-[0.6875rem] tracking-wider text-(--muted) uppercase">
+              {cell}
+            </th>
+          ))
+        }
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row) => (
+          <tr class="border-b border-(--rule) last:border-0">
+            {row.map((cell) => (
+              <td class="py-2.5 pr-6 align-top leading-relaxed text-(--muted)" set:html={cell} />
+            ))}
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+
+<style>
+  /* Keys and values are the vocabulary these tables are about. */
+  td :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-ink);
+  }
+</style>

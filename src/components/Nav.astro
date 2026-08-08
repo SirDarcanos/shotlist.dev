@@ -1,0 +1,43 @@
+---
+import Wordmark from './Wordmark.astro'
+
+const links = [
+  { href: '/docs', label: 'Docs' },
+  { href: 'https://www.npmjs.com/package/shotlist', label: 'npm', external: true },
+  { href: 'https://github.com/SirDarcanos/shotlist', label: 'GitHub', external: true },
+]
+
+const path = Astro.url.pathname
+---
+
+<header class="sticky top-0 z-40 border-b border-(--rule) bg-paper/85 backdrop-blur-sm">
+  <nav
+    class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-6"
+    aria-label="Main"
+  >
+    <a href="/" class="flex items-center" aria-label="shotlist, home">
+      <Wordmark size={25} />
+    </a>
+
+    <ul class="flex items-center gap-6 text-sm">
+      {
+        links.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              class:list={[
+                'transition-colors hover:text-mark',
+                path === link.href || (link.href !== '/' && path.startsWith(link.href))
+                  ? 'text-mark'
+                  : 'text-(--muted)',
+              ]}
+              {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>
