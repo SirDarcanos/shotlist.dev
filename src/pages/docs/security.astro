@@ -77,14 +77,15 @@ const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path â€
 
   <h2 class="mt-14 text-2xl font-bold">Names your project puts out of bounds</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    Set shotlist up, decide <code class="font-mono text-sm text-ink">/fake-secret</code> is nobody's screenshot,
-    and say so once.
+    To put a file or folder out of bounds for the whole project, list it under
+    <code class="font-mono text-sm text-ink">deny</code> in the config. shotlist will not read, write
+    or open a path that goes through it.
   </p>
   <div class="mt-6">
     <RecipeCard code={deny} file="shotlist.config.yaml" />
   </div>
   <p class="mt-6 leading-relaxed text-(--muted)">
-    Someone who later writes a recipe for it is told, and told who to ask:
+    Someone who later writes a recipe that reaches for it receives an error:
   </p>
   <div class="mt-6">
     <RecipeCard code={refusal} lang="bash" />

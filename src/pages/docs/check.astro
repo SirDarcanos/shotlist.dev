@@ -55,11 +55,11 @@ check:
 
   <h2 class="mt-14 text-2xl font-bold">Seeing what moved</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    A percentage says a shot moved; it does not say what moved, which is the thing you need before
-    deciding whether to bless it or fix it. <code class="font-mono text-sm text-ink">--diff</code> writes
-    a three-up into <code class="font-mono text-sm text-ink">&lt;paths.out&gt;/diff/</code> for each one
-    that did — the committed image, the re-shot one, and the re-shot one again with every changed pixel
-    tinted.
+    To see what changed rather than how much, add
+    <code class="font-mono text-sm text-ink">--diff</code>. For every shot that moved it writes a
+    three-up into <code class="font-mono text-sm text-ink">&lt;paths.out&gt;/diff/</code>: the
+    committed image, the re-shot one, and the re-shot one again with every changed pixel tinted. A
+    percentage alone does not tell you whether to bless it or fix it.
   </p>
   <div class="mt-6">
     <RecipeCard code={diff} lang="bash" />

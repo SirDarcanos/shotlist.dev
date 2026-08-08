@@ -118,11 +118,13 @@ const maskWays = `mask:
 
   <h2 id="masking" class="mt-14 text-2xl font-bold">Masking what the recipe does not decide</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    A shot holding a clock, a live total or a face differs on every re-shoot, and
-    <code class="font-mono text-sm text-ink">--check</code> on it only ever cries wolf.
-    <code class="font-mono text-sm text-ink">check: false</code> turns the check off for the whole image;
-    <code class="font-mono text-sm text-ink">mask</code> covers just the part that moves, and leaves the
-    rest checkable.
+    To keep a region out of the image, list a query for it under
+    <code class="font-mono text-sm text-ink">mask</code>. It is painted over before the callouts are
+    drawn. Use it for the part of a shot that differs on every re-shoot — a clock, a live total, a
+    face — which would otherwise make
+    <code class="font-mono text-sm text-ink">--check</code> report a change every time.
+    <code class="font-mono text-sm text-ink">check: false</code> is the blunt version: it turns the check
+    off for the whole image, where a mask leaves the rest of it checkable.
   </p>
   <div class="mt-6">
     <RecipeCard code={masking} file="screenshots/recipes/dashboard.yaml" />

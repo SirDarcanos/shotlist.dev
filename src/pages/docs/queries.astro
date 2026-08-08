@@ -202,9 +202,11 @@ marks:
 
   <h2 class="mt-14 text-2xl font-bold">Finders</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    When the same shape appears in three recipes, name it once. A finder lives in the config and is
-    called by name; <code class="font-mono text-sm text-ink">$1</code>,
-    <code class="font-mono text-sm text-ink">$2</code> are the arguments. A project's recipes should read
+    To reuse a query across recipes, define it under
+    <code class="font-mono text-sm text-ink">finders</code> in the config and call it by name.
+    <code class="font-mono text-sm text-ink">$1</code> and
+    <code class="font-mono text-sm text-ink">$2</code> stand for the arguments it is called with. It is
+    worth doing the moment the same shape appears in a third recipe — a project's recipes should read
     like the product, not like CSS.
   </p>
   <div class="mt-6">

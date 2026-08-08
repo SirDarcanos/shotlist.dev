@@ -146,10 +146,12 @@ retries: 2 # three attempts in all`
 
   <h2 class="mt-14 text-2xl font-bold">Annotating an existing image</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    For screens a script cannot reach — anything behind a sign-in you cannot automate, or a browser
-    extension's UI — point a recipe at the image. Callouts, style and install work the same way, and
-    the file may be a PNG, a JPEG or a WebP; what it is read as comes from its bytes rather than its
-    name.
+    To annotate an image that is already on disk, set
+    <code class="font-mono text-sm text-ink">source: file</code> and give
+    <code class="font-mono text-sm text-ink">file</code> its path. Callouts, style and install work the
+    same way. It is the way to shoot a screen no script can reach — anything behind a sign-in you cannot
+    automate, or a browser extension's UI. The file may be a PNG, a JPEG or a WebP; what it is read as
+    comes from its bytes rather than its name.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     There is no page to query, so marks are literal rectangles measured off the image:
