@@ -18,6 +18,16 @@ const failing = `  ✓ modal → screenshots/out/modal.png
   ✗ recipe "order-row": marks.amount — no element matched {"css":".amount"}
 1 of 2 failed: order-row`
 
+const marks = `clip: { css: '.order-row', contains: Acme Corp }
+
+marks:
+  amount: { within: clip, text: $42.00 }
+  status: { within: clip, text: Open }
+
+callouts:
+  - { mark: amount, text: What they owe }
+  - { mark: status, text: Where it stands }`
+
 const retries = `name: order-row
 retries: 2 # three attempts in all`
 ---
@@ -91,6 +101,49 @@ retries: 2 # three attempts in all`
     ]}
   />
 
+  <h2 class="mt-14 text-2xl font-bold">What gets captured</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    <code class="font-mono text-sm text-ink">clip: viewport</code> is the browser window at
+    <code class="font-mono text-sm text-ink">site.viewport</code>.
+    <code class="font-mono text-sm text-ink">clip: full</code> is the whole document, however far it scrolls.
+    Anything else is a <a class="text-mark underline underline-offset-2" href="/docs/queries"
+      >query</a
+    >, and the shot is the box of the element it finds — with
+    <code class="font-mono text-sm text-ink">pad</code> or
+    <code class="font-mono text-sm text-ink">grow</code> if it needs room around it.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    A clip is held to the width of the viewport, because nothing widens a page the way scrolling
+    lengthens it. Its <em>height</em> is not held to anything: a region reaching past the fold is captured
+    by scrolling to it, so a long form or a full table comes out whole rather than cut at the bottom of
+    the window.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Marks</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    A mark is a name you choose for a region inside the shot. Callouts point at marks by name, and
+    so do <code class="font-mono text-sm text-ink">numbered</code> and
+    <code class="font-mono text-sm text-ink">check.ignore</code>; one mark can carry as many
+    callouts as you like.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={marks} file="screenshots/recipes/order-row.yaml" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    Marks resolve after <code class="font-mono text-sm text-ink">setup</code> has run, in the order they
+    are written. That order is usable:
+    <code class="font-mono text-sm text-ink">within: clip</code> narrows a query to the region being captured,
+    and <code class="font-mono text-sm text-ink">within: &lt;mark&gt;</code> narrows it to one already
+    resolved above.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">A mark that matches nothing stops the run</span>, naming the
+    recipe and the mark — <code class="font-mono text-sm text-ink"
+      >recipe "order-row": marks.amount — no element matched</code
+    >. That is the assertion a recipe makes: the shot is of what it says it is of, or there is no
+    shot.
+  </p>
+
   <h2 class="mt-14 text-2xl font-bold">Annotating an existing image</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     For screens a script cannot reach — anything behind a sign-in you cannot automate, or a browser
@@ -123,18 +176,17 @@ retries: 2 # three attempts in all`
   </p>
 
   <p class="mt-5 leading-relaxed text-(--muted)">
-    A capture drives a real application, so some failures are gone a second later — an element that
-    had not rendered, a request that had not landed.
-    <code class="font-mono text-sm text-ink">retries</code> says a recipe is one of those.
+    <code class="font-mono text-sm text-ink">retries</code> shoots a recipe again when it fails, up to
+    five times. It is for the failures that are gone a second later — an element that had not rendered,
+    a request that had not landed — which a capture has because it drives a real application.
   </p>
   <div class="mt-6">
     <RecipeCard code={retries} file="screenshots/recipes/order-row.yaml" />
   </div>
   <p class="mt-6 leading-relaxed text-(--muted)">
-    Each attempt is a fresh browser context, and the run reports the ones that failed while it is
-    still going rather than after the fact. A <code class="font-mono text-sm text-ink"
-      >source: file</code
-    > recipe never retries: it has no page to be flaky about, so shooting it again would only report the
-    same mistake more slowly.
+    Each attempt is a fresh browser context, and a failure is reported while the run is still going
+    rather than after it. A <code class="font-mono text-sm text-ink">source: file</code> recipe never
+    retries whatever this says — it has no page to be flaky about, so a second attempt could only reach
+    the same answer.
   </p>
 </Docs>

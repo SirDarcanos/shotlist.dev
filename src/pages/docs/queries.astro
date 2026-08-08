@@ -119,6 +119,22 @@ marks:
     <code class="font-mono text-sm text-ink">site.timeout</code> rather than hanging the run.
   </p>
 
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink"
+      ><code class="font-mono text-sm">within</code> takes a name, or a query written out.</span
+    > Two kinds of name resolve: <code class="font-mono text-sm text-ink">clip</code>, which is the
+    region being captured, and any mark declared above this one — marks resolve in the order they
+    are written, so an earlier one can narrow a later one. A name that has not resolved yet is an
+    error rather than a miss.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    It belongs to <code class="font-mono text-sm text-ink">marks</code>,
+    <code class="font-mono text-sm text-ink">mask</code> and
+    <code class="font-mono text-sm text-ink">check.ignore</code>, which run after the clip is known.
+    A step cannot use it: <code class="font-mono text-sm text-ink">setup</code> runs before anything has
+    been measured.
+  </p>
+
   <h2 class="mt-14 text-2xl font-bold">Traversal</h2>
   <DocTable
     head={['Key', 'Moves to']}

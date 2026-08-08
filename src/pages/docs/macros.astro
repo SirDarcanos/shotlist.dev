@@ -19,6 +19,14 @@ const data = `setup:
     as: order
     steps:
       - click: { text: '\${order.name}' }`
+
+const literal = `setup:
+  - each: [Acme Corp, Globex, Initech]
+    as: customer
+    steps:
+      - fill: { label: Search }
+        value: $customer
+      - click: { role: button, name: Search }`
 ---
 
 <Docs
@@ -52,12 +60,55 @@ const data = `setup:
   </div>
 
   <p class="mt-6 leading-relaxed text-(--muted)">
+    <code class="font-mono text-sm text-ink">each</code> also takes the list itself, for the handful of
+    values not worth a file.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={literal} file="screenshots/recipes/searches.yaml" />
+  </div>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
     The filename becomes a <code class="font-mono text-sm text-ink">$name</code>, so keep it to
     letters, digits and underscores — a <code class="font-mono text-sm text-ink">$</code> reference stops
     at a hyphen, and <code class="font-mono text-sm text-ink">open-orders.yaml</code> cannot be reached.
     Group what would have been several hyphenated files into one and read them by path:
     <code class="font-mono text-sm text-ink">$orders.open</code>,
     <code class="font-mono text-sm text-ink">$orders.shipped</code>.
+  </p>
+
+  <h2 id="writing-a-reference" class="mt-14 text-2xl font-bold">Writing a reference</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    <code class="font-mono text-sm text-ink">$name</code> and
+    <code class="font-mono text-sm text-ink">{'${name}'}</code> are the same thing, and
+    <code class="font-mono text-sm text-ink">$a.b</code> reads a path into whatever
+    <code class="font-mono text-sm text-ink">$a</code> holds. The braces matter in one place: where the
+    reference runs into text that would otherwise be read as part of the name. A name runs on through
+    letters, digits, underscores and dots, so
+    <code class="font-mono text-sm text-ink">Order $order.name.</code> looks for a path ending in a dot
+    and <code class="font-mono text-sm text-ink">{'Order ${order.name}.'}</code> does not.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink"
+      >A reference that is the whole value keeps that value's type.</span
+    >
+    <code class="font-mono text-sm text-ink">each: $orders</code> gets the list, not a rendering of one.
+    A reference sitting inside a longer string becomes text, because that is all a string can hold.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    Three things fill the same table: data files, by filename;
+    <code class="font-mono text-sm text-ink">with:</code> on a
+    <code class="font-mono text-sm text-ink">use:</code>, for the macro it calls; and
+    <code class="font-mono text-sm text-ink">readValue: … as: total</code>, which puts what an input
+    holds into <code class="font-mono text-sm text-ink">$total</code> for the steps after it.
+    <code class="font-mono text-sm text-ink">each: … as:</code> binds its name for its own steps only.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">References are substituted in steps, and nowhere else.</span>
+    <code class="font-mono text-sm text-ink">clip</code>,
+    <code class="font-mono text-sm text-ink">marks</code> and
+    <code class="font-mono text-sm text-ink">callouts</code> are read as written, so
+    <code class="font-mono text-sm text-ink">text: $total</code> on a callout draws those six characters.
+    Steps are where a recipe varies; what it points at afterwards is fixed.
   </p>
 
   <p class="mt-5 leading-relaxed text-(--muted)">

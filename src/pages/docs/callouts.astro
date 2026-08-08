@@ -76,10 +76,11 @@ const maskWays = `mask:
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     It also decides whether the label goes <span class="font-medium text-ink">over the shot</span> or
-    in a margin. Over the shot costs no canvas at all and needs only a stub of an arrow, so it wins wherever
-    the shot has nothing there — which it works out by reading the pixels the label would cover. A region
-    of one flat colour counts as nothing: it is the detail in a region that is worth not covering, not
-    its darkness.
+    in a margin, by reading the pixels the label would cover and counting how many of them are far from
+    that region's own average colour. A flat panel scores as empty however dark it is, and so does a gradient;
+    text or a chart over either does not. Over the shot costs no canvas and needs only a stub of an arrow,
+    so it wins wherever the shot turns out to have nothing there. When the pixels cannot be read at all,
+    the decision falls back to the geometry.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     What it cannot judge is what that detail is <em>for</em>. An arrow drawn across a paragraph is
@@ -95,7 +96,21 @@ const maskWays = `mask:
   <h2 class="mt-14 text-2xl font-bold">Numbered discs</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     <code class="font-mono text-sm text-ink">numbered: [a, b, c]</code> is shorthand for one numbered
-    disc per mark, in order. Give it the style every disc shares by writing it out.
+    disc per mark, in the order given.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    Written as a mapping instead, <code class="font-mono text-sm text-ink">marks:</code> carries that
+    list and every other key is applied to all of them:
+    <code class="font-mono text-sm text-ink">box</code>,
+    <code class="font-mono text-sm text-ink">badge</code>,
+    <code class="font-mono text-sm text-ink">inside</code>,
+    <code class="font-mono text-sm text-ink">dx</code>,
+    <code class="font-mono text-sm text-ink">dy</code> and
+    <code class="font-mono text-sm text-ink">pad</code>. There is no
+    <code class="font-mono text-sm text-ink">place</code> among them — a numbered disc is always
+    <code class="font-mono text-sm text-ink">corner</code>, and
+    <code class="font-mono text-sm text-ink">badge</code> is which corner. Discs sit inside the box unless
+    <code class="font-mono text-sm text-ink">inside: false</code> pushes them clear.
   </p>
   <div class="mt-6">
     <RecipeCard code={numbered} file="screenshots/recipes/statblock.yaml" />

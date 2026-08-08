@@ -71,6 +71,18 @@ const setup = `setup:
   />
 
   <p class="mt-6 leading-relaxed text-(--muted)">
+    Where a step takes <code class="font-mono text-sm text-ink">as:</code>, it is naming something
+    the steps after it can read:
+    <code class="font-mono text-sm text-ink">readValue: … as: total</code> puts what an input holds into
+    <code class="font-mono text-sm text-ink">$total</code>, and
+    <code class="font-mono text-sm text-ink">each: … as: order</code> binds
+    <code class="font-mono text-sm text-ink">$order</code> for one pass of its own steps. See
+    <a class="text-mark underline underline-offset-2" href="/docs/macros#writing-a-reference"
+      >writing a reference</a
+    >.
+  </p>
+
+  <p class="mt-5 leading-relaxed text-(--muted)">
     Any step also takes <code class="font-mono text-sm text-ink">comment:</code>, for a note to the
     next person reading the recipe. It rides alongside a verb rather than being one, so a comment on
     its own is not a step.

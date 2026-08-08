@@ -104,7 +104,7 @@ const font = `style:
       [
         '<code>image.quality</code>',
         '<code>90</code>',
-        'For the two that are lossy; <code>png</code> has nothing to trade',
+        '<code>1</code>–<code>100</code>, for the two that are lossy',
       ],
       ['<code>install</code>', '<code>{}</code>', 'Named destinations a recipe refers to by name'],
       [
@@ -186,8 +186,17 @@ const font = `style:
   </div>
   <p class="mt-6 leading-relaxed text-(--muted)">
     A recipe may set its own <code class="font-mono text-sm text-ink">format</code> and
-    <code class="font-mono text-sm text-ink">quality</code>. The file takes the extension the format
-    is known by, and <code class="font-mono text-sm text-ink">--check</code> compares against the same.
+    <code class="font-mono text-sm text-ink">quality</code>.
+    <code class="font-mono text-sm text-ink">quality</code> runs from
+    <code class="font-mono text-sm text-ink">1</code> to
+    <code class="font-mono text-sm text-ink">100</code> and does nothing to a PNG, which has no detail
+    to trade away. The file is named for the format —
+    <code class="font-mono text-sm text-ink">.png</code>,
+    <code class="font-mono text-sm text-ink">.webp</code>, and
+    <code class="font-mono text-sm text-ink">.jpg</code> for
+    <code class="font-mono text-sm text-ink">jpeg</code> — and
+    <code class="font-mono text-sm text-ink">--check</code> compares against a committed file of the same
+    name.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     <span class="font-medium text-ink">There is no AVIF.</span> The only encoder here is the browser doing
