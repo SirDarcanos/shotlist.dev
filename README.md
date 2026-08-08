@@ -106,6 +106,12 @@ white on the lighter reds partway up a ramp is about 3.8:1. Neither passes, whic
 forced the steep part into the padding. A straight edge onto `--red-deep` has no such
 constraint. Anything placed on that ground must be white, not `ink`.
 
+**`compressHTML` is off.** Astro's default is on, and its idea of insignificant
+whitespace includes the newline between a word and the `<code>` after it. Prose is written
+across lines, so that newline _is_ the space — sixty-nine of them were being eaten before
+anyone noticed, and it reads as a typo in the copy, which is the last place you would
+look. `npm run check:spacing` walks the built HTML and fails if one goes missing again.
+
 ## The examples are not checked, and should be
 
 Every YAML snippet under `/docs` is hand-written prose. Nothing parses them, so one can
