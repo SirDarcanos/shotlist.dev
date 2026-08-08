@@ -106,6 +106,17 @@ white on the lighter reds partway up a ramp is about 3.8:1. Neither passes, whic
 forced the steep part into the padding. A straight edge onto `--red-deep` has no such
 constraint. Anything placed on that ground must be white, not `ink`.
 
+## The examples are not checked, and should be
+
+Every YAML snippet under `/docs` is hand-written prose. Nothing parses them, so one can
+say something the schema would refuse — and one did: a `- comment:` on its own, which is
+a modifier rather than a step. They were checked once, by hand, against the package's
+`parseConfig` / `parseRecipe` / `parseQuery`, and all of them parse today.
+
+Making that permanent needs shotlist as a devDependency here, which is worth doing once
+it is published with the schemas the docs describe. The same dependency is what the
+generated reference tables would need.
+
 ## Abandoned, so nobody rebuilds it
 
 - **A framing device on every section** — red corner brackets and a `clip: <name>` label,

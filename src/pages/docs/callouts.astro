@@ -3,8 +3,13 @@ import Docs from '../../layouts/Docs.astro'
 import DocTable from '../../components/DocTable.astro'
 import RecipeCard from '../../components/RecipeCard.astro'
 
-const numbered = `numbered:
-  marks: [header, abilities, defenses, traits]
+const numbered = `marks:
+  header: { css: '.statblock-header' }
+  abilities: { css: '.abilities' }
+  defenses: { css: '.defenses' }
+
+numbered:
+  marks: [header, abilities, defenses]
   box: false # number the sections without outlining them
   badge: ml # anchored to the middle of the left edge
   inside: false # pushed clear, into the margin`

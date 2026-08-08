@@ -8,7 +8,7 @@ const setup = `setup:
   - fill: { label: Search }
     value: Acme
   - wait: { css: '.order-row' }
-  - comment: the list has settled, so the row can be measured`
+    comment: the list has settled, so the row can be measured`
 ---
 
 <Docs
@@ -18,8 +18,12 @@ const setup = `setup:
   <h1 class="text-4xl font-extrabold">Steps</h1>
 
   <p class="mt-6 leading-relaxed text-(--muted)">
-    <code class="font-mono text-sm text-ink">setup</code> runs before anything is measured. Each step
-    is a mapping led by one verb; some take extra keys alongside it.
+    Steps live under <code class="font-mono text-sm text-ink">setup</code>, which runs before
+    anything is measured — and under <code class="font-mono text-sm text-ink">steps</code> inside a
+    <code class="font-mono text-sm text-ink">repeat</code>,
+    <code class="font-mono text-sm text-ink">each</code> or
+    <code class="font-mono text-sm text-ink">optional</code> block. Each step is a mapping led by one
+    verb; some take extra keys alongside it.
   </p>
 
   <div class="mt-6">
@@ -68,7 +72,8 @@ const setup = `setup:
 
   <p class="mt-6 leading-relaxed text-(--muted)">
     Any step also takes <code class="font-mono text-sm text-ink">comment:</code>, for a note to the
-    next person reading the recipe.
+    next person reading the recipe. It rides alongside a verb rather than being one, so a comment on
+    its own is not a step.
   </p>
 
   <div class="mt-12 rounded-lg border border-(--rule-strong) bg-(--wash) p-6">
