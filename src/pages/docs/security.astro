@@ -111,9 +111,10 @@ const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path â€
     <code class="font-mono">--untrusted</code>, for a config you did not write
   </h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    In automation the config may not be yours. A pull request from a fork can edit it, and the
-    runner it lands on has your credentials, your network, and other people's work on it. A service
-    shooting what strangers submit is the same problem louder.
+    Run with <code class="font-mono text-sm text-ink">--untrusted</code> when the config did not come
+    from someone you trust. In automation it often has not: a pull request from a fork can edit the config,
+    and the runner it lands on has your credentials, your network and other people's work on it. A hosted
+    service that shoots what its users submit has the same problem.
   </p>
   <div class="mt-6">
     <RecipeCard code={untrusted} lang="bash" />

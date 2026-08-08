@@ -128,8 +128,10 @@ const font = `style:
 
   <h2 class="mt-14 text-2xl font-bold">Starting the site</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    shotlist expects the site at <code class="font-mono text-sm text-ink">site.url</code> to be running.
-    <code class="font-mono text-sm text-ink">serve</code> lets a run start it.
+    To have a run start the site itself, give
+    <code class="font-mono text-sm text-ink">site.serve</code> the command that starts it. Without it,
+    shotlist expects something to already be answering at
+    <code class="font-mono text-sm text-ink">site.url</code>.
   </p>
   <div class="mt-6">
     <RecipeCard code={serve} file="shotlist.config.yaml" />
@@ -216,9 +218,10 @@ const font = `style:
 
   <h2 class="mt-14 text-2xl font-bold">Fonts</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    A font has to be resolvable by the browser doing the drawing, which by default means installed
-    on the machine. A family that is not installed <span class="font-medium text-ink">
-      falls back silently</span
+    Set the label typeface under <code class="font-mono text-sm text-ink">style.label.font</code>.
+    It has to be resolvable by the browser doing the drawing, which by default means installed on
+    the machine, and a family that is not installed <span class="font-medium text-ink"
+      >falls back silently</span
     > — every label renders in another typeface with nothing to say so. shotlist measures the rendered
     text to catch that and warns. It is a warning rather than an error: a fallback still produces an image,
     and which faces a machine has is not something a recipe can know.

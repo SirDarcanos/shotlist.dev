@@ -107,11 +107,11 @@ check:
 
   <h2 class="mt-14 text-2xl font-bold">A shot whose subject is what changes</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    <a class="text-mark underline underline-offset-2" href="/docs/callouts#masking">Masking</a> hides
-    a region in the image. When the region has to <em>stay</em> in the image — the result of a roll, a
-    live figure the screenshot is about — <code class="font-mono text-sm text-ink"
-      >check.ignore</code
-    > shoots it as it is and leaves its contents out of the comparison instead.
+    To keep a region in the image but out of the comparison, list a query for it under
+    <code class="font-mono text-sm text-ink">check.ignore</code>.
+    <a class="text-mark underline underline-offset-2" href="/docs/callouts#masking">Masking</a> covers
+    a region over; this leaves it visible and excuses only its contents. Use it for the figure the screenshot
+    is about — a result, a live total — which has to stay in the shot and will not be the same twice.
   </p>
   <div class="mt-6">
     <RecipeCard code={ignore} file="screenshots/recipes/roll-form.yaml" />
