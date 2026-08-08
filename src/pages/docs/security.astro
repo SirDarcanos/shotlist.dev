@@ -4,7 +4,7 @@ import DocTable from '../../components/DocTable.astro'
 import RecipeCard from '../../components/RecipeCard.astro'
 
 const allow = `site:
-  url: https://rollful.dev/
+  url: https://example.com/
   allow: [accounts.google.com] # a sign-in the flow passes through`
 
 const untrusted = `npx shotlist --check --untrusted # or SHOTLIST_UNTRUSTED=1`
@@ -35,9 +35,9 @@ const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path â€
   <p class="mt-4 leading-relaxed text-(--muted)">
     <code class="font-mono text-sm text-ink">site.url</code> decides what a run may open: that host and
     everything under it. With
-    <code class="font-mono text-sm text-ink">site.url: https://rollful.dev/</code>, a recipe may
-    shoot <code class="font-mono text-sm text-ink">rollful.dev/docs</code> and
-    <code class="font-mono text-sm text-ink">api.rollful.dev</code>, and is refused
+    <code class="font-mono text-sm text-ink">site.url: https://example.com/</code>, a recipe may
+    shoot <code class="font-mono text-sm text-ink">example.com/docs</code> and
+    <code class="font-mono text-sm text-ink">api.example.com</code>, and is refused
     <code class="font-mono text-sm text-ink">google.com</code>. A
     <code class="font-mono text-sm text-ink">www.</code> host covers its apex too. There is no flag to
     set â€” wandering off the site is a mistake far more often than an intention.
