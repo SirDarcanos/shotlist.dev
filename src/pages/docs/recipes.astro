@@ -24,7 +24,7 @@ retries: 2 # three attempts in all`
 
 <Docs
   title="Recipes"
-  description="Every field of a recipe, annotating an existing PNG, and what happens when a shot fails."
+  description="Every field of a recipe, annotating an image you already have, and what happens when a shot fails."
 >
   <h1 class="text-4xl font-extrabold">Recipes</h1>
 
@@ -41,9 +41,9 @@ retries: 2 # three attempts in all`
       [
         '<code>source</code>',
         '<code>app</code>',
-        '<code>app</code> drives the site; <code>file</code> annotates an existing PNG',
+        '<code>app</code> drives the site; <code>file</code> annotates an image you have',
       ],
-      ['<code>file</code>', '—', 'The PNG to annotate, with <code>source: file</code>'],
+      ['<code>file</code>', '—', 'The image to annotate, with <code>source: file</code>'],
       ['<code>install</code>', '—', 'Which named destination to copy to'],
       ['<code>url</code>', '<code>site.url</code>', 'Page to open for this recipe'],
       ['<code>viewport</code>', "site's", 'Viewport for this recipe'],
@@ -94,7 +94,9 @@ retries: 2 # three attempts in all`
   <h2 class="mt-14 text-2xl font-bold">Annotating an existing image</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     For screens a script cannot reach — anything behind a sign-in you cannot automate, or a browser
-    extension's UI — point a recipe at a PNG. Callouts, style and install work the same way.
+    extension's UI — point a recipe at the image. Callouts, style and install work the same way, and
+    the file may be a PNG, a JPEG or a WebP; what it is read as comes from its bytes rather than its
+    name.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     There is no page to query, so marks are literal rectangles measured off the image:
