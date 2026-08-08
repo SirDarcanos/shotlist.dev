@@ -3,6 +3,63 @@ import Base from '../layouts/Base.astro'
 import RecipeCard from '../components/RecipeCard.astro'
 import { heroRecipe, minimalRecipe, configExample } from '../lib/recipes'
 
+/**
+ * The rest of what it does, one line each.
+ *
+ * The page's job is to say what is here and hand over; anything that needs a second
+ * sentence needs the docs page it links to instead.
+ */
+const rest = [
+  {
+    key: 'site.serve',
+    title: 'Start the site it shoots',
+    body: 'Names the command, waits until it answers, stops it afterwards — and uses a server you already have running rather than fighting it for the port.',
+    href: '/docs/config',
+  },
+  {
+    key: 'mask',
+    title: 'Cover what you do not decide',
+    body: 'A clock, a live total, a face. The rest of the shot stays under drift detection instead of the whole image opting out.',
+    href: '/docs/callouts#masking',
+  },
+  {
+    key: 'check.ignore',
+    title: 'Check a shot whose subject changes',
+    body: 'Leaves a region out of the comparison but shoots it as it is — and still reports the box moving, resizing or rendering nothing.',
+    href: '/docs/check',
+  },
+  {
+    key: '--diff',
+    title: 'See what moved, not just how much',
+    body: 'A committed, re-shot and changed-pixels three-up per drifted shot. --json reports the run for something other than a person.',
+    href: '/docs/check',
+  },
+  {
+    key: 'use:',
+    title: 'Share setup, and drive a shot from a list',
+    body: 'A macro for the steps every recipe repeats, a data file for the rows to walk. One recipe, one screenshot per order.',
+    href: '/docs/macros',
+  },
+  {
+    key: 'source: file',
+    title: 'Annotate a PNG you already have',
+    body: 'For a screen no script can reach — behind a sign-in you cannot automate, or an extension. Same callouts, same install.',
+    href: '/docs/recipes',
+  },
+  {
+    key: '--untrusted',
+    title: 'Run a config you did not write',
+    body: 'A shot list only opens its own site and never reads a .env, in every mode. In CI, one flag takes away the rest.',
+    href: '/docs/security',
+  },
+  {
+    key: 'SKILL.md',
+    title: 'Editor and agent support',
+    body: 'JSON Schemas generated from the same definitions that validate a run, and a skill that teaches an agent to write a query worth keeping.',
+    href: '/docs/cli',
+  },
+]
+
 const anatomy = [
   {
     n: 1,
@@ -192,6 +249,11 @@ const anatomy = [
             each against the committed image, and exits non-zero if any of them moved. Run it in CI and
             a stale screenshot becomes a failing build instead of a slow embarrassment.
           </p>
+          <p>
+            A check that cries wolf is one nobody reads, so the parts a recipe does not decide — a
+            clock, a live figure — are named rather than tolerated, and a check that is not running
+            on the machine that took the images says so before it says anything else.
+          </p>
         </div>
       </div>
 
@@ -217,6 +279,35 @@ const anatomy = [
     </div>
   </section>
 
+  <!--
+    Everything else, one line each. Plain ground: the section before it is a wash and the
+    one after is the red, so a third tone here would make the page a stack of bands.
+  -->
+  <section class="relative">
+    <div class="mx-auto max-w-6xl px-6 py-24 sm:py-28">
+      <h2 class="max-w-2xl text-[clamp(1.9rem,3.6vw,2.6rem)] leading-tight font-extrabold">
+        And the parts you reach for later
+      </h2>
+      <p class="mt-4 max-w-2xl text-(--muted)">
+        None of it is needed to take a screenshot. All of it is needed eventually.
+      </p>
+
+      <ul class="mt-14 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          rest.map((item) => (
+            <li>
+              <a class="group block" href={item.href}>
+                <code class="font-mono text-sm font-medium text-mark">{item.key}</code>
+                <h3 class="mt-3 text-lg font-bold group-hover:text-mark">{item.title}</h3>
+                <p class="mt-2 text-sm leading-relaxed text-(--muted)">{item.body}</p>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
   <!-- Get started. Solid deep red, straight edge, and the footer carries it on. -->
   <section class="tone-red ground-red-ramp relative overflow-hidden">
     <div class="paper-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
@@ -234,7 +325,8 @@ const anatomy = [
           every install.
         </p>
         <p class="mt-5 leading-relaxed text-(--muted)">
-          Configure the project once, write a recipe per screenshot, and shoot them with{' '}
+          <code class="font-mono text-sm text-white">npx shotlist --init</code> writes the config and
+          a first recipe. Edit them, add one file per screenshot, and shoot the set with{' '}
           <code class="font-mono text-sm text-white">npx shotlist --all --install</code>.
         </p>
         <a
