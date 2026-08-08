@@ -15,6 +15,10 @@ const serveLong = `site:
     env: { PORT: '3000' }
     timeout: 30000`
 
+const imageFormat = `image:
+  format: webp
+  quality: 90`
+
 const style = `style:
   color: '#DC2626' # boxes, arrows, discs
   canvas: '#FFFFFF' # fills space added around the image for labels
@@ -92,6 +96,16 @@ const font = `style:
       ['<code>paths.macros</code>', '<code>screenshots/macros</code>', 'Where macros live'],
       ['<code>paths.data</code>', '<code>screenshots/data</code>', 'Where data files live'],
       ['<code>paths.out</code>', '<code>screenshots/out</code>', 'Where images are written'],
+      [
+        '<code>image.format</code>',
+        '<code>png</code>',
+        '<code>png</code>, <code>jpeg</code> or <code>webp</code>',
+      ],
+      [
+        '<code>image.quality</code>',
+        '<code>90</code>',
+        'For the two that are lossy; <code>png</code> has nothing to trade',
+      ],
       ['<code>install</code>', '<code>{}</code>', 'Named destinations a recipe refers to by name'],
       [
         '<code>deny</code>',
@@ -157,6 +171,28 @@ const font = `style:
     needing a shell goes in a script you run instead. A run of only
     <code class="font-mono text-sm text-ink">source: file</code> recipes never opens the site, and does
     not start one.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">What images are written as</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    <code class="font-mono text-sm text-ink">png</code> keeps every pixel and is the default.
+    <code class="font-mono text-sm text-ink">webp</code> is the one worth reaching for: a shot of this
+    site's homepage is 87 KB as a PNG and 33 KB as a WebP.
+    <code class="font-mono text-sm text-ink">jpeg</code> is lossy in the way that shows worst on what
+    a screenshot of an interface is mostly made of, which is text.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={imageFormat} file="shotlist.config.yaml" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    A recipe may set its own <code class="font-mono text-sm text-ink">format</code> and
+    <code class="font-mono text-sm text-ink">quality</code>. The file takes the extension the format
+    is known by, and <code class="font-mono text-sm text-ink">--check</code> compares against the same.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">There is no AVIF.</span> The only encoder here is the browser doing
+    the drawing, and Chromium reads AVIF but will not write it — it answers a request for one with a PNG
+    rather than an error, so every conversion checks what it got back.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Style</h2>
