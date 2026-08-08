@@ -106,11 +106,17 @@ white on the lighter reds partway up a ramp is about 3.8:1. Neither passes, whic
 forced the steep part into the padding. A straight edge onto `--red-deep` has no such
 constraint. Anything placed on that ground must be white, not `ink`.
 
-**`compressHTML` is off.** Astro's default is on, and its idea of insignificant
-whitespace includes the newline between a word and the `<code>` after it. Prose is written
-across lines, so that newline _is_ the space — sixty-nine of them were being eaten before
-anyone noticed, and it reads as a typo in the copy, which is the last place you would
-look. `npm run check:spacing` walks the built HTML and fails if one goes missing again.
+**`compressHTML` is off, and `scripts/compress-html.mjs` does it instead.** Astro's default
+is on, and its idea of insignificant whitespace includes the newline between a word and the
+`<code>` after it. Prose is written across lines, so that newline _is_ the space — sixty-nine
+of them were being eaten before anyone noticed, and it reads as a typo in the copy, which is
+the last place you would look.
+
+The replacement collapses runs of whitespace to a single space rather than removing them,
+and leaves `pre`, `textarea`, `script` and `style` alone. It gives up nothing to do it:
+264,957 bytes against Astro's 265,797, and 26,766 gzipped against 27,268. `npm run build`
+runs it and then `check-spacing`, which walks the output for a word run into an inline tag
+and fails on one.
 
 ## The examples are not checked, and should be
 
