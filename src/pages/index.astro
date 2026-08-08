@@ -18,7 +18,7 @@ const rest = [
   },
   {
     key: 'mask',
-    title: 'Cover what you do not decide',
+    title: 'Paint over a region',
     body: 'A clock, a live total, a face. The rest of the shot stays under drift detection instead of the whole image opting out.',
     href: '/docs/callouts#masking',
   },
@@ -30,7 +30,7 @@ const rest = [
   },
   {
     key: '--diff',
-    title: 'See what moved, not just how much',
+    title: 'Write a diff image',
     body: 'A committed, re-shot and changed-pixels three-up per drifted shot. --json reports the run for something other than a person.',
     href: '/docs/check',
   },
@@ -141,11 +141,11 @@ const anatomy = [
   <section class="band-wash">
     <div class="mx-auto max-w-6xl px-6 py-24 sm:py-28">
       <h2 class="max-w-2xl text-[clamp(1.9rem,3.6vw,2.6rem)] leading-tight font-extrabold">
-        Three things a recipe says
+        What a recipe contains
       </h2>
       <p class="mt-4 max-w-2xl text-(--muted)">
-        A shot is described the way you would describe it out loud, and the file is read top to
-        bottom.
+        Three sections, read top to bottom: drive the page to a state, clip a region of it, draw on
+        what the clip contains.
       </p>
 
       <ol class="mt-14 grid gap-10 md:grid-cols-3 md:gap-8">
@@ -196,7 +196,7 @@ const anatomy = [
     >
       <div>
         <h2 class="text-[clamp(1.9rem,3.6vw,2.6rem)] leading-tight font-extrabold">
-          A recipe is data, and stays data
+          A recipe is data
         </h2>
         <div class="mt-8 space-y-5 leading-relaxed text-(--muted)">
           <p>
@@ -208,8 +208,8 @@ const anatomy = [
             a modal, the amount in a cell.
           </p>
           <p>
-            So anyone on the team can read a recipe and see what it does, and when a shot breaks,
-            anyone can fix it.
+            A recipe can be read without knowing the codebase, and fixed by whoever notices it
+            broke.
           </p>
         </div>
       </div>
@@ -237,22 +237,22 @@ const anatomy = [
     >
       <div class="lg:order-2">
         <h2 class="text-[clamp(1.9rem,3.6vw,2.6rem)] leading-tight font-extrabold">
-          Screenshots go stale quietly
+          Checking screenshots against the site
         </h2>
         <div class="mt-6 space-y-5 leading-relaxed text-(--muted)">
           <p>
-            Nothing fails when an interface moves on without its documentation. The image keeps
-            rendering; it is simply no longer true, and usually nobody notices until a reader does.
-          </p>
-          <p>
             <code class="font-mono text-sm text-ink">shotlist --check</code> re-shoots every recipe, compares
-            each against the committed image, and exits non-zero if any of them moved. Run it in CI and
-            a stale screenshot becomes a failing build instead of a slow embarrassment.
+            each against the committed image, and exits non-zero if any of them moved. In CI that makes
+            a screenshot which no longer matches the site a failing build.
           </p>
           <p>
-            A check that cries wolf is one nobody reads, so the parts a recipe does not decide — a
-            clock, a live figure — are named rather than tolerated, and a check that is not running
-            on the machine that took the images says so before it says anything else.
+            Nothing else reports it. When an interface changes, the committed image goes on
+            rendering exactly as before; it is only no longer true.
+          </p>
+          <p>
+            The parts a recipe does not decide — a clock, a live figure — are named rather than
+            tolerated, so the check is worth reading. One running on a different machine from the
+            one that took the images says so before it says anything else.
           </p>
         </div>
       </div>
@@ -286,11 +286,9 @@ const anatomy = [
   <section class="relative">
     <div class="mx-auto max-w-6xl px-6 py-24 sm:py-28">
       <h2 class="max-w-2xl text-[clamp(1.9rem,3.6vw,2.6rem)] leading-tight font-extrabold">
-        And the parts you reach for later
+        The rest of what it does
       </h2>
-      <p class="mt-4 max-w-2xl text-(--muted)">
-        None of it is needed to take a screenshot. All of it is needed eventually.
-      </p>
+      <p class="mt-4 max-w-2xl text-(--muted)">None of it is needed for a first screenshot.</p>
 
       <ul class="mt-14 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
         {

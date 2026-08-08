@@ -31,7 +31,7 @@ const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path â€
     <code class="font-mono text-sm text-ink">--untrusted</code> takes away.
   </p>
 
-  <h2 class="mt-14 text-2xl font-bold">A shot list covers its own site â€” always</h2>
+  <h2 class="mt-14 text-2xl font-bold">A run stays on its own site</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     <code class="font-mono text-sm text-ink">site.url</code> decides what a run may open: that host and
     everything under it. With
@@ -46,7 +46,7 @@ const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path â€
     <RecipeCard code={allow} file="shotlist.config.yaml" />
   </div>
 
-  <h2 class="mt-14 text-2xl font-bold">Some names are never touched â€” always</h2>
+  <h2 class="mt-14 text-2xl font-bold">Files that are never read or written</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     Whatever the mode, shotlist will not read or write a path that goes through any of these â€” on
     disk, or in the path of a URL.
@@ -75,7 +75,7 @@ const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path â€
     into <code class="font-mono text-sm text-ink">.git</code>. There is no flag to turn it off.
   </p>
 
-  <h2 class="mt-14 text-2xl font-bold">Names your project puts out of bounds</h2>
+  <h2 class="mt-14 text-2xl font-bold">Putting a path out of bounds</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     To put a file or folder out of bounds for the whole project, list it under
     <code class="font-mono text-sm text-ink">deny</code> in the config. shotlist will not read, write
@@ -149,7 +149,7 @@ const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path â€
     <span class="font-medium text-ink">a control the config can switch off is not a control.</span>
   </p>
 
-  <h2 class="mt-14 text-2xl font-bold">What is true whatever the mode</h2>
+  <h2 class="mt-14 text-2xl font-bold">True in every mode</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     A config cannot run code. There is no <code class="font-mono text-sm text-ink">eval:</code> step and
     no way to reach one; queries travel into the page as data, never as source, so a malformed selector
@@ -161,7 +161,7 @@ const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path â€
     <code class="font-mono text-sm text-ink">repeat</code> are capped.
   </p>
 
-  <h2 class="mt-14 text-2xl font-bold">What none of it does</h2>
+  <h2 class="mt-14 text-2xl font-bold">What this does not cover</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     The host check reads the name out of the URL. It cannot see that a name you allowed resolves to
     an address it would have refused, so a determined DNS rebind gets through: it is a fence, not a
