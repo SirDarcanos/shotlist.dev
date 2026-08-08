@@ -37,6 +37,11 @@ const style = `style:
   mask:
     fill: '#94A3B8' # what a masked region is painted with`
 
+const localFont = `style:
+  label:
+    fontUrl: fonts/inter.css # read from disk, fonts and all
+    font: 'Inter'`
+
 const font = `style:
   label:
     fontUrl: https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap
@@ -175,10 +180,22 @@ const font = `style:
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     To use a font that is not installed, give <code class="font-mono text-sm text-ink">fontUrl</code
-    > a stylesheet. It is fetched when the callouts are drawn, so this needs network access at shoot time.
+    > a stylesheet. A http(s) or <code class="font-mono text-sm text-ink">data:</code> URL is fetched
+    when the callouts are drawn, so that one needs network access at shoot time.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">Anything else is a path</span>, resolved from the config
+    file's directory the way every other path is — for a font the project ships. It is read from
+    disk and inlined, along with the font files it points at, because the page the callouts are
+    drawn in is built in memory, and a browser gives such a page no
+    <code class="font-mono text-sm text-ink">file:</code> subresource. An absolute
+    <code class="font-mono text-sm text-ink">file:</code> URL works too.
   </p>
   <div class="mt-6">
     <RecipeCard code={font} file="shotlist.config.yaml" />
+  </div>
+  <div class="mt-4">
+    <RecipeCard code={localFont} file="shotlist.config.yaml" />
   </div>
   <p class="mt-6 leading-relaxed text-(--muted)">
     <code class="font-mono text-sm text-ink">strokeWidth</code> is centred on the glyph outline, so half
