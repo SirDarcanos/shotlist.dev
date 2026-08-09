@@ -11,7 +11,8 @@ export default defineConfig({
   // the newline between a word and the `<code>` after it — so prose written across lines
   // came out with the spaces missing. Sixty-nine of them, before this was noticed.
   compressHTML: false,
-  integrations: [sitemap()],
+  // `/og` exists only to be photographed into the card, so it is not a page to index.
+  integrations: [sitemap({ filter: (page) => !page.endsWith('/og/') })],
   vite: {
     plugins: [tailwindcss()],
   },

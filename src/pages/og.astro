@@ -1,0 +1,65 @@
+---
+/**
+ * The card a shared link unfurls into, at 1200×630.
+ *
+ * A page rather than a drawing, so it is set in the site's own faces and colours and
+ * cannot drift from them. `npm run shots` photographs it into `public/og.png`; nothing
+ * about the ordinary build depends on it.
+ *
+ * Deliberately not on `Base`: no nav, no footer, and `noindex`, because this is a picture
+ * of a page rather than a page anyone should land on.
+ */
+import Wordmark from '../components/Wordmark.astro'
+import '../styles/global.css'
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>shotlist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=Inter:wght@400..600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+  </head>
+
+  <body>
+    <div id="og-card" class="relative flex h-[630px] w-[1200px] flex-col justify-between p-20">
+      <div class="paper-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
+
+      <div class="relative">
+        <Wordmark size={42} />
+      </div>
+
+      <div class="relative">
+        <h1 class="max-w-[26ch] text-[68px] leading-[1.04] font-extrabold">
+          Annotated UI screenshots, <span class="text-mark">described as data</span>.
+        </h1>
+        <p class="mt-8 max-w-[40ch] text-[26px] leading-snug text-balance text-(--muted)">
+          Drive your site, clip a region, draw the callouts. Each screenshot is a YAML file.
+        </p>
+      </div>
+
+      <div class="relative flex items-center gap-5 font-mono text-[20px] text-(--muted)">
+        <span class="text-ink">shotlist.dev</span>
+        <span aria-hidden="true">·</span>
+        <span>MIT</span>
+        <span aria-hidden="true">·</span>
+        <span class="text-mark">npm i -D shotlist</span>
+      </div>
+    </div>
+  </body>
+</html>
+
+<style>
+  body {
+    margin: 0;
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+  }
+</style>
