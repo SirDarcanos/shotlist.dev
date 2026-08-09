@@ -1,13 +1,13 @@
 # shotlist.dev
 
 The site for [shotlist](https://github.com/SirDarcanos/shotlist). Astro 7 and Tailwind 4;
-the docs are plain `.astro` pages under `src/pages/docs/`, not a content collection.
-`CLAUDE.md` is a symlink to this file — edit this one.
+the docs are plain `.astro` pages under `src/pages/docs/`, one folder per Diátaxis
+quadrant, not a content collection. `CLAUDE.md` is a symlink to this file — edit this one.
 
 ```bash
 npm install
-npm run dev
-npm run build   # builds, squeezes the HTML, then checks the prose for lost spaces
+npm run dev     # zips the example project first, so /shotlist-example.zip resolves
+npm run build   # checks examples, zips the example, builds, squeezes, checks spacing
 ```
 
 Run `npm run format` before committing. Prettier decides formatting here as it does in
@@ -64,6 +64,14 @@ surprising. The sin is a sentence that adds nothing.
 - **Every snippet is parsed by the build**, so an example is real or it does not ship —
   see below. Do not write a snippet you have not let `check-examples` see.
 - **Nothing is documented that does not work yet**, unless it is marked as not built.
+- **A page belongs to one quadrant, and the quadrant sets the register.** See below.
+
+**The voice rules above hold everywhere except one place: reference does not carry its
+reasons.** A reference page is a dictionary — key, default, effect, and nothing about why.
+The "because" that would have ridden along in the same breath moves to an explanation page
+and is linked. This is the one rule Diátaxis and the house voice disagree on, and Diátaxis
+wins inside `/docs/reference/`. Everywhere else — how-to prose, explanation, comments,
+the marketing copy — the reason still travels with the claim.
 
 ### Spelling and naming
 
@@ -74,13 +82,49 @@ surprising. The sin is a sentence that adds nothing.
 
 ## Decisions worth not re-litigating
 
-**Docs are plain pages, not Starlight.** The reference is one document in eleven parts,
-and most of it already exists in the package's README. Starlight would bring its own
-design system to argue with the palette and the serif, and the two things that make these
-docs worth building — a recipe printed beside the image that recipe generated, and
-reference tables generated from `dist/*.schema.json` — are custom components either way.
-It is a route-level integration, so `/docs` can move to Starlight later if this grows into
-a manual. Search, if it is wanted before then, is Pagefind standalone.
+**The docs are organized by [Diátaxis](https://diataxis.fr/), one quadrant per folder.**
+They were one flat document in eleven parts, which had no tutorial at all and answered
+"how do I shoot a page behind a sign-in?" across two pages that each held half of it. The
+four folders under `src/pages/docs/` are the standard:
+
+| Folder         | Answers                   | Register                                             |
+| -------------- | ------------------------- | ---------------------------------------------------- |
+| `tutorials/`   | Teach me, I am new        | A lesson. No choices, no options, guaranteed to work |
+| `how-to/`      | I have this problem now   | A recipe. Goal in the title, steps, no teaching      |
+| `reference/`   | What are the keys         | A dictionary. Austere, complete, no rationale        |
+| `explanation/` | Why does it work this way | A discussion. The argument lives here                |
+
+**Where a new page goes** is decided by the reader's situation, not the topic. Masking
+appears in all four — a tutorial step, a how-to option, a `mask` table, and a paragraph in
+_Why screenshots drift_ — and none of them is a duplicate of another. If a page you are
+writing needs two registers, it is two pages.
+
+**Still plain Astro pages, not Starlight.** Starlight would bring its own design system to
+argue with the palette and the serif, and the two things that make these docs worth
+building — a recipe printed beside the image that recipe generated, and reference tables
+generated from `dist/*.schema.json` — are custom components either way. It is a
+route-level integration, so `/docs` can move to Starlight later. Search, if it is wanted
+before then, is Pagefind standalone.
+
+**A docs URL that has shipped is kept working.** The package's README and its bundled
+skill print docs URLs, and both are on npm where no edit here can reach them. The eleven
+flat URLs the docs had before the quadrants redirect in `astro.config.mjs`. Moving or
+renaming a page means adding one there — a released version linking into a 404 is the
+worst kind of broken, because the reader cannot tell it was ever right.
+
+**A tutorial is run, not read.** Both tutorials work against
+`examples/shotlist-example/`, a dependency-free app shipped as a download so a newcomer
+needs no application of their own. `scripts/build-example.mjs` zips the folder into
+`public/shotlist-example.zip` on every `dev` and `build`, so the folder is the source of
+truth and the zip is never committed. Anything you change in a tutorial has to still work
+against that app — walking the steps is the only way to know, and it is worth the ten
+minutes. Two defects that shipped past review were found that way.
+
+**A number in a tutorial is measured, not estimated.** `check.threshold` defaults to
+`0.002`, so a change smaller than 0.2% of an image reports `same` — which made a step that
+edited one character silently teach the opposite of its lesson. Percentages, pixel counts
+and command output in the docs come from a real run or a real measurement. Where a figure
+cannot be pinned, say it will differ rather than inventing a plausible one.
 
 **Three colors, in `src/styles/global.css`.** `mark` is the annotation red the package
 draws with by default, `ink` is a warm near-black, `paper` a warm off-white. Everything
@@ -194,6 +238,26 @@ and the recipe files this site shoots itself with. A snippet the schema would re
 fails the build. shotlist is a devDependency for exactly this, and is what generated
 reference tables would use too.
 
+It walks `src/pages/docs/` recursively, since the pages moved into a folder per quadrant.
+Three kinds of snippet are skipped, and the way you opt out is the way you declare what
+the block is:
+
+- a `RecipeCard` with `lang="bash"`, `lang="ts"` or `lang="css"` — not YAML at all
+- a `const` named `raw…` — YAML that is not shotlist's, such as a CI workflow
+- anything parsing to an array — a data file, which no schema describes
+
+**A snippet has to be a whole document.** `numbered: [amount, status]` on its own reads as
+a recipe with no marks and fails, correctly. Show the file, not the fragment you are
+asking the reader to paste — which is better for them anyway.
+
+**A const you define and never render is still parsed.** It has no `lang` to be skipped
+by, so an unrendered block of shell output fails the build as malformed YAML. Render it or
+delete it.
+
+**The devDependency is the published shotlist, not your working copy.** Documenting a key
+before it is on npm means the checker rejects the snippet — say the key in prose, and note
+it here, rather than loosening the check.
+
 ## Abandoned, so nobody rebuilds it
 
 - **A framing device on every section** — red corner brackets and a `clip: <name>` label,
@@ -259,6 +323,20 @@ Two details worth keeping:
 - **A scoped style cannot reach an element a child component renders.** `<Arrow class="x">`
   with `.x` in the parent's `<style>` silently matches nothing, and an SVG sized only by
   that rule collapses to 0×0. Use utility classes, or `:global()`.
+- **A component's scoped style is unlayered, so it beats `@layer base` at any
+  specificity.** `global.css` colors links in `@layer base`; `DocTable`'s own
+  `td :global(code)` was repainting a linked key back to ink, and no amount of specificity
+  added to the global rule could win. Fix it in the component, beside the rule it competes
+  with.
+- **`hidden` loses to anything that sets `display`.** Preflight gives every `svg`
+  `display: block` and a `grid` utility does the same to whatever carries it, so an
+  element carrying the attribute still renders. `global.css` restates
+  `[hidden] { display: none !important }` for that reason.
+- **`hidden` is an `HTMLElement` property, and an `<svg>` is not one.** `svg.hidden = true`
+  sets a plain JavaScript property and never touches the attribute a stylesheet reads. Use
+  `toggleAttribute('hidden', …)`. Reading it back is the same trap: check
+  `getComputedStyle(el).display`, not `el.hidden`, or your verification has the same bug as
+  the code.
 
 ## The site shoots itself
 
