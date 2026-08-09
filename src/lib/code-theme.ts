@@ -1,49 +1,37 @@
 /**
  * The syntax theme for every code block on the site.
  *
- * A recipe's keys are the vocabulary the docs are about, so they carry the annotation
- * red; values are ink. Shiki needs literal hex, so the muted greys here are the same
- * ink-into-paper mixes `global.css` makes with `color-mix()`, resolved by hand.
+ * Shiki's `github-light`, with one change: a YAML key is the annotation red rather than
+ * green. A recipe's keys are the vocabulary the docs are about, and the red is the colour
+ * this site points with — the same red the package draws a mark in.
+ *
+ * `entity.name.tag` alone, not every rule painted green. The other three are regular
+ * expression escapes, block quotes, and the added side of a diff, where green is a
+ * convention worth more than consistency with a palette.
  */
+import githubLight from 'shiki/themes/github-light.mjs'
+
+interface Rule {
+  scope?: string | string[]
+  settings: { foreground?: string; fontStyle?: string }
+}
+
+interface Theme {
+  name: string
+  type: string
+  colors: Record<string, string>
+  tokenColors: Rule[]
+}
+
+const MARK = '#DC2626'
+const source = ((githubLight as { default?: Theme }).default ?? githubLight) as unknown as Theme
+
 export const codeTheme = {
+  ...source,
   name: 'shotlist',
-  type: 'light' as const,
-  colors: {
-    'editor.background': '#00000000',
-    'editor.foreground': '#1C1917',
-  },
-  settings: [
-    { settings: { foreground: '#1C1917' } },
-
-    // Keys — `name:`, `setup:`, `clip:` — are the language being documented.
-    {
-      scope: ['entity.name.tag', 'support.type.property-name', 'variable.other.key'],
-      settings: { foreground: '#DC2626', fontStyle: 'bold' },
-    },
-
-    // Prose the author wrote: values, strings, plain scalars.
-    {
-      scope: ['string', 'string.quoted', 'string.unquoted', 'meta.embedded'],
-      settings: { foreground: '#1C1917' },
-    },
-
-    { scope: ['comment', 'punctuation.definition.comment'], settings: { foreground: '#969491' } },
-
-    {
-      scope: ['punctuation', 'meta.brace', 'keyword.operator', 'punctuation.definition.block'],
-      settings: { foreground: '#969491' },
-    },
-
-    {
-      scope: ['constant.numeric', 'constant.language', 'constant.other'],
-      settings: { foreground: '#57534E' },
-    },
-
-    // Shell blocks: the command reads as ink, its flags as the muted grey.
-    { scope: ['source.shell', 'support.function.builtin'], settings: { foreground: '#1C1917' } },
-    {
-      scope: ['constant.other.option', 'entity.name.function'],
-      settings: { foreground: '#969491' },
-    },
-  ],
+  tokenColors: source.tokenColors.map((rule) =>
+    rule.scope === 'entity.name.tag'
+      ? { ...rule, settings: { ...rule.settings, foreground: MARK } }
+      : rule,
+  ),
 }

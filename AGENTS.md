@@ -124,17 +124,17 @@ measured against Astro's own output it came out slightly smaller, gzipped and no
 `npm run build` runs it and then `check-spacing`, which walks the output for a word run
 into an inline tag and fails on one.
 
-## The examples are not checked by the build, and should be
+## The examples are checked by the build
 
-Every YAML snippet under `/docs` is hand-written prose, and the build does not parse any
-of it — so a snippet can say something the schema would refuse. One did: a `- comment:`
-on its own, which is a modifier rather than a step.
+Every YAML snippet under `/docs` is hand-written prose, so one can say something the
+schema would refuse. One did: a `- comment:` on its own, which is a modifier rather than
+a step.
 
-They are checked by running each one through the package's `parseConfig` / `parseRecipe`
-/ `parseQuery` from `../shotlist/dist`. **Re-check after touching a docs example.**
-Making it part of the build needs shotlist as a devDependency here, worth doing once it
-is published with the schemas the docs describe. The same dependency is what generated
-reference tables would need.
+`scripts/check-examples.mjs` runs first in `npm run build` and parses all of it with
+shotlist's own `parseConfig` / `parseRecipe` / `parseQuery` / `Macro` — the docs snippets
+and the recipe files this site shoots itself with. A snippet the schema would refuse
+fails the build. shotlist is a devDependency for exactly this, and is what generated
+reference tables would use too.
 
 ## Abandoned, so nobody rebuilds it
 
@@ -202,12 +202,24 @@ Two details worth keeping:
   with `.x` in the parent's `<style>` silently matches nothing, and an SVG sized only by
   that rule collapses to 0×0. Use utility classes, or `:global()`.
 
+## The site shoots itself
+
+`shotlist.config.yaml` and `screenshots/recipes/` are real. `npm run shots` needs
+Playwright and a server already answering on 4321; the images are committed, so an
+ordinary build needs neither.
+
+The recipes shown on the site are those files, imported with `?raw` — not strings in a
+module that could drift from anything that runs. `src/pages/og.astro` is the Open Graph
+card, a page whose only purpose is to be photographed into `public/og.png`, with a mark
+drawn on the install command by the tool it advertises. It is `noindex` and filtered out
+of the sitemap. **Re-run `npm run shots` after changing it.**
+
+Two things to know if a recipe here stops working. `npm run dev` starts Astro detached
+and exits, which `site.serve` reads as the server dying before it was ready — start the
+server yourself first. And a recipe's `url` is used verbatim rather than resolved against
+`site.url`, so a second page needs the whole origin.
+
 ## Not done yet
 
-- Recipes in `src/lib/recipes.ts` are written against the real schema and would parse, but
-  the shots they describe are not taken. When the site shoots itself, those strings should
-  be read from the recipe files instead of living in a TypeScript module.
-- No Open Graph image, and no dark mode. The icon puts the `s` in `ink`, so the marks need
-  a light background as they stand.
-- `src/pages/logo-proof.astro` is a scratch page for judging the marks at several sizes.
-  Delete it before the site goes anywhere.
+- No dark mode. The icon puts the `s` in `ink`, so the marks need a light background as
+  they stand.

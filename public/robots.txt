@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://shotlist.dev/sitemap-index.xml
