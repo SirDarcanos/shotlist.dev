@@ -14,6 +14,64 @@ Run `npm run format` before committing. Prettier decides formatting here as it d
 the package, and it reformats between edits — check that a search-and-replace landed
 rather than that the command exited.
 
+## Voice
+
+The same voice as the package, and the docs pages are held to it hardest: there, the prose
+is the product rather than a note about it. Match the file you are editing.
+
+**State things.** Present indicative, as fact, not advice.
+
+- Yes: `A recipe's keys are the vocabulary the docs are about.`
+- No: `Keys should generally be highlighted where possible.`
+
+**Every claim carries its reason, in the same breath.** A rule without its "because" gets
+argued with, or followed in the wrong place.
+
+- Yes: `Anything holding a code block needs min-w-0 — a flex track sizes to the widest line.`
+- No: `Always add min-w-0. This is important.`
+
+**Draw the contrast with "rather than".** The reason something matters is usually the thing
+that happens instead: `collapses runs of whitespace rather than deleting them`.
+
+**Be concrete.** Name the token, the class, the file, the ratio. `white on mark is 4.8:1`
+teaches; "the contrast is a bit tight" does not.
+
+**No filler.** Cut `simply`, `just`, `easy`, `obviously`, `of course`, `note that`,
+`in order to`. Cut `powerful`, `seamless`, `beautiful` and every other adjective that
+praises the site. No emoji, no exclamation marks.
+
+**Length is set by content.** A one-line comment is complete if the code is. A long one
+earns its length by carrying a real reason — the whitespace note in
+`scripts/compress-html.mjs` is long because the failure it describes is genuinely
+surprising. The sin is a sentence that adds nothing.
+
+### Comments
+
+- **One line, describing the thing, not the mechanics.** No `@param` or `@returns`; this
+  codebase has none, and the types say it already.
+- **A longer comment only where the code cannot speak for itself**: a non-obvious why, a
+  gotcha, a workaround. Write the reason and the consequence, not a paraphrase of the
+  next line.
+- **Never narrate a change** — `// added for the new layout`, `// was flex before`. That
+  belongs in the commit message, and the comment is stale the moment it lands.
+- **A decision that outlives one component goes in this file**, not in a comment beside
+  every use of it. Where a rationale is recorded in both, the comment says the local
+  consequence and this file says why.
+
+### The docs pages
+
+- **The reader is editing YAML**, not TypeScript. Say what a key does, in plain language.
+- **Every snippet is parsed by the build**, so an example is real or it does not ship —
+  see below. Do not write a snippet you have not let `check-examples` see.
+- **Nothing is documented that does not work yet**, unless it is marked as not built.
+
+### Spelling and naming
+
+- **American spelling in prose, comments and copy**: color, behavior, license, center,
+  gray, recognized.
+- **Identifiers follow the platform**, so code and CSS say `color`, `grid-template`.
+- **`shotlist` is lowercase**, always, including at the start of a sentence.
+
 ## Decisions worth not re-litigating
 
 **Docs are plain pages, not Starlight.** The reference is one document in eleven parts,
@@ -24,11 +82,11 @@ reference tables generated from `dist/*.schema.json` — are custom components e
 It is a route-level integration, so `/docs` can move to Starlight later if this grows into
 a manual. Search, if it is wanted before then, is Pagefind standalone.
 
-**Three colours, in `src/styles/global.css`.** `mark` is the annotation red the package
+**Three colors, in `src/styles/global.css`.** `mark` is the annotation red the package
 draws with by default, `ink` is a warm near-black, `paper` a warm off-white. Everything
 else — borders, muted text, the washed section background — is `color-mix()` derived from
 those three rather than a fourth hue. The neutrals are warm deliberately: `#DC2626` sits
-badly on a cool slate grey.
+badly on a cool slate gray.
 
 | Token   | Value     |
 | ------- | --------- |
@@ -39,8 +97,8 @@ badly on a cool slate grey.
 **Fraunces for headings, Inter for body, JetBrains Mono for code.** The mono is not
 decoration — the hero is a YAML recipe, and it is the thing readers actually study.
 
-**Code blocks colour YAML keys with `mark`.** The keys are the vocabulary the docs are
-about. The theme is in `src/lib/code-theme.ts`; Shiki needs literal hex, so the greys
+**Code blocks color YAML keys with `mark`.** The keys are the vocabulary the docs are
+about. The theme is in `src/lib/code-theme.ts`; Shiki needs literal hex, so the grays
 there are the same ink-into-paper mixes resolved by hand.
 
 **A code card's border stays neutral, and only its arrow is red.** A red border was tried
@@ -59,7 +117,7 @@ All of these live in `src/styles/global.css`:
   against it. It replaced hard `border-y` rules, which cut the page into slabs.
 - **`.paper-grid`** — faint graph paper, masked so it fades rather than stopping at an
   edge. The surface a shot is measured on. On the hero and the inverted section.
-- **`.glow`** — a soft bloom of the annotation red, placed off-centre. Position, size and
+- **`.glow`** — a soft bloom of the annotation red, placed off-center. Position, size and
   strength are custom properties. Only the inverted section uses it; see below.
 - **`.tone-red`** — the red ground and the text on it. The ground is `--red-deep`, which is
   `mark` taken down with `ink` — still derived from the three, not a fourth hue. It is
@@ -86,7 +144,7 @@ to interrupt; if a second one takes the treatment, neither does.
 **Blooms belong to the inverted section only.** They were tried across the light sections
 too and taken out: on a light ground the red has to stay so faint to avoid reading as pink
 that it earns nothing, and at any strength where it does show, it reads as a stain. A dark
-ground takes far more red before it registers as colour at all, which is why the same
+ground takes far more red before it registers as color at all, which is why the same
 device works there at 20–26% and nowhere else.
 
 `--wash` is mixed from `ink`, not `mark`, for the same reason: a flat red tint across a
@@ -144,8 +202,8 @@ reference tables would use too.
 - **Red slanted blocks behind the section headings.** The headings are plain ink.
 - **Blooms on the light sections.** They belong to the inverted section only, for the
   reason under the palette notes.
-- **Fading the page into its coloured footer**, tried twice — once to near-black, once to
-  red. Paper to near-black passes through mid-grey in any colour space and painted a dead
+- **Fading the page into its colored footer**, tried twice — once to near-black, once to
+  red. Paper to near-black passes through mid-gray in any color space and painted a dead
   field; the red version avoided that but still read as abrupt, and both needed padding
   wide enough to park the steep part where no copy sat. The footer is a straight edge.
 - **A mock application annotated with a callout**, sitting inside a section. The ask was
