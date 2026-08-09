@@ -228,8 +228,8 @@ const font = `style:
     <RecipeCard code={sessions} file="shotlist.config.yaml" />
   </div>
   <p class="mt-6 leading-relaxed text-(--muted)">
-    <span class="font-medium text-ink">You do not create the file, and never edit it.</span> The path
-    says where <code>shotlist --login admin</code> should write, and that command makes the directory
+    <span class="font-medium text-ink">You do not create the JSON file, and never edit it.</span> The path
+    says where <code>shotlist --login admin</code> should write, and that command creates the directory
     as well. What it writes is what the browser had after you signed in — a JSON of cookies and per-origin
     local storage — which is Playwright's format and not something to hand-write. A recipe asking for
     a session that has not been written yet stops the run and names the command that writes it.
