@@ -1,0 +1,135 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const installed = `style:
+  label:
+    font: 'Inter, Arial, sans-serif'
+    weight: 700
+    size: 44`
+
+const fontFile = `style:
+  label:
+    fontUrl: fonts/Inter-Bold.woff2
+    font: 'Inter'
+    weight: 700`
+
+const stylesheet = `style:
+  label:
+    fontUrl: fonts/inter.css
+    font: 'Inter'`
+
+const remote = `style:
+  label:
+    fontUrl: https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap
+    font: 'Inter, Arial, sans-serif'`
+
+const stroke = `style:
+  label:
+    fill: '#FFFFFF'
+    stroke: '#DC2626'
+    strokeWidth: 6`
+---
+
+<Docs
+  title="How to use a custom label font"
+  description="Draw callout labels in your product's typeface, whether it is installed on the machine, shipped in the repository, or hosted."
+>
+  <h1 class="text-4xl font-extrabold">Use a custom label font</h1>
+
+  <p class="text-lg">
+    By default, labels are drawn in a generic sans-serif. This guide draws them in your product's
+    typeface instead. Choose the section that matches where the font lives.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">The font is installed on the machine</h2>
+
+  <p>Name it under <code>style.label.font</code>:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={installed} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    The name has to be resolvable by the browser doing the drawing. A family that is not installed
+    falls back silently, so shotlist measures the rendered text and warns when the result is not the
+    typeface you asked for. It is a warning rather than an error, because a fallback still produces
+    a usable image.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">The font file is in the repository</h2>
+
+  <p>
+    Point <code>fontUrl</code> at the file. A <code>.woff2</code>, <code>.woff</code>,
+    <code>.otf</code> or <code>.ttf</code> works:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={fontFile} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    shotlist declares the face for you, under the first real family named in
+    <code>style.label.font</code> and at that label's weight. A stack made only of generic families such
+    as <code>sans-serif</code> is rejected, because there is no name to declare the file under.
+  </p>
+
+  <p>
+    One file is one face. If you need a regular and a bold, write a stylesheet and point at that
+    instead:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={stylesheet} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    The stylesheet is read from disk and inlined, along with the font files it references. Paths
+    resolve from the configuration file's folder, as every path in the configuration does.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">The font is hosted</h2>
+
+  <p>Give <code>fontUrl</code> an <code>http(s)</code> or <code>data:</code> URL:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={remote} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    The stylesheet is fetched when the callouts are drawn, so the machine taking screenshots needs
+    network access at that moment. The wait is bounded by <code>site.timeout</code>; past that,
+    labels are drawn in whatever the browser had and the run warns. A slow font server delays a run,
+    it never holds one open.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Adjust the outline around the glyphs</h2>
+
+  <p>
+    Labels are drawn filled, with an outline that separates them from the screenshot underneath:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={stroke} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    <code>strokeWidth</code> is centered on the glyph outline, so half of it is painted under the fill.
+    A value of 6 reads as a 3-pixel outline. Tools that draw the stroke entirely outside the glyph need
+    roughly double the number here to match.
+  </p>
+
+  <p>
+    <code>stroke</code> defaults to <code>style.color</code>, so setting the annotation color alone
+    keeps labels consistent with boxes and arrows.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li>
+      <a href="/docs/reference/configuration#style">Configuration reference: <code>style</code></a>
+    </li>
+    <li><a href="/docs/reference/callouts">Callouts and masks reference</a></li>
+  </ul>
+</Docs>

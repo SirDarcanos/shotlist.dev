@@ -1,0 +1,165 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import DocTable from '../../../components/DocTable.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const shape = `setup:
+  - click: { role: button, name: Orders }
+  - fill: { label: Search }
+    value: Acme
+  - wait: { css: '.order-row' }
+    comment: the list has settled, so the row can be measured`
+
+const blocks = `setup:
+  - repeat: 3
+    steps:
+      - click: { role: button, name: Load more }
+  - each: [Acme Corp, Globex]
+    as: customer
+    steps:
+      - fill: { label: Search }
+        value: $customer
+  - optional:
+      - click: { role: button, name: Dismiss }`
+---
+
+<Docs
+  title="Steps reference"
+  description="Every step verb, the keys it takes, and where steps may appear."
+>
+  <h1 class="text-4xl font-extrabold">Steps</h1>
+
+  <p>
+    Steps appear under <code>setup</code> in a recipe, under <code>steps</code> in a macro, and under
+    <code>steps</code> inside a <code>repeat</code> or <code>each</code> block. Each step is a mapping
+    led by one verb.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={shape} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Navigation and pages</h2>
+
+  <DocTable
+    head={['Step', 'Extra keys', 'Effect']}
+    rows={[
+      ['<code>goto: &lt;url&gt;</code>', '—', 'Navigate the current page'],
+      [
+        '<code>openPage: &lt;url&gt;</code>',
+        '<code>as</code>, <code>viewport</code>',
+        'Open a second page and name it',
+      ],
+      ['<code>usePage: &lt;name&gt;</code>', '—', 'Switch which page later steps drive'],
+    ]}
+  />
+
+  <h2 class="mt-14 text-2xl font-bold">Pointer</h2>
+
+  <DocTable
+    head={['Step', 'Extra keys', 'Effect']}
+    rows={[
+      ['<code>click: &lt;query&gt;</code>', '—', 'Click an element'],
+      ['<code>dblclick: &lt;query&gt;</code>', '—', 'Double-click an element'],
+      ['<code>hover: &lt;query&gt;</code>', '—', 'Move the pointer onto an element'],
+      ['<code>scrollIntoView: &lt;query&gt;</code>', '—', 'Scroll an element into view'],
+    ]}
+  />
+
+  <h2 class="mt-14 text-2xl font-bold">Input</h2>
+
+  <DocTable
+    head={['Step', 'Extra keys', 'Effect']}
+    rows={[
+      ['<code>fill: &lt;query&gt;</code>', '<code>value</code>', "Set an input's value"],
+      [
+        '<code>type: &lt;text&gt;</code>',
+        '<code>on</code>',
+        'Type text, optionally after focusing an element',
+      ],
+      [
+        '<code>press: &lt;key&gt;</code>',
+        '<code>on</code>',
+        'Press a key, optionally after focusing an element',
+      ],
+      [
+        '<code>select: &lt;query&gt;</code>',
+        '<code>option</code>, <code>optionLabel</code>',
+        'Choose an option by value or visible text',
+      ],
+      ['<code>check: &lt;query&gt;</code>', '—', 'Tick a checkbox'],
+      ['<code>uncheck: &lt;query&gt;</code>', '—', 'Untick a checkbox'],
+      ['<code>blur: &lt;query&gt;</code>', '—', 'Remove focus'],
+      [
+        '<code>readValue: &lt;query&gt;</code>',
+        '<code>as</code>',
+        "Read an input's value into a variable",
+      ],
+    ]}
+  />
+
+  <h2 class="mt-14 text-2xl font-bold">Waiting</h2>
+
+  <DocTable
+    head={['Step', 'Effect']}
+    rows={[
+      ['<code>wait: &lt;ms&gt;</code>', 'Wait a fixed number of milliseconds'],
+      [
+        '<code>wait: &lt;query&gt;</code>',
+        'Wait until an element exists, bounded by <code>site.timeout</code>',
+      ],
+    ]}
+  />
+
+  <h2 class="mt-14 text-2xl font-bold">Blocks</h2>
+
+  <DocTable
+    head={['Step', 'Extra keys', 'Effect']}
+    rows={[
+      [
+        '<code>use: &lt;macro&gt;</code>',
+        '<code>with</code>',
+        'Run a macro, overriding its defaults',
+      ],
+      ['<code>repeat: &lt;n&gt;</code>', '<code>steps</code>', 'Run steps n times, up to 1000'],
+      [
+        '<code>each: &lt;list&gt;</code>',
+        '<code>as</code>, <code>steps</code>',
+        'Run steps once per item',
+      ],
+      ['<code>optional: [steps]</code>', '—', 'Run steps, ignoring failures'],
+    ]}
+  />
+
+  <div class="mt-6">
+    <RecipeCard code={blocks} file="screenshots/recipes/order-list.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Keys any step accepts</h2>
+
+  <DocTable
+    head={['Key', 'Effect']}
+    rows={[['<code>comment</code>', 'A note for the reader; ignored at run time']]}
+  />
+
+  <p>
+    <code>comment</code> rides alongside a verb rather than being one, so a comment on its own is not
+    a step.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Variables</h2>
+
+  <p>
+    <code>as</code> names a value the following steps can read. <code>readValue: … as: total</code>
+    binds <code>$total</code> for the rest of the setup; <code>each: … as: order</code> binds
+    <code>$order</code> for its own steps only. Substitution happens in steps and nowhere else — see
+    <a href="/docs/reference/macros-and-data#references">references</a>.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Not available</h2>
+
+  <p>
+    There is no step that evaluates JavaScript. See
+    <a href="/docs/explanation/no-code">Why recipes cannot run code</a>.
+  </p>
+</Docs>

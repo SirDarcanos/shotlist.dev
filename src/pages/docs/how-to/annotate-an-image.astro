@@ -1,0 +1,125 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const recipe = `name: billing-settings
+source: file
+file: captures/billing-settings.png
+install: guide
+
+marks:
+  plan: { rect: [866, 874, 150, 50] }
+  seats: { rect: [866, 948, 150, 50] }
+
+callouts:
+  - { mark: plan, text: The current plan, place: top }
+  - { mark: seats, text: How many people it covers, place: bottom }`
+
+const numbered = `name: billing-settings
+source: file
+file: captures/billing-settings.png
+
+marks:
+  plan: { rect: [866, 874, 150, 50] }
+  seats: { rect: [866, 948, 150, 50] }
+
+numbered: [plan, seats]`
+
+const masked = `name: billing-settings
+source: file
+file: captures/billing-settings.png
+
+mask:
+  - { rect: [120, 96, 320, 40] }
+
+marks:
+  plan: { rect: [866, 874, 150, 50] }
+
+callouts:
+  - { mark: plan, text: The current plan }`
+---
+
+<Docs
+  title="How to annotate an existing image"
+  description="Draw shotlist callouts on a screenshot you already have, for screens no script can reach."
+>
+  <h1 class="text-4xl font-extrabold">Annotate an existing image</h1>
+
+  <p class="text-lg">
+    Some screens cannot be reached by a script: a sign-in with a hardware key, a browser extension's
+    own interface, a native dialog. This guide annotates a picture you took by hand, using the same
+    callouts and the same publication step as every other recipe.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 1: put the image somewhere in the project</h2>
+
+  <p>
+    Take the screenshot however you like and save it in the repository. PNG, JPEG and WebP are all
+    accepted, and the format is read from the file's contents rather than its name.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 2: measure the regions</h2>
+
+  <p>
+    There is no page to search, so marks are literal rectangles rather than queries. Open the image
+    in any editor that shows pixel coordinates and note, for each region you want to point at, its
+    <code>[x, y, width, height]</code> in image pixels.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 3: write the recipe</h2>
+
+  <p>
+    Set <code>source: file</code> and give <code>file</code> the path to the image, resolved from the
+    configuration file's folder:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={recipe} file="screenshots/recipes/billing-settings.yaml" />
+  </div>
+
+  <p>
+    Run it exactly as you would any other recipe. Callouts, numbered discs, style overrides,
+    <code>install</code> and <code>--check</code> all behave the same way.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Number the regions instead</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={numbered} file="screenshots/recipes/billing-settings.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Cover something in the image</h2>
+
+  <p><code>mask</code> also takes literal rectangles here:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={masked} file="screenshots/recipes/billing-settings.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Notes</h2>
+
+  <ul>
+    <li>
+      Playwright is still required. The callouts are drawn in a browser page, even though no site is
+      opened.
+    </li>
+    <li>
+      <code>retries</code> has no effect on these recipes. There is no live page to be flaky, so a second
+      attempt would reach the same answer.
+    </li>
+    <li>
+      The coordinates are in the image's own pixels. If you re-take the picture at a different size,
+      re-measure.
+    </li>
+  </ul>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/reference/recipe#source">Recipe reference: <code>source</code></a></li>
+    <li><a href="/docs/reference/callouts">Callouts and masks reference</a></li>
+    <li>
+      <a href="/docs/how-to/sign-in">Capture a page behind a sign-in</a>, when it can be automated
+    </li>
+  </ul>
+</Docs>

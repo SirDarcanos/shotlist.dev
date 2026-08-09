@@ -10,39 +10,78 @@ const { title, description } = Astro.props
 const path = Astro.url.pathname
 
 /**
- * The whole reference, in reading order.
+ * The documentation, grouped by what the reader is doing.
  *
- * Flat on purpose: this is one document in eleven parts, not a manual with sections. If
- * it ever stops being that, the shape here is what tells us.
+ * The four groups are the Diátaxis quadrants: tutorials teach, how-to guides solve a
+ * stated problem, reference describes the machinery, and explanation discusses it. A page
+ * belongs to exactly one of them.
  *
- * `ready: false` renders the entry without a link. The shape of the finished reference is
- * worth showing early; sending a reader to a 404 to show it is not.
+ * `ready: false` renders the entry without a link.
  */
 const sections = [
   {
-    label: 'Start',
+    label: 'Overview',
+    items: [{ href: '/docs', label: 'Documentation', ready: true }],
+  },
+  {
+    label: 'Tutorials',
     items: [
-      { href: '/docs', label: 'Introduction', ready: true },
-      { href: '/docs/install', label: 'Install', ready: true },
-      { href: '/docs/config', label: 'Configuration', ready: true },
+      { href: '/docs/tutorials/first-screenshot', label: 'Your first screenshot', ready: true },
+      {
+        href: '/docs/tutorials/keeping-a-screenshot-current',
+        label: 'Keeping a screenshot current',
+        ready: true,
+      },
+    ],
+  },
+  {
+    label: 'How-to guides',
+    items: [
+      { href: '/docs/how-to/install', label: 'Add shotlist to a project', ready: true },
+      { href: '/docs/how-to/start-the-site', label: 'Start the site automatically', ready: true },
+      { href: '/docs/how-to/lint', label: 'Check files without a browser', ready: true },
+      { href: '/docs/how-to/drive-a-page', label: 'Capture a page after interaction', ready: true },
+      { href: '/docs/how-to/share-setup', label: 'Share setup between recipes', ready: true },
+      { href: '/docs/how-to/sign-in', label: 'Capture a page behind a sign-in', ready: true },
+      { href: '/docs/how-to/annotate-an-image', label: 'Annotate an existing image', ready: true },
+      { href: '/docs/how-to/hide-changing-data', label: 'Hide data that changes', ready: true },
+      { href: '/docs/how-to/label-font', label: 'Use a custom label font', ready: true },
+      { href: '/docs/how-to/run-in-ci', label: 'Run shotlist in CI', ready: true },
     ],
   },
   {
     label: 'Reference',
     items: [
-      { href: '/docs/recipes', label: 'Recipes', ready: true },
-      { href: '/docs/steps', label: 'Steps', ready: true },
-      { href: '/docs/queries', label: 'Queries', ready: true },
-      { href: '/docs/callouts', label: 'Callouts', ready: true },
-      { href: '/docs/macros', label: 'Macros and data', ready: true },
+      { href: '/docs/reference/cli', label: 'Command line', ready: true },
+      { href: '/docs/reference/configuration', label: 'Configuration file', ready: true },
+      { href: '/docs/reference/recipe', label: 'Recipe file', ready: true },
+      { href: '/docs/reference/steps', label: 'Steps', ready: true },
+      { href: '/docs/reference/queries', label: 'Queries', ready: true },
+      { href: '/docs/reference/callouts', label: 'Callouts and masks', ready: true },
+      { href: '/docs/reference/macros-and-data', label: 'Macros and data files', ready: true },
     ],
   },
   {
-    label: 'Running it',
+    label: 'Explanation',
     items: [
-      { href: '/docs/running-shotlist', label: 'Running shotlist', ready: true },
-      { href: '/docs/check', label: 'Checking for staleness', ready: true },
-      { href: '/docs/security', label: 'What a config can do', ready: true },
+      { href: '/docs/explanation/no-code', label: 'Why recipes cannot run code', ready: true },
+      {
+        href: '/docs/explanation/playwright',
+        label: 'Why Playwright is separate',
+        ready: true,
+      },
+      {
+        href: '/docs/explanation/durable-queries',
+        label: 'Queries that survive a redesign',
+        ready: true,
+      },
+      { href: '/docs/explanation/placement', label: 'How labels are placed', ready: true },
+      {
+        href: '/docs/explanation/security-model',
+        label: 'What a configuration can do',
+        ready: true,
+      },
+      { href: '/docs/explanation/image-drift', label: 'Why screenshots drift', ready: true },
     ],
   },
 ]

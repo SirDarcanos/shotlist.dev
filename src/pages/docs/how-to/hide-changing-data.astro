@@ -1,0 +1,174 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const mask = `name: dashboard
+install: guide
+
+clip: { css: '.panel' }
+
+mask:
+  - { within: clip, css: '.updated-at' }
+  - { css: '.avatar' }`
+
+const maskWays = `mask:
+  - { within: clip, css: span, nth: 2 }
+  - { within: clip, child: 2 }
+  - { rect: [172, 84, 52, 20] }`
+
+const ignore = `name: roll-form
+install: guide
+
+clip: { css: '.card' }
+
+check:
+  ignore:
+    - { css: 'output#result' }`
+
+const off = `name: activity-feed
+install: guide
+
+clip: { css: '.feed' }
+check: false`
+
+const thresholds = `check:
+  threshold: 0.002
+  tolerance: 8`
+---
+
+<Docs
+  title="How to hide data that changes"
+  description="Stop clocks, live totals and avatars from reporting a difference on every run, using masks, ignored regions or by turning the check off."
+>
+  <h1 class="text-4xl font-extrabold">Hide data that changes</h1>
+
+  <p class="text-lg">
+    A screenshot containing a clock, a live total or a random avatar reports a difference every time
+    you run <code>--check</code>. This guide gives you three ways to stop that.
+  </p>
+
+  <p>
+    They are not a sequence to work through. Choose by one question — does the region belong in the
+    published screenshot?
+  </p>
+
+  <ul>
+    <li>
+      <strong>No, it should not be seen</strong> — a customer's name, a face, a real balance. Paint over
+      it with <code>mask</code>.
+    </li>
+    <li>
+      <strong>Yes, a reader needs it</strong> — a chart, a result, a total the documentation is about.
+      Keep it and excuse it with <code>check.ignore</code>.
+    </li>
+    <li>
+      <strong>Nothing in the image holds still</strong> — turn the comparison off with
+      <code>check: false</code>, knowing what that gives up.
+    </li>
+  </ul>
+
+  <p>
+    One more thing decides whether you need any of them: size. A region that differs on every
+    capture only fails the check if it exceeds <code>check.threshold</code>. A ticking clock in a
+    large screenshot often sits under it and never reports anything.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Option 1: paint over the region</h2>
+
+  <p>
+    Use <code>mask</code> when the changing value does not need to be in the picture. Each entry is a
+    query, and the region is painted over before the callouts are drawn:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={mask} file="screenshots/recipes/dashboard.yaml" />
+  </div>
+
+  <p>
+    A mask covers every element its query matches, not the first — a page has three avatars far more
+    often than it has one. Add <code>pick</code> or <code>nth</code> when you mean a single element.
+  </p>
+
+  <h3>Key the mask on something stable</h3>
+
+  <p>
+    Match a class, a test id or a position, never the value you are hiding.
+    <code>{'{ text: $42.00 }'}</code> matches the figure today and nothing at all tomorrow, when it reads
+    <code>$51.00</code>. The failure is loud — a mask matching nothing stops the run — but it is
+    still a broken recipe.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={maskWays} file="screenshots/recipes/dashboard.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">
+    Option 2: keep the region visible, but out of the comparison
+  </h2>
+
+  <p>
+    Use <code>check.ignore</code> when the changing value is the point of the screenshot — a result, a
+    total, a generated identifier. The region is captured as it is, and only its contents are excused
+    from the comparison:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={ignore} file="screenshots/recipes/roll-form.yaml" />
+  </div>
+
+  <p>Only the contents are excused, not the geometry. shotlist still reports a difference when:</p>
+
+  <ul>
+    <li>the region moves or changes size, because what it used to cover is compared again</li>
+    <li>the query matches nothing at all, which fails the recipe outright</li>
+  </ul>
+
+  <p>
+    A result that skipped something says so — <code>same roll-form (1 region not compared)</code> — so
+    a pass is never read as covering the whole image.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Option 3: turn the check off for that screenshot</h2>
+
+  <p>Use <code>check: false</code> only when nothing in the image holds still:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={off} file="screenshots/recipes/activity-feed.yaml" />
+  </div>
+
+  <p>
+    This gives up more than it looks. The recipe is still taken, so it still fails if the page
+    changes enough to break a query, but nothing about the image itself is checked.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Adjust the tolerances instead</h2>
+
+  <p>
+    If the noise is small and spread across the whole image rather than confined to a region, raise
+    the limits in your configuration rather than excluding anything:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={thresholds} file="shotlist.config.yaml" />
+  </div>
+
+  <ul>
+    <li>
+      <code>threshold</code> is the fraction of pixels that may differ before a screenshot counts as changed.
+    </li>
+    <li>
+      <code>tolerance</code> is how far one color channel may move, out of 255, before a pixel counts
+      as different.
+    </li>
+  </ul>
+
+  <p>A recipe can set both under its own <code>check</code> key.</p>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/reference/callouts#masks">Callouts and masks reference</a></li>
+    <li><a href="/docs/reference/recipe#check">Recipe reference: <code>check</code></a></li>
+    <li><a href="/docs/explanation/image-drift">Why screenshots drift</a></li>
+  </ul>
+</Docs>

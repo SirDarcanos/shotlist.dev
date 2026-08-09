@@ -1,48 +1,121 @@
 ---
+import CommandTabs from '../../components/CommandTabs.astro'
 import Docs from '../../layouts/Docs.astro'
-import RecipeCard from '../../components/RecipeCard.astro'
-import { minimalRecipe, configExample } from '../../lib/recipes'
+
+const install = [
+  { label: 'npm', code: 'npm i -D shotlist playwright' },
+  { label: 'pnpm', code: 'pnpm add -D shotlist playwright' },
+  { label: 'yarn', code: 'yarn add -D shotlist playwright' },
+]
+
+const quadrants = [
+  {
+    title: 'Tutorials',
+    summary: 'Lessons that take you through a complete piece of work, step by step.',
+    hint: 'Start here if you have never used shotlist.',
+    links: [
+      { href: '/docs/tutorials/first-screenshot', label: 'Your first screenshot' },
+      {
+        href: '/docs/tutorials/keeping-a-screenshot-current',
+        label: 'Keeping a screenshot current',
+      },
+    ],
+  },
+  {
+    title: 'How-to guides',
+    summary: 'Directions for solving one specific problem, assuming you already know the basics.',
+    hint: 'Come here when you have a task in front of you.',
+    links: [
+      { href: '/docs/how-to/install', label: 'Add shotlist to a project' },
+      { href: '/docs/how-to/start-the-site', label: 'Start the site automatically' },
+      { href: '/docs/how-to/lint', label: 'Check files without a browser' },
+      { href: '/docs/how-to/drive-a-page', label: 'Capture a page after interaction' },
+      { href: '/docs/how-to/share-setup', label: 'Share setup between recipes' },
+      { href: '/docs/how-to/sign-in', label: 'Capture a page behind a sign-in' },
+      { href: '/docs/how-to/annotate-an-image', label: 'Annotate an existing image' },
+      { href: '/docs/how-to/hide-changing-data', label: 'Hide data that changes' },
+      { href: '/docs/how-to/label-font', label: 'Use a custom label font' },
+      { href: '/docs/how-to/run-in-ci', label: 'Run shotlist in CI' },
+    ],
+  },
+  {
+    title: 'Reference',
+    summary: 'Complete descriptions of every command, file and key.',
+    hint: 'Consult this when you need to look something up.',
+    links: [
+      { href: '/docs/reference/cli', label: 'Command line' },
+      { href: '/docs/reference/configuration', label: 'Configuration file' },
+      { href: '/docs/reference/recipe', label: 'Recipe file' },
+      { href: '/docs/reference/steps', label: 'Steps' },
+      { href: '/docs/reference/queries', label: 'Queries' },
+      { href: '/docs/reference/callouts', label: 'Callouts and masks' },
+      { href: '/docs/reference/macros-and-data', label: 'Macros and data files' },
+    ],
+  },
+  {
+    title: 'Explanation',
+    summary: 'Background on why shotlist works the way it does.',
+    hint: 'Read these when you want to understand a design decision.',
+    links: [
+      { href: '/docs/explanation/no-code', label: 'Why recipes cannot run code' },
+      { href: '/docs/explanation/playwright', label: 'Why Playwright is a peer dependency' },
+      { href: '/docs/explanation/durable-queries', label: 'Queries that survive a redesign' },
+      { href: '/docs/explanation/placement', label: 'How labels are placed' },
+      { href: '/docs/explanation/security-model', label: 'What a configuration can do' },
+      { href: '/docs/explanation/image-drift', label: 'Why screenshots drift' },
+    ],
+  },
+]
 ---
 
 <Docs
-  title="Introduction"
-  description="What shotlist is, what a recipe looks like, and how a screenshot is produced from one."
+  title="Documentation"
+  description="Tutorials, how-to guides, reference and explanation for shotlist, a tool that takes annotated UI screenshots from YAML recipes."
 >
-  <h1 class="text-4xl font-extrabold">Introduction</h1>
+  <h1 class="text-4xl font-extrabold">Documentation</h1>
 
   <p class="text-lg">
-    shotlist takes annotated UI screenshots. It drives a running site with Playwright, clips a
-    region, draws callouts on it, and writes the image where the project asks.
+    shotlist takes annotated UI screenshots. You describe each screenshot in a YAML file called a
+    recipe; shotlist drives your site with Playwright, captures a region, draws callouts on it, and
+    writes the image to a location you choose.
   </p>
 
   <p>
-    Each screenshot is a <a href="/docs/recipes">YAML recipe</a>. What the screenshots are for — a
-    handbook, a landing page, a release post, a store listing — is not the tool's concern, and
-    nothing in it assumes one of them.
+    The documentation is organized into four parts. Each part answers a different kind of question,
+    so the fastest route to an answer is to pick the part that matches what you are doing.
   </p>
 
-  <h2 class="mt-14 text-2xl font-bold">A recipe</h2>
-  <p>
-    A recipe names the region to capture, the regions inside it worth pointing at, and what to draw
-    on those. Everything else has a default.
-  </p>
-  <div class="mt-6">
-    <RecipeCard code={minimalRecipe} file="screenshots/recipes/order-row.yaml" />
-  </div>
+  <h2 class="mt-14 text-2xl font-bold">Installation</h2>
 
-  <h2 class="mt-14 text-2xl font-bold">A project's config</h2>
   <p>
-    One <code>shotlist.config.yaml</code> in the project root says where the site runs and where images
-    are installed. Every drawing constant — color, stroke, radius, font — is configurable here too, with
-    a neutral default.
+    shotlist requires Node.js 20 or later, and Playwright as a peer dependency. Install both as
+    development dependencies:
   </p>
-  <div class="mt-6">
-    <RecipeCard code={configExample} file="shotlist.config.yaml" />
-  </div>
 
-  <h2 class="mt-14 text-2xl font-bold">A recipe is data</h2>
+  <CommandTabs commands={install} class="mt-6" />
+
   <p>
-    Nothing in a recipe runs. There is no step that evaluates JavaScript, and there will not be one.
-    That keeps a recipe readable by anyone, and a broken screenshot fixable by anyone.
+    <a href="/docs/how-to/install">Add shotlist to a project</a> covers this in full, including editor
+    and agent support. To learn on a prepared application instead, follow
+    <a href="/docs/tutorials/first-screenshot">Your first screenshot</a>, which begins by
+    downloading one. For why Playwright is separate, see
+    <a href="/docs/explanation/playwright">Why Playwright is a peer dependency</a>.
   </p>
+
+  {
+    quadrants.map((quadrant) => (
+      <section class="mt-14">
+        <h2 class="text-2xl font-bold">{quadrant.title}</h2>
+        <p>{quadrant.summary}</p>
+        <p class="text-sm italic">{quadrant.hint}</p>
+        <ul>
+          {quadrant.links.map((link) => (
+            <li>
+              <a href={link.href}>{link.label}</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
 </Docs>

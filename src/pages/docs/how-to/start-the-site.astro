@@ -1,0 +1,133 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import DocTable from '../../../components/DocTable.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const short = `site:
+  url: http://localhost:4321
+  serve: npm run dev`
+
+const long = `site:
+  url: http://localhost:4321
+  serve:
+    command: npm run dev
+    ready: 4321
+    cwd: apps/web
+    env: { PORT: '4321' }
+    timeout: 30000`
+
+const logReady = `site:
+  serve:
+    command: npm run preview
+    ready: { log: 'Local:' }`
+
+const scriptEnv = `site:
+  serve:
+    command: npm run dev
+    env:
+      DATABASE_URL: postgres://localhost/demo
+      SEED: fixtures`
+---
+
+<Docs
+  title="How to start the site automatically"
+  description="Configure shotlist to launch your development server before it takes screenshots, and stop it afterwards."
+>
+  <h1 class="text-4xl font-extrabold">Start the site automatically</h1>
+
+  <p class="text-lg">
+    By default shotlist expects something to already be answering at <code>site.url</code>. This
+    guide makes a run start the server itself, which is what you need in continuous integration and
+    on a clean checkout.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Name the command</h2>
+
+  <p>Add <code>site.serve</code> to your configuration:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={short} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    Before starting anything, shotlist requests <code>site.url</code>. If something answers, it uses
+    that server and starts nothing, so you can leave this setting in place while you work with your
+    own development server open in another terminal.
+  </p>
+
+  <p>
+    Whatever a run starts, it stops, including when you interrupt it with Ctrl-C. The command runs
+    in its own process group, so stopping <code>npm run dev</code> also stops the server npm spawned.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Control how it starts</h2>
+
+  <p>Write <code>serve</code> as a mapping when you need more than the command:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={long} file="shotlist.config.yaml" />
+  </div>
+
+  <DocTable
+    head={['Key', 'Default', 'Effect']}
+    rows={[
+      ['<code>command</code>', 'required', 'The program to run, with its arguments'],
+      [
+        '<code>ready</code>',
+        '<code>site.url</code>',
+        'What proves the server is up: a URL, a port number, or <code>{ log: &lt;pattern&gt; }</code>',
+      ],
+      ['<code>cwd</code>', "the configuration file's folder", 'Where to run the command'],
+      ['<code>env</code>', '<code>{}</code>', 'Extra environment variables for the command'],
+      ['<code>timeout</code>', '<code>30000</code>', 'Milliseconds to wait for it to answer'],
+    ]}
+  />
+
+  <h2 class="mt-14 text-2xl font-bold">Wait for a line of output instead of a port</h2>
+
+  <p>
+    Some servers accept connections before they can serve anything. When that produces flaky runs,
+    wait for the line the server prints when it is genuinely ready:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={logReady} file="shotlist.config.yaml" />
+  </div>
+
+  <p>The three forms of <code>ready</code> are satisfied by:</p>
+
+  <ul>
+    <li>a URL, when any HTTP response arrives, including a 404</li>
+    <li>a port number, when the port accepts a connection</li>
+    <li><code>{'{ log: … }'}</code>, when the pattern matches the server's output</li>
+  </ul>
+
+  <h2 class="mt-14 text-2xl font-bold">Pass environment variables</h2>
+
+  <p>
+    The command runs directly, not through a shell, so <code>VAR=value npm run dev</code> will be rejected
+    rather than interpreted. Put the variables under <code>env</code>:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={scriptEnv} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    For the same reason, <code>&amp;&amp;</code>, <code>|</code> and redirection are rejected. If your
+    start-up genuinely needs a shell, put it in a script and name the script here.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li>
+      <a href="/docs/reference/configuration#site">Configuration reference: <code>site</code></a>
+    </li>
+    <li><a href="/docs/how-to/run-in-ci">Run shotlist in CI</a></li>
+    <li>
+      <a href="/docs/explanation/security-model">What a configuration can do</a>, which covers why
+      <code>--untrusted</code> refuses to start a process at all
+    </li>
+  </ul>
+</Docs>

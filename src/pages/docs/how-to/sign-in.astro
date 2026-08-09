@@ -1,0 +1,218 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const sessions = `site:
+  sessions:
+    admin: .shotlist/admin.json
+    reader:
+      path: .shotlist/reader.json
+      verify: '[data-signed-in]'`
+
+const login = `npx shotlist --login admin`
+
+const scripted = `npx shotlist --login admin --using sign-in`
+
+const macro = `steps:
+  - fill: { label: Email }
+    value: admin@example.com
+  - fill: { label: Password }
+    value: \${env.ADMIN_PASSWORD}
+  - click: { role: button, name: Sign in }`
+
+const allowEnvFlag = `npx shotlist --login admin --using sign-in --allow-env ADMIN_PASSWORD`
+
+const allowEnv = `allowEnv:
+  - ADMIN_PASSWORD`
+
+const envFile = `ADMIN_PASSWORD=hunter2
+SHOTLIST_ENV=ADMIN_PASSWORD`
+
+const withEnvFile = `node --env-file=.env node_modules/.bin/shotlist --all --install`
+
+const sourced = `set -a; . ./.env; set +a
+npx shotlist --all --install`
+
+const ignore = `.shotlist/`
+---
+
+<Docs
+  title="How to capture a page behind a sign-in"
+  description="Save a signed-in browser session once, then take screenshots of pages that require an account."
+>
+  <h1 class="text-4xl font-extrabold">Capture a page behind a sign-in</h1>
+
+  <p class="text-lg">
+    Pages that require an account cannot be reached by a browser that has just started. This guide
+    saves a signed-in session once, then reuses it for every screenshot that needs it.
+  </p>
+
+  <p>
+    A session is what a signed-in browser carries: its cookies and per-origin local storage.
+    shotlist stores it in a JSON file. You never write that file by hand.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 1: declare the sessions</h2>
+
+  <p>Name each session in your configuration, and say where its file should live:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={sessions} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    Sessions are named rather than singular because the same page is often worth photographing more
+    than once: as an administrator, and as somebody with no rights at all.
+  </p>
+
+  <p>
+    <code>verify</code> is a selector that only a signed-in page contains, such as an avatar, an admin
+    bar or a sign-out link. Set it. Without it, an expired session does not fail: the site redirects to
+    its sign-in form, every screenshot in the run becomes a picture of that form, and
+    <code>--install</code> publishes them.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 2: sign in once</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={login} lang="bash" />
+  </div>
+
+  <p>
+    This opens a browser at <code>site.url</code> and waits while you sign in by hand. When you are done,
+    it writes the cookies the browser came back with to the path you declared, creating the folder if
+    needed. Your password never reaches shotlist.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 3: point a recipe at the session</h2>
+
+  <p>
+    Add <code>session: admin</code> to any recipe that should be taken as that account. Leave it out and
+    the browser is a stranger to the site, which is what you want for screenshots of signed-out pages.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Sign in without a person at the keyboard</h2>
+
+  <p>
+    In continuous integration there is nobody to type a password. Write the sign-in as a macro and
+    pass it to <code>--using</code>, which runs it in a headless browser instead of waiting:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={scripted} lang="bash" />
+  </div>
+
+  <div class="mt-4">
+    <RecipeCard code={macro} file="screenshots/macros/sign-in.yaml" />
+  </div>
+
+  <p>
+    <code>{'${env.ADMIN_PASSWORD}'}</code> resolves only for names the person running the command allowed,
+    so the run must name it:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={allowEnvFlag} lang="bash" />
+  </div>
+
+  <p>
+    <code>--allow-env</code> is repeatable. A CI system that already exports its secrets can list the
+    names in <code>SHOTLIST_ENV</code> instead; the two add up. An allowed name that is empty stays unresolved
+    and the run reports which one it was, rather than typing nothing into a password field and reporting
+    a failed sign-in.
+  </p>
+
+  <p>
+    If your project always signs in the same way, name the variables once in the configuration
+    instead of repeating the flag on every run:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={allowEnv} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    <code>allowEnv</code> holds names, never values — the values stay in the environment. It adds to whatever
+    the command line and <code>SHOTLIST_ENV</code> allowed, and an
+    <code>--untrusted</code> run ignores it, the same way it ignores <code>site.allow</code>. A
+    machine that sets <code>SHOTLIST_ENV_DENY</code> can put a name beyond all three. See
+    <a href="/docs/reference/configuration#allowenv">the configuration reference</a>.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Keeping the password in a .env file</h2>
+
+  <p>
+    You can, and it works with everything on this page — but load it yourself.
+    <span class="font-medium text-ink">shotlist never reads a <code>.env</code> file.</span> That name
+    is on the list of paths it refuses to open in every mode, with no flag to turn it off, so a configuration
+    cannot aim anything at one either.
+  </p>
+
+  <p>Write the file as usual:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={envFile} lang="bash" file=".env" />
+  </div>
+
+  <p>Then put it into the environment before shotlist starts. Node can do it:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={withEnvFile} lang="bash" />
+  </div>
+
+  <p>Or the shell can:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={sourced} lang="bash" />
+  </div>
+
+  <p>
+    <code>--env-file</code> arrived in Node 20.6, and shotlist supports Node 20 and later, so on 20.0
+    to 20.5 it fails with an unknown option. The <code>set -a</code> form works everywhere.
+  </p>
+
+  <p>
+    Once the file is loaded there is nothing special about it. shotlist reads the process
+    environment, so <code>SHOTLIST_ENV</code>, <code>SHOTLIST_ENV_DENY</code>,
+    <code>SHOTLIST_DENY</code> and <code>SHOTLIST_UNTRUSTED</code> can all live in
+    <code>.env</code> alongside the secrets themselves. For why shotlist will not load it for you, see
+    <a href="/docs/explanation/security-model#dotenv">What a configuration can do</a>.
+  </p>
+
+  <p>
+    Without a terminal to wait in and without <code>--using</code>, the run reports that it cannot
+    sign in rather than hanging.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Keep the session file out of version control</h2>
+
+  <p>
+    The file holds live cookies. Anyone who has it is signed in as whoever created it. Add the
+    folder to your <code>.gitignore</code>:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={ignore} lang="bash" file=".gitignore" />
+  </div>
+
+  <p>
+    An <code>--untrusted</code> run loads no session at all, so a configuration you did not write cannot
+    ask to be somebody.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/reference/cli">Command line reference</a></li>
+    <li>
+      <a href="/docs/reference/configuration#sessions"
+        >Configuration reference: <code>sessions</code></a
+      >
+    </li>
+    <li><a href="/docs/explanation/security-model">What a configuration can do</a></li>
+    <li>
+      <a href="/docs/how-to/annotate-an-image">Annotate an existing image</a>, for a sign-in that
+      cannot be automated at all
+    </li>
+  </ul>
+</Docs>

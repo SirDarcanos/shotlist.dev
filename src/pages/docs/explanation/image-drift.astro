@@ -1,0 +1,130 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const warning = `! this is not the machine the committed images were taken on:
+    chromium: 141.0.0.0 → 139.0.0.0
+    platform: darwin → linux
+  Differences below may be that, rather than the site.`
+---
+
+<Docs
+  title="Why screenshots drift"
+  description="Why the same page produces different pixels on a different machine, and what shotlist does about it instead of trying to prevent it."
+>
+  <h1 class="text-4xl font-extrabold">Why screenshots drift</h1>
+
+  <p class="text-lg">
+    Take the same screenshot of the same unchanged page on two machines and the files will differ.
+    This page explains why, and why shotlist reports the difference rather than trying to eliminate
+    it.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Where the differences come from</h2>
+
+  <h3>Text rasterization</h3>
+
+  <p>
+    Turning a glyph outline into pixels involves hinting, subpixel positioning and antialiasing, and
+    the rules differ between operating systems and between Chromium versions. The same word at the
+    same size lands on slightly different pixels. This affects every screenshot, because interfaces
+    are mostly text.
+  </p>
+
+  <h3>Available fonts</h3>
+
+  <p>
+    A font stack ending in <code>sans-serif</code> resolves to whatever the machine has. That is a different
+    typeface on a Linux runner than on a designer's laptop, which is not a subtle pixel difference but
+    a different picture. The same applies to callout labels, which is why shotlist warns when the typeface
+    it measured is not the one you asked for.
+  </p>
+
+  <h3>Timing</h3>
+
+  <p>
+    Animations, lazily loaded images and data that arrives over the network all make the moment of
+    capture significant. <code>site.reducedMotion</code> is on by default for this reason, and
+    <code>site.ready</code> and <code>site.settle</code> exist to move the capture to a defined point
+    rather than an arbitrary one.
+  </p>
+
+  <h3>The content itself</h3>
+
+  <p>
+    Clocks, relative timestamps, generated identifiers, random avatars and live totals differ on
+    every run by design. This is the one category you can address directly, with
+    <a href="/docs/how-to/hide-changing-data">masks or ignored regions</a>.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Why not just normalize it away</h2>
+
+  <p>
+    A comparison that ignored enough to be immune to all of this would have to ignore text rendering
+    almost entirely, and text is where the meaningful changes are. A button whose label changed, a
+    heading that moved, a number that is now wrong: those are text differences, and a tool tuned to
+    forgive text differences forgives them too.
+  </p>
+
+  <p>
+    The two tuning knobs shotlist offers are deliberately narrow.
+    <code>tolerance</code> forgives a small shift in a single channel, which covers antialiasing.
+    <code>threshold</code> forgives a small proportion of the image, which covers a scattering of edge
+    pixels. Neither forgives a region.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Recording the machine instead</h2>
+
+  <p>
+    Since the differences cannot be eliminated, shotlist records where the committed images came
+    from.
+    <code>--install</code> writes <code>shotlist.baseline.json</code> beside the configuration, holding
+    the shotlist, Playwright and Chromium versions and the platform.
+  </p>
+
+  <p>
+    When <code>--check</code> runs somewhere that does not match, it says so before the results:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={warning} lang="bash" />
+  </div>
+
+  <p>
+    This does not make the comparison more accurate. It changes how you read the result, which is
+    the part that was actually going wrong: a reviewer who sees a 4% difference and no context
+    assumes a regression, and a reviewer who has seen this warning three times starts ignoring real
+    ones.
+  </p>
+
+  <p>
+    The same information is in the <code>drift</code> field of the JSON report, so an automated job can
+    distinguish a re-render from a regression without reading prose.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">What this means in practice</h2>
+
+  <ul>
+    <li>
+      Take and publish the committed screenshots on the same platform your continuous integration
+      uses. A container is the reliable way to do this.
+    </li>
+    <li>
+      Pin the versions that matter. Chromium arrives with Playwright, so pinning Playwright pins the
+      renderer.
+    </li>
+    <li>
+      Treat a percentage as a prompt to look, not a verdict. Use <code>--diff</code>, which is why
+      it exists.
+    </li>
+    <li>Handle changing content with masks or ignored regions rather than with tolerances.</li>
+  </ul>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/tutorials/keeping-a-screenshot-current">Keeping a screenshot current</a></li>
+    <li><a href="/docs/how-to/hide-changing-data">Hide data that changes</a></li>
+    <li><a href="/docs/how-to/run-in-ci">Run shotlist in CI</a></li>
+  </ul>
+</Docs>

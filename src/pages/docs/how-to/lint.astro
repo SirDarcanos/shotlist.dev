@@ -1,0 +1,126 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const run = `npx shotlist --lint`
+
+const clean = `nothing wrong in 9 files`
+
+const problems = `screenshots/recipes/order-row.yaml
+  ✗ clip: unknown key "marching" — did you mean "matching"?
+screenshots/macros/sign-in.yaml
+  ✗ steps.1: unrecognized step "fil"
+
+2 errors in 9 files`
+
+const withWarnings = `npx shotlist --lint --warnings`
+
+const warned = `screenshots/recipes/dashboard.yaml
+  ! mark "status" is never used by a callout
+  ! install: "handbook" is not a destination the config names
+
+0 errors, 2 warnings in 9 files`
+
+const ci = `- run: npx shotlist --lint --warnings`
+---
+
+<Docs
+  title="How to check your files without a browser"
+  description="Parse every config, recipe, macro and data file at once with shotlist --lint, and report everything wrong before a run opens a browser."
+>
+  <h1 class="text-4xl font-extrabold">Check your files without a browser</h1>
+
+  <p class="text-lg">
+    A shoot stops at the first document it cannot read, so fixing a shot list becomes a matter of
+    running it, reading one complaint, fixing it, and running it again. This guide checks everything
+    at once instead, without Playwright and without your site running.
+  </p>
+
+  <p>Requires shotlist 0.4.0 or later.</p>
+
+  <h2 class="mt-14 text-2xl font-bold">Check everything</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={run} lang="bash" />
+  </div>
+
+  <p>
+    This parses the configuration and every recipe, macro and data file it names, reports what is
+    wrong with all of them, and stops. Nothing is opened, nothing is captured, and no image is
+    written.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={clean} lang="bash" />
+  </div>
+
+  <p>When something is wrong, the report is grouped by file:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={problems} lang="bash" />
+  </div>
+
+  <p>
+    It exits non-zero when any file has an error, so it works as a pre-commit hook or a CI step
+    without any extra plumbing.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Include what is legal but probably unmeant</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={withWarnings} lang="bash" />
+  </div>
+
+  <div class="mt-6">
+    <RecipeCard code={warned} lang="bash" />
+  </div>
+
+  <p>Warnings are marked <code>!</code> rather than <code>✗</code>, and cover:</p>
+
+  <ul>
+    <li>a mark no callout points at</li>
+    <li>a callout pointing at a mark nothing defines</li>
+    <li>an <code>install:</code> naming a destination the configuration does not have</li>
+    <li>a <code>session:</code> naming a session the configuration does not have</li>
+  </ul>
+
+  <p>
+    <code>--warnings</code> never changes the exit code. A file with warnings and no errors still exits
+    <code>0</code>, so you can turn this on in CI without it failing builds on style.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Run it in CI</h2>
+
+  <p>
+    Put it before the job that takes screenshots. It needs no browser, so it finishes in about a
+    second and catches the failures that would otherwise appear several minutes into a shoot:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={ci} lang="bash" file=".github/workflows/screenshots.yml" />
+  </div>
+
+  <p>
+    A job that only lints needs neither Playwright nor a running site, so it can skip both installs
+    entirely. See <a href="/docs/how-to/run-in-ci">Run shotlist in CI</a>.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">What it cannot tell you</h2>
+
+  <p>
+    Linting is about the files, not the site. A recipe that parses can still fail when it runs,
+    because a query only resolves against a real page. <code>--lint</code> catches a misspelled key; only
+    a shoot catches a button that was renamed.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/reference/cli">Command line reference</a></li>
+    <li><a href="/docs/how-to/run-in-ci">Run shotlist in CI</a></li>
+    <li>
+      <a href="/docs/explanation/playwright">Why Playwright is a peer dependency</a>, for what else
+      runs without a browser
+    </li>
+  </ul>
+</Docs>

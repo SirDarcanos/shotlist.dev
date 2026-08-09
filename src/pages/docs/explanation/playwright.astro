@@ -1,0 +1,108 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const missing = `Playwright is not installed. shotlist does not install it, because its
+postinstall downloads browsers. Install it with:
+  npm i -D playwright`
+---
+
+<Docs
+  title="Why Playwright is a peer dependency"
+  description="Why shotlist does not install a browser for you, which commands need one, and how it is located at run time."
+>
+  <h1 class="text-4xl font-extrabold">Why Playwright is a peer dependency</h1>
+
+  <p class="text-lg">
+    shotlist needs a browser to take a screenshot, but it does not depend on Playwright directly.
+    You install Playwright yourself, alongside shotlist. This page explains why, and what follows
+    from it.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">The cost of installing a browser</h2>
+
+  <p>
+    Playwright's install step downloads browser binaries — hundreds of megabytes, on every machine
+    that runs <code>npm install</code>. If shotlist depended on Playwright in the ordinary way,
+    every project that depends on shotlist would pay that cost, including projects that never take a
+    screenshot on that machine.
+  </p>
+
+  <p>Several common situations get nothing at all for it:</p>
+
+  <ul>
+    <li>a continuous integration job that installs dependencies to run unit tests</li>
+    <li>a machine that only reads or lints the recipes</li>
+    <li>a developer who never runs the screenshot step locally</li>
+  </ul>
+
+  <p>
+    Making it a peer dependency moves that decision to the project. You install a browser when you
+    intend to use one.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Which commands need a browser</h2>
+
+  <p>
+    The rule is simple: anything that writes an image needs one. That includes
+    <code>--check</code>, and it includes <code>source: file</code> recipes, which drive no site but still
+    draw their callouts in a browser page.
+  </p>
+
+  <p>
+    Everything that only reads or writes files runs without a browser: <code>--init</code>,
+    <code>--help</code>, <code>--version</code>, <code>shotlist</code> with no arguments, which lists
+    the recipes it found, and <code>--lint</code>, which parses every file in the project and
+    reports what is wrong with all of them.
+  </p>
+
+  <p>
+    <a href="/docs/how-to/lint">Linting</a> is the one that earns the distinction. A continuous integration
+    job that only checks the shot list is valid needs neither Playwright nor a running site, so it can
+    skip both and finish in about a second.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">How the browser is found</h2>
+
+  <p>A run that needs a browser looks in three places, in order:</p>
+
+  <ol>
+    <li><code>playwright</code></li>
+    <li><code>playwright-core</code></li>
+    <li>the <code>npx</code> cache</li>
+  </ol>
+
+  <p>
+    The third is what lets <code>npx shotlist</code> work in a project that has installed neither, which
+    is useful when you are trying the tool rather than adopting it.
+  </p>
+
+  <p>
+    Finding none of them, it stops before opening anything, and prints the command that fixes it:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={missing} lang="bash" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Why the failure arrives first</h2>
+
+  <p>
+    The browser is the first thing a run reaches for, before any recipe is taken. A missing browser
+    is therefore a failure that happens before any work, rather than partway through: nothing is
+    written, and nothing is left half-finished.
+  </p>
+
+  <p>
+    This matters more than it sounds. A run that fails partway through <code>--install</code> leaves a
+    documentation folder holding some new images and some old ones, and no record of which is which.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/tutorials/first-screenshot">Your first screenshot</a></li>
+    <li><a href="/docs/how-to/run-in-ci">Run shotlist in CI</a></li>
+    <li><a href="/docs/explanation/image-drift">Why screenshots drift</a></li>
+  </ul>
+</Docs>

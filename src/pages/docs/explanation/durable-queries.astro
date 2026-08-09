@@ -1,0 +1,152 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const fragile = `marks:
+  amount: { css: '.css-1x7k9d > div:nth-child(3) > span' }`
+
+const durable = `marks:
+  amount: { within: clip, text: $42.00 }`
+
+const row = `clip:
+  css: 'li, div'
+  contains: Acme Corp
+  matching: '\\$\\d'
+  maxChildren: 12
+  pick: smallest`
+
+const finder = `finders:
+  listRow:
+    css: 'li, div'
+    contains: $1
+    matching: '\\$\\d'
+    maxChildren: 12
+    pick: smallest`
+---
+
+<Docs
+  title="Queries that survive a redesign"
+  description="Why shotlist's query language is shaped the way it is, and how to choose keys that keep working when the markup changes."
+>
+  <h1 class="text-4xl font-extrabold">Queries that survive a redesign</h1>
+
+  <p class="text-lg">
+    A recipe is only as durable as the queries in it. This page explains why shotlist offers the
+    keys it does, and what makes one query outlive a redesign while another breaks on the next
+    build.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Two kinds of stability</h2>
+
+  <p>Everything a query can key on falls into one of two groups.</p>
+
+  <p>
+    The first is <strong>implementation detail</strong>: class names, DOM position, element nesting.
+    These change whenever somebody refactors a component, and they change silently — nobody renaming
+    a CSS module thinks of it as an interface.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={fragile} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <p>
+    The second is <strong>what a person can see</strong>: visible text, headings, accessible names,
+    labels. These change too, but they change deliberately, as a product decision, and the change is
+    visible in review. A query keyed on them breaks only when the thing it points at genuinely
+    changed.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={durable} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <p>
+    This is the same reasoning behind accessible test selectors, and it applies more strongly here:
+    the screenshot is a picture of what a person sees, so keying the query on what a person sees
+    keeps the recipe and the image describing the same thing.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Why filters exist</h2>
+
+  <p>
+    Visible text is not selective enough on its own. Every ancestor of a row also contains the row's
+    text, right up to the document body, so a query for "the element containing Acme Corp" matches
+    dozens of elements, the largest of which is the whole page.
+  </p>
+
+  <p>
+    That is what the filters are for. They let you describe the element the way a person would
+    describe it — the smallest box holding both a name and an amount — rather than by where it sits
+    in the tree:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={row} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <p>
+    <code>pick: smallest</code> is doing the essential work. Without it you capture the whole page. Size
+    and child-count filters do the rest: a row has few children and contains a currency figure, and that
+    description survives a restyle because it is about the shape of the content rather than the shape
+    of the markup.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Why traversal is limited</h2>
+
+  <p>
+    <code>ancestor</code> exists because the element you can name is often not the element you want to
+    photograph. You can name a dialog's heading; you want the card around it. Climbing is the reliable
+    way to get from one to the other.
+  </p>
+
+  <p>
+    <code>ancestor</code> takes filters for the same reason queries do. In an overlay, the backdrop also
+    contains the heading, so climbing without a constraint reaches a full-screen element rather than the
+    card. A width filter distinguishes them, and it does so by a property the design actually has, rather
+    than by counting levels of nesting, which no design guarantees.
+  </p>
+
+  <p>
+    There is no descendant-by-index traversal beyond <code>child</code>, and that is deliberate: a
+    path of indices is the most fragile thing a query could be keyed on.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Why a failed query stops the run</h2>
+
+  <p>
+    A query that matches nothing could reasonably be skipped. shotlist stops instead, because a
+    recipe is an assertion: it claims the page contains a row for Acme Corp with an amount in it. If
+    that is no longer true, the screenshot would be of something else, and publishing it silently is
+    worse than publishing nothing.
+  </p>
+
+  <p>
+    The practical consequence is that recipes fail loudly when a product changes, which is exactly
+    when you want to hear about a screenshot in your documentation.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">When to name a query</h2>
+
+  <p>
+    A query describing "a row in a list" is not specific to one recipe. Once the same shape appears
+    in a third file, move it into <code>finders</code> and call it by name:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={finder} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    Beyond removing duplication, this changes what the recipes read like. A file that says
+    <code>{'{ listRow: Acme Corp }'}</code> describes the product; a file full of CSS describes the markup.
+    When the markup changes, only the finder needs editing.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/reference/queries">Queries reference</a></li>
+    <li><a href="/docs/how-to/drive-a-page">Capture a page after interaction</a></li>
+  </ul>
+</Docs>

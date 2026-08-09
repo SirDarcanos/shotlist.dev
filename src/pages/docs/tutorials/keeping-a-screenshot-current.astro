@@ -1,0 +1,375 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const config = `site:
+  url: http://localhost:3000
+  serve: npm run dev
+
+install:
+  docs: public/images`
+
+const installLine = `name: order-row
+install: docs`
+
+const installRun = `npx shotlist order-row --install`
+
+const installOutput = `  ✓ order-row → screenshots/out/order-row.png
+    installed public/images/order-row.png`
+
+const checkRun = `npx shotlist --check`
+
+const same = `  same     order-row`
+
+const restyle = `.status-open {
+  background: #fde68a;
+  color: #92400e;
+}`
+
+const changed = `  CHANGED  order-row — 0.60% of pixels differ
+           committed: public/images/order-row.png
+           re-shot:   screenshots/out/order-row.png
+1 of 1 need attention`
+
+const diffRun = `npx shotlist --check --diff`
+
+const panelRecipe = `name: orders-panel
+install: docs
+
+clip: { css: '.panel', pad: 20 }`
+
+const alwaysChanged = `  CHANGED  orders-panel — 1.60% of pixels differ`
+
+const ignoredRecipe = `name: orders-panel
+install: docs
+
+clip: { css: '.panel', pad: 20 }
+
+check:
+  ignore:
+    - { within: clip, css: '#bars' }`
+
+const maskedRecipe = `mask:
+  - { within: clip, css: '#bars' }`
+
+const jsonRun = `npx shotlist --check --json > report.json`
+---
+
+<Docs
+  title="Tutorial: keeping a screenshot current"
+  description="A step-by-step lesson that publishes a screenshot into a documentation page, then detects and reviews changes when the application moves underneath it."
+>
+  <h1 class="text-4xl font-extrabold">Keeping a screenshot current</h1>
+
+  <p class="text-lg">
+    In this tutorial you will publish a screenshot into a documentation page, change the
+    application, and watch shotlist catch the screenshot going stale. You will finish with a command
+    you can run in continuous integration that fails when your documentation shows something that is
+    no longer true.
+  </p>
+
+  <p>
+    It continues in the project from <a href="/docs/tutorials/first-screenshot"
+      >Your first screenshot</a
+    >, with the <code>order-row</code> recipe working and its <code>callouts</code> section in place.
+    Keep the application running at <a
+      href="http://localhost:3000"
+      rel="noopener noreferrer"
+      target="_blank">http://localhost:3000</a
+    >.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 1: choose where screenshots are published</h2>
+
+  <p>
+    So far every image has landed in <code>screenshots/out/</code>, which is a scratch folder.
+    Ledger keeps the images its documentation uses in <code>public/images/</code>.
+  </p>
+
+  <p>
+    Before you continue, visit the Documentation page at <a href="http://localhost:3000/docs.html"
+      >http://localhost:3000/docs.html</a
+    > and see what it looks like.
+  </p>
+
+  <p>Name <code>public/images</code> as a destination:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={config} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    <code>docs</code> is a name you invented; <code>public/images</code> is the folder it points at. A
+    real project usually has two or three, one per place that shows screenshots.
+  </p>
+
+  <p>Now point the recipe at it. Add one line under <code>name</code>:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={installLine} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 2: publish the screenshot</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={installRun} lang="bash" />
+  </div>
+
+  <p>You should see two lines:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={installOutput} lang="bash" />
+  </div>
+
+  <p>
+    Now open <a href="http://localhost:3000/docs.html" rel="noopener noreferrer" target="_blank"
+      >http://localhost:3000/docs.html</a
+    >. Where the page said no screenshot was there yet, your annotated order row is now sitting in
+    the documentation, under the sentence it illustrates.
+  </p>
+
+  <p>
+    shotlist also wrote <code>shotlist.baseline.json</code> beside your configuration, recording the versions
+    of shotlist, Playwright and Chromium that took the picture, and the operating system it ran on. In
+    a real project you commit that alongside the images.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 3: check that the screenshot is still accurate</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={checkRun} lang="bash" />
+  </div>
+
+  <p>
+    This re-takes every screenshot and compares each against the published copy. Nothing has
+    changed, so you should see:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={same} lang="bash" />
+  </div>
+
+  <p>The command exits with status 0.</p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 4: change the application</h2>
+
+  <p>
+    This is the situation the tool exists for: somebody changes the product, and nobody remembers
+    which screenshots showed the part they changed.
+  </p>
+
+  <p>
+    Open <code>public/style.css</code> and restyle the Open badge — the sort of change a designer makes
+    without ever thinking about documentation:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={restyle} lang="css" file="public/style.css" />
+  </div>
+
+  <p>
+    Reload <a href="http://localhost:3000" rel="noopener noreferrer" target="_blank"
+      >the Orders screen</a
+    > to confirm the badge is now amber, then run the check again:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={checkRun} lang="bash" />
+  </div>
+
+  <p>This time it reports a difference and exits non-zero:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={changed} lang="bash" />
+  </div>
+
+  <p>
+    Your percentage will be close to this rather than identical, because text rendering differs
+    between machines. Treat it as a prompt to look rather than as a verdict: a small percentage can
+    be a serious change, and a large one can be a rendering difference that means nothing.
+  </p>
+
+  <h3>Why a smaller edit can report <code class="font-mono">same</code></h3>
+
+  <p>
+    <code>check.threshold</code> is the fraction of pixels that must differ before a screenshot counts
+    as changed, and it defaults to <code>0.002</code> — two pixels in every thousand. That is deliberate:
+    without it, antialiasing noise would report a change on every run.
+  </p>
+
+  <p>
+    It also means small edits pass silently, and the effect is stronger than it looks: the image is
+    larger than the region you clipped, because the canvas grew to hold the labels, so every change
+    is a smaller fraction of it than you would guess from the row alone.
+  </p>
+
+  <p>
+    Restyling the badge moves about <strong>0.6%</strong> of this screenshot — three times the threshold,
+    which is why this step uses it. Changing a single character somewhere in the row moves roughly <strong
+      >0.05%</strong
+    >, well under the limit, and is reported as <code>same</code>.
+  </p>
+
+  <p>
+    If your screenshots need to catch smaller changes than that, lower
+    <code>check.threshold</code> in the configuration, or set it for one recipe under its own
+    <code>check</code> key. See <a href="/docs/reference/recipe#check">the recipe reference</a>.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 5: look at what changed</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={diffRun} lang="bash" />
+  </div>
+
+  <p>
+    For every screenshot that moved, shotlist writes an image into
+    <code>screenshots/out/diff/</code> with three panels side by side: the published version, the one
+    it just took, and the new one again with every changed pixel tinted.
+  </p>
+
+  <p>
+    Open <code>screenshots/out/diff/order-row.png</code>. Only the badge is lit up, which tells you
+    the change is confined to the thing you restyled: the row did not move, and the callouts still
+    point where they did.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 6: accept the change</h2>
+
+  <p>
+    You have looked at it and decided the new picture is the right one. Publishing it is step 2
+    again:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={installRun} lang="bash" />
+  </div>
+
+  <p>
+    Reload <a href="http://localhost:3000/docs.html" rel="noopener noreferrer" target="_blank"
+      >the documentation page</a
+    >: the screenshot in it now shows the amber badge. Run <code>npx shotlist --check</code> once more
+    and it reports <code>same</code>.
+  </p>
+
+  <p>
+    That is the whole working loop: change the application, run <code>--check</code>, look at the
+    diff, re-run with <code>--install</code> when the new picture is correct.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 7: meet a screenshot that can never pass</h2>
+
+  <p>
+    Not every difference is a change worth knowing about. The panel carries a "Cash collected this
+    week" chart drawn from live figures, so it is different every time the page loads. Add a second
+    recipe capturing the whole panel, in <code>screenshots/recipes/orders-panel.yaml</code>:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={panelRecipe} file="screenshots/recipes/orders-panel.yaml" />
+  </div>
+
+  <p>
+    Publish it with <code>npx shotlist orders-panel --install</code>, then run
+    <code>npx shotlist --check</code> twice in a row. The second run reports a change even though nobody
+    touched anything:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={alwaysChanged} lang="bash" />
+  </div>
+
+  <p>
+    Your percentage will be a different number again, because the figures are different again. Left
+    alone, this recipe reports a change forever, and a check that always fails is a check people
+    stop reading.
+  </p>
+
+  <p>
+    The clock underneath the chart also changes on every capture, and it is worth knowing why it is
+    not the problem here: a ticking digit moves a few hundred pixels of a two-million-pixel image,
+    which is under the threshold from step 4. The chart moves tens of thousands, because its bars
+    are solid fills. Size is what decides whether volatile content matters, not the fact that it is
+    volatile.
+  </p>
+
+  <p>
+    shotlist gives you two ways out, and they answer different questions. Ask whether the region
+    belongs in the picture at all:
+  </p>
+
+  <ul>
+    <li>
+      <code>check.ignore</code> keeps it in the screenshot and excuses only its contents from the comparison.
+    </li>
+    <li><code>mask</code> paints over it, so it is not in the screenshot at all.</li>
+  </ul>
+
+  <p>
+    The chart is part of the product this documentation describes, so a reader should see it. Excuse
+    it from the comparison rather than painting it out:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={ignoredRecipe} file="screenshots/recipes/orders-panel.yaml" />
+  </div>
+
+  <p>
+    Publish once more with <code>--install</code>, then run the check twice again. Both runs now
+    report <code>same</code>, the chart is still in the published screenshot, and the rest of the
+    panel is still being compared. The result says what it skipped —
+    <code>same orders-panel (1 region not compared)</code> — so a pass is never read as covering the whole
+    image.
+  </p>
+
+  <p>
+    Reach for <code>mask</code> when the region should not be in the picture in the first place: a customer's
+    name, a face, a real account balance. It replaces the region with a flat fill, which is the right
+    answer for a screenshot you are about to publish and the wrong one for a chart the documentation is
+    about. Both are covered in
+    <a href="/docs/how-to/hide-changing-data">Hide data that changes</a>:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={maskedRecipe} file="screenshots/recipes/orders-panel.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 8: produce a report a machine can read</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={jsonRun} lang="bash" />
+  </div>
+
+  <p>
+    Everything meant for a person moves to standard error, so the file you just wrote contains only
+    the report. Open <code>report.json</code>: it lists every recipe, its status, and how much of it
+    changed.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">What you have learned</h2>
+
+  <ul>
+    <li>named a publication folder and installed a screenshot into a documentation page</li>
+    <li>compared a live application against its published screenshots</li>
+    <li>read a percentage difference and a three-panel diff image</li>
+    <li>accepted a change by republishing</li>
+    <li>excused a region that differs on every capture, without removing it from the picture</li>
+    <li>produced a machine-readable report</li>
+  </ul>
+
+  <h2 class="mt-14 text-2xl font-bold">Next steps</h2>
+
+  <ul>
+    <li>
+      <a href="/docs/how-to/run-in-ci">Run shotlist in CI</a> turns this loop into a pipeline job.
+    </li>
+    <li>
+      <a href="/docs/how-to/hide-changing-data">Hide data that changes</a> sets both tools side by side,
+      along with turning the check off entirely, and covers what each one gives up.
+    </li>
+    <li>
+      <a href="/docs/explanation/image-drift">Why screenshots drift</a> explains why the same page produces
+      different pixels on a different machine.
+    </li>
+  </ul>
+</Docs>

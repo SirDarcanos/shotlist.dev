@@ -1,0 +1,224 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import DocTable from '../../../components/DocTable.astro'
+---
+
+<Docs
+  title="What a configuration can do"
+  description="The threat model behind shotlist's limits: what holds in every mode, what --untrusted takes away, and what none of it covers."
+>
+  <h1 class="text-4xl font-extrabold">What a configuration can do</h1>
+
+  <p class="text-lg">
+    A <code>shotlist.config.yaml</code> is a file in a repository, and a repository is not always yours.
+    This page describes what a configuration is allowed to do to the machine that runs it, and why the
+    limits are drawn where they are.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Two different questions</h2>
+
+  <p>Limits in shotlist answer one of two questions, and it is worth keeping them apart.</p>
+
+  <p>
+    <strong>Is this a mistake?</strong> Some limits exist because the behavior they prevent is almost
+    never intentional, even from a configuration you wrote yourself. These cannot be turned off, because
+    there is nothing to gain by turning them off.
+  </p>
+
+  <p>
+    <strong>Do I trust the author?</strong> Other limits exist because the configuration came from somebody
+    else. These are off by default, since most configurations are written by the person running them,
+    and are switched on with <code>--untrusted</code>.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Limits that always hold</h2>
+
+  <h3>A run stays on its own site</h3>
+
+  <p>
+    <code>site.url</code> decides what a run may open: that host, and everything under it. There is no
+    flag to remove this, because wandering off the site under test is a mistake far more often than an
+    intention. <code>site.allow</code> adds specific hosts, for a sign-in flow that legitimately passes
+    through one.
+  </p>
+
+  <h3>Some files are never touched</h3>
+
+  <p>
+    shotlist will not read or write a path passing through <code>.env</code>, <code>.git</code>,
+    <code>.ssh</code>, <code>.aws</code>, <code>.npmrc</code>, private keys, keystores, or the other
+    names listed in the reference. This is not about trust: a configuration you wrote has no reason
+    to read your keys either, and a typo in an install destination should not be able to write into
+    <code>.git</code>.
+  </p>
+
+  <h3 id="dotenv">
+    Why that includes <code class="font-mono">.env</code>, and what follows from it
+  </h3>
+
+  <p>
+    <code>.env</code> is on that list, which has a consequence worth stating plainly: shotlist will not
+    load your <code>.env</code> file, and there is no option asking it to. A tool that auto-loaded <code
+      >.env</code
+    > would be opening the exact file it promises never to touch — and once it can open that file, a configuration
+    can aim a <code>fontUrl</code> or an install destination at one.
+  </p>
+
+  <p>
+    That looks like it conflicts with reading secrets from the environment. It does not, because the
+    two rules divide on who is asking:
+  </p>
+
+  <ul>
+    <li>
+      <strong>A configuration must never make the tool read your secrets file.</strong> That holds in
+      every mode, and cannot be switched off.
+    </li>
+    <li>
+      <strong>The operator's own environment belongs to the operator.</strong> If your shell exported
+      a variable before shotlist started, shotlist reads it, the same way <code>echo</code> would.
+    </li>
+  </ul>
+
+  <p>
+    So a <code>.env</code> file works fine — something else has to put it into the environment first,
+    with <code>node --env-file</code> or <code>set -a</code>. See
+    <a href="/docs/how-to/sign-in">Capture a page behind a sign-in</a>.
+  </p>
+
+  <p>
+    This is the same line every limit on this page draws: shotlist confines the configuration, never
+    the person running the command.
+  </p>
+
+  <h3>Nothing evaluates</h3>
+
+  <p>
+    A configuration cannot run code. Queries travel into the page as data, so a malformed selector
+    is a parse error rather than an execution, and <code>site.serve</code> runs a program directly with
+    no shell. See <a href="/docs/explanation/no-code">Why recipes cannot run code</a>.
+  </p>
+
+  <h3>A run cannot be made to hang</h3>
+
+  <p>
+    <code>site.timeout</code> bounds how long a query may take, viewport and scale are held to what a
+    browser can paint, and <code>retries</code> and <code>repeat</code> are capped. A configuration can
+    waste your time, but it cannot take a machine out of service by asking for a billion iterations.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">
+    What <code class="font-mono">--untrusted</code> takes away
+  </h2>
+
+  <DocTable
+    head={['Capability', 'Default', 'With --untrusted']}
+    rows={[
+      ['<code>site.serve</code> starts a process', 'yes', '<strong>refused</strong>'],
+      ['Opens <code>file:</code> and <code>data:</code> URLs', 'yes', '<strong>refused</strong>'],
+      ['Opens localhost, private ranges, cloud metadata', 'yes', '<strong>refused</strong>'],
+      ['Reads or writes outside the project', 'yes', '<strong>refused</strong>'],
+      ['<code>site.allow</code> widens the scope', 'yes', '<strong>ignored</strong>'],
+      ['<code>allowEnv</code> names readable variables', 'yes', '<strong>ignored</strong>'],
+      ['Loads a session', 'yes', '<strong>refused</strong>'],
+      ['Reads <code>${env.NAME}</code>', 'named ones', '<strong>none</strong>'],
+    ]}
+  />
+
+  <h3>Why <code class="font-mono">site.allow</code> is ignored rather than restricted</h3>
+
+  <p>
+    <code>site.allow</code> is a claim made by the thing you have decided not to trust. Honoring it in
+    an untrusted run would mean the configuration could grant itself the permission the flag exists to
+    withhold. What the operator typed on the command line still counts, and outlives it — which is why
+    <code>--allow</code> and <code>--allow-path</code> exist and cannot be set from a configuration file.
+  </p>
+
+  <p>The principle behind that: a control the configuration can switch off is not a control.</p>
+
+  <h3>Why the environment list is emptied rather than narrowed</h3>
+
+  <p>
+    An untrusted run resolves no <code>{'${env.NAME}'}</code> at all, even names that were allowed. There
+    is no variable worth handing to a configuration nobody vouched for, and a partial grant is worse than
+    none because it reads like a safe arrangement.
+  </p>
+
+  <h3>Why sessions are refused</h3>
+
+  <p>
+    A session is a credential: the browser carrying it is signed in as whoever created it. A
+    configuration nobody vouched for asking to be somebody is close to the whole reason the flag
+    exists.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Three places can forbid a path</h2>
+
+  <p>They are deliberately not equivalent:</p>
+
+  <ul>
+    <li>
+      <code>deny</code> in the configuration is the project's own declaration, editable by anyone who
+      can edit the file
+    </li>
+    <li><code>--deny</code> belongs to whoever runs the command</li>
+    <li><code>SHOTLIST_DENY</code> belongs to whoever built the machine or the CI image</li>
+  </ul>
+
+  <p>
+    All three add up, and none of them can subtract. Only the last cannot be edited away by somebody
+    writing a recipe.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Variable names work the same way, in reverse</h2>
+
+  <p>
+    Three places grant a recipe a variable, and they add up:
+    <code>allowEnv</code> in the configuration, <code>--allow-env</code> on the command line, and
+    <code>SHOTLIST_ENV</code> in the environment. <code>SHOTLIST_ENV_DENY</code> is subtracted from the
+    result, last and unconditionally, so an administrator building a CI image can put a name out of reach
+    and no configuration key or flag adds it back. It takes globs, so
+    <code>AWS_*</code> and <code>*_TOKEN</code> both work.
+  </p>
+
+  <p>
+    It is a fence rather than a boundary, and worth being precise about why. It stops
+    <code>--allow-env AWS_SECRET_KEY</code>. It does nothing about
+    <code>echo $AWS_SECRET_KEY</code> on the same machine, because the shell of whoever runs a command
+    was never something a screenshot tool could stand in front of. It earns its place where shotlist is
+    close to the only thing that runs — a container built to shoot configurations that came from somewhere
+    else — and earns nothing as a control over a person at a terminal.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">What none of this covers</h2>
+
+  <p>
+    The host check reads the name out of the URL. It cannot see that a name you allowed resolves to
+    an address it would have refused, so a determined DNS rebinding attack gets through. It is a
+    fence, not a boundary.
+  </p>
+
+  <p>
+    shotlist has no database and issues no SQL, so there is nothing in it to inject into. It does
+    have a browser, and a recipe is a script that types into whatever it is pointed at. A hosted
+    instance that lets a stranger choose both the target and the keystrokes is a proxy for anything
+    a browser can do to that target. The site scope is what keeps a submitted recipe aimed at the
+    site it arrived with.
+  </p>
+
+  <p>
+    If you take screenshots of what strangers submit, put the runner where it cannot reach anything
+    it should not, and rate-limit it. A run is one browser and amplifies nothing, but an open one is
+    still traffic you are sending.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/reference/cli">Command line reference</a></li>
+    <li>
+      <a href="/docs/reference/configuration#deny">Configuration reference: <code>deny</code></a>
+    </li>
+    <li><a href="/docs/how-to/run-in-ci">Run shotlist in CI</a></li>
+  </ul>
+</Docs>

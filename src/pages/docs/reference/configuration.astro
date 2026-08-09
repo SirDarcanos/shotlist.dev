@@ -1,0 +1,274 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import DocTable from '../../../components/DocTable.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const style = `style:
+  color: '#DC2626'
+  canvas: '#FFFFFF'
+  box: { width: 6, radius: 10, pad: 8 }
+  arrow: { shaft: 6, headHalf: 19, headLength: 38 }
+  label:
+    font: 'Arial, Helvetica, sans-serif'
+    weight: 700
+    size: 44
+    fill: '#FFFFFF'
+    stroke: '#DC2626'
+    strokeWidth: 6
+    gap: 40
+  number:
+    radius: 26
+    size: 40
+    fill: '#DC2626'
+    text: '#FFFFFF'
+  mask:
+    fill: '#94A3B8'`
+
+const sessions = `site:
+  sessions:
+    admin: .shotlist/admin.json
+    reader:
+      path: .shotlist/reader.json
+      verify: '[data-signed-in]'`
+
+const allowEnv = `allowEnv:
+  - ADMIN_PASSWORD
+  - READER_PASSWORD`
+
+const deny = `deny:
+  - fixtures
+  - '*.sqlite'`
+
+const finders = `finders:
+  listRow:
+    css: 'li, div'
+    contains: $1
+    matching: '\\$\\d'
+    maxChildren: 12
+    pick: smallest`
+---
+
+<Docs
+  title="Configuration reference"
+  description="Every key in shotlist.config.yaml, with its default and its effect."
+>
+  <h1 class="text-4xl font-extrabold">Configuration file</h1>
+
+  <p>
+    One <code>shotlist.config.yaml</code> in the project root, or a file named with
+    <code>--config</code>. Every path in it resolves from the file's own folder.
+  </p>
+
+  <p>
+    A key the schema does not know is refused rather than ignored. Before 0.4.0
+    <code>site.viewpoint: 3</code> did nothing at all, which looks exactly like a setting that has no
+    effect.
+  </p>
+
+  <h2 id="site" class="mt-14 text-2xl font-bold">site</h2>
+
+  <DocTable
+    head={['Key', 'Default', 'Effect']}
+    rows={[
+      ['<code>url</code>', 'required', 'Where the site is running'],
+      [
+        '<code>serve</code>',
+        '—',
+        'Command that starts the site when nothing answers at <code>url</code>',
+      ],
+      ['<code>allow</code>', '<code>[]</code>', 'Extra hosts a recipe may open'],
+      ['<code>viewport</code>', '<code>1280 × 800</code>', 'Browser size'],
+      ['<code>scale</code>', '<code>2</code>', 'Device pixel ratio'],
+      [
+        '<code>theme</code>',
+        '<code>light</code>',
+        '<code>light</code>, <code>dark</code> or <code>no-preference</code>',
+      ],
+      ['<code>reducedMotion</code>', '<code>true</code>', 'Disable animation before capture'],
+      ['<code>ready</code>', '—', 'Selector awaited after each navigation'],
+      [
+        '<code>settle</code>',
+        '<code>0</code>',
+        'Extra milliseconds to wait after <code>ready</code>',
+      ],
+      ['<code>timeout</code>', '<code>15000</code>', 'Milliseconds a step or query may take'],
+      ['<code>sessions</code>', '<code>{}</code>', 'Signed-in browser states by name'],
+    ]}
+  />
+
+  <h3>site.serve</h3>
+
+  <p>A string is the command. A mapping accepts:</p>
+
+  <DocTable
+    head={['Key', 'Default', 'Effect']}
+    rows={[
+      ['<code>command</code>', 'required', 'The program and its arguments; run without a shell'],
+      [
+        '<code>ready</code>',
+        '<code>site.url</code>',
+        'A URL, a port, or <code>{ log: &lt;pattern&gt; }</code>',
+      ],
+      ['<code>cwd</code>', "the config file's folder", 'Where to run the command'],
+      ['<code>env</code>', '<code>{}</code>', "Environment added to the run's"],
+      ['<code>timeout</code>', '<code>30000</code>', 'Milliseconds to wait for it to answer'],
+    ]}
+  />
+
+  <h3 id="sessions">site.sessions</h3>
+
+  <p>
+    A bare path, or a mapping. Files are written by <code>--login</code> and are never edited by hand.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={sessions} file="shotlist.config.yaml" />
+  </div>
+
+  <DocTable
+    head={['Key', 'Default', 'Effect']}
+    rows={[
+      ['<code>path</code>', 'required', 'Where the session file is written and read'],
+      ['<code>verify</code>', '—', 'Selector present only on a signed-in page'],
+    ]}
+  />
+
+  <h2 id="paths" class="mt-14 text-2xl font-bold">paths</h2>
+
+  <DocTable
+    head={['Key', 'Default', 'Contains']}
+    rows={[
+      ['<code>recipes</code>', '<code>screenshots/recipes</code>', 'Recipe files'],
+      ['<code>macros</code>', '<code>screenshots/macros</code>', 'Macro files'],
+      ['<code>data</code>', '<code>screenshots/data</code>', 'Data files'],
+      ['<code>out</code>', '<code>screenshots/out</code>', 'Images written by a run'],
+    ]}
+  />
+
+  <h2 id="image" class="mt-14 text-2xl font-bold">image</h2>
+
+  <DocTable
+    head={['Key', 'Default', 'Effect']}
+    rows={[
+      [
+        '<code>format</code>',
+        '<code>png</code>',
+        '<code>png</code>, <code>jpeg</code> or <code>webp</code>',
+      ],
+      [
+        '<code>quality</code>',
+        '<code>90</code>',
+        '<code>1</code>–<code>100</code>, for the lossy formats',
+      ],
+    ]}
+  />
+
+  <p>
+    Files are named for the format: <code>.png</code>, <code>.webp</code>, and <code>.jpg</code> for
+    <code>jpeg</code>. AVIF is not available. A recipe may override both keys.
+  </p>
+
+  <h2 id="install" class="mt-14 text-2xl font-bold">install</h2>
+
+  <p>
+    A mapping of names to folders. A recipe names one of these under its own <code>install</code> key,
+    and <code>--install</code> copies the image there.
+  </p>
+
+  <h2 id="finders" class="mt-14 text-2xl font-bold">finders</h2>
+
+  <p>
+    Named query templates, called from a recipe by name. <code>$1</code> and <code>$2</code> stand for
+    the arguments.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={finders} file="shotlist.config.yaml" />
+  </div>
+
+  <h2 id="allowenv" class="mt-14 text-2xl font-bold">allowEnv</h2>
+
+  <p>
+    A list of variable names a recipe may read as <code>{'${env.NAME}'}</code>, so a project that
+    always signs in the same way does not repeat <code>--allow-env</code> on every run. Names only — the
+    values stay in the environment and never enter the configuration.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={allowEnv} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    It adds to <code>--allow-env</code> and <code>SHOTLIST_ENV</code> rather than replacing them, and
+    <code>SHOTLIST_ENV_DENY</code> is subtracted from the result. An <code>--untrusted</code> run ignores
+    it exactly as it ignores <code>site.allow</code>: a configuration nobody vouched for does not
+    choose what it may read.
+  </p>
+
+  <h2 id="deny" class="mt-14 text-2xl font-bold">deny</h2>
+
+  <p>
+    File or folder names this project will not read, write or open. Each entry matches one segment
+    of a path, and <code>*</code> stands for any run of characters. Checked against filesystem paths and
+    URL paths.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={deny} file="shotlist.config.yaml" />
+  </div>
+
+  <h2 id="check" class="mt-14 text-2xl font-bold">check</h2>
+
+  <DocTable
+    head={['Key', 'Default', 'Effect']}
+    rows={[
+      ['<code>threshold</code>', '<code>0.002</code>', 'Fraction of pixels that may differ'],
+      ['<code>tolerance</code>', '<code>8</code>', 'How far one channel may move, out of 255'],
+    ]}
+  />
+
+  <h2 id="style" class="mt-14 text-2xl font-bold">style</h2>
+
+  <p>
+    Every drawing constant, with its default. Sizes are in image pixels and do not change with
+    <code>scale</code>. A recipe may override any of these under its own <code>style</code> key.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={style} file="shotlist.config.yaml" />
+  </div>
+
+  <DocTable
+    head={['Key', 'Applies to']}
+    rows={[
+      ['<code>color</code>', 'Boxes, arrows and discs'],
+      ['<code>canvas</code>', 'Space added around the image for labels'],
+      [
+        '<code>box.width</code>, <code>box.radius</code>, <code>box.pad</code>',
+        'The outline drawn around a mark',
+      ],
+      [
+        '<code>arrow.shaft</code>, <code>arrow.headHalf</code>, <code>arrow.headLength</code>',
+        'The arrow from a label to a box',
+      ],
+      [
+        '<code>label.font</code>, <code>label.weight</code>, <code>label.size</code>',
+        'Label typeface',
+      ],
+      [
+        '<code>label.fill</code>, <code>label.stroke</code>, <code>label.strokeWidth</code>',
+        'Label glyphs and their outline',
+      ],
+      ['<code>label.gap</code>', 'Distance from the label to the box'],
+      ['<code>label.fontUrl</code>', 'Stylesheet or font file to load before drawing'],
+      ['<code>number.radius</code>, <code>number.size</code>', 'Numbered disc and its numeral'],
+      ['<code>number.fill</code>, <code>number.text</code>', 'Disc color and numeral color'],
+      ['<code>mask.fill</code>', 'What a masked region is painted with'],
+    ]}
+  />
+
+  <p>
+    <code>label.stroke</code> and <code>number.fill</code> default to <code>color</code>.
+    <code>strokeWidth</code> is centered on the glyph outline, so half of it is hidden under the fill.
+  </p>
+</Docs>

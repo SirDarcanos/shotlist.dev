@@ -1,0 +1,168 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const rawWorkflow = `name: Screenshots
+on: pull_request
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx shotlist --lint --warnings
+      - run: npx shotlist --check --keep-going --diff
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: screenshot-diffs
+          path: screenshots/out/diff/`
+
+const serve = `site:
+  url: http://localhost:4321
+  serve:
+    command: npm run preview
+    ready: 4321
+    timeout: 60000`
+
+const json = `npx shotlist --check --json > report.json`
+
+const untrusted = `npx shotlist --check --untrusted`
+
+const env = `SHOTLIST_ENV=ADMIN_PASSWORD npx shotlist --login admin --using sign-in`
+---
+
+<Docs
+  title="How to run shotlist in CI"
+  description="Fail a pull request when its screenshots no longer match the application, and publish the diffs as build artifacts."
+>
+  <h1 class="text-4xl font-extrabold">Run shotlist in CI</h1>
+
+  <p class="text-lg">
+    This guide adds a job that re-takes every screenshot on each pull request and fails when any of
+    them no longer matches what is committed.
+  </p>
+
+  <p>
+    It assumes your screenshots are already published with <code>--install</code> and committed, along
+    with <code>shotlist.baseline.json</code>. If they are not, work through
+    <a href="/docs/tutorials/keeping-a-screenshot-current">Keeping a screenshot current</a> first.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 1: make the job start the application</h2>
+
+  <p>Nothing is listening on a fresh runner, so the configuration has to say how to start it:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={serve} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    Give <code>timeout</code> more room than you need locally. A cold runner is slower than your machine,
+    and a build that has not finished looks exactly like a server that will never answer.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 2: add the job</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={rawWorkflow} file=".github/workflows/screenshots.yml" />
+  </div>
+
+  <p>Four flags are doing the work:</p>
+
+  <ul>
+    <li>
+      <code>--lint</code> parses every file and reports all of them at once. It opens no browser, so it
+      finishes in about a second and catches a misspelled key before the slow step starts. See
+      <a href="/docs/how-to/lint">Check your files without a browser</a>.
+    </li>
+    <li>
+      <code>--check</code> re-takes every screenshot, compares it with the committed one, and exits non-zero
+      if any differ.
+    </li>
+    <li>
+      <code>--keep-going</code> reports every problem in one run instead of stopping at the first, so
+      a contributor sees the whole list.
+    </li>
+    <li>
+      <code>--diff</code> writes a three-panel image per changed screenshot, which the next step uploads
+      so a reviewer can look at it without running anything.
+    </li>
+  </ul>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 3: report the result as data</h2>
+
+  <p>If another job needs to read the outcome, ask for JSON:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={json} lang="bash" />
+  </div>
+
+  <p>
+    Everything written for a person moves to standard error, so the redirect leaves a usable file.
+    The report carries a <code>drift</code> field describing any mismatch between this machine and the
+    one that took the committed images, which lets a job tell a re-render apart from a regression without
+    parsing prose.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Handle pull requests from forks</h2>
+
+  <p>
+    A pull request from a fork can edit <code>shotlist.config.yaml</code>, and the runner it lands
+    on has your credentials and your network. Run those builds with <code>--untrusted</code>:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={untrusted} lang="bash" />
+  </div>
+
+  <p>
+    This refuses to start a process, open <code>file:</code> or <code>data:</code> URLs, reach private
+    network addresses, read or write outside the project, load a session, or resolve any environment variable.
+    See <a href="/docs/explanation/security-model">What a configuration can do</a> for the full list and
+    for what stays true in every mode.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Sign in without a person present</h2>
+
+  <p>
+    Sessions expire, so a scheduled job usually creates one at the start of the run. Name the
+    secret's variable so the macro can read it:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={env} lang="bash" />
+  </div>
+
+  <p>
+    <code>SHOTLIST_ENV</code> takes a list of names, and adds to whatever
+    <code>--allow-env</code> allowed. See <a href="/docs/how-to/sign-in"
+      >Capture a page behind a sign-in</a
+    >.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Expect differences from a different machine</h2>
+
+  <p>
+    A Linux runner rasterizes text differently from a Mac, and a different Chromium version moves
+    pixels without the site moving at all. When <code>--check</code> runs on a machine that does not match
+    <code>shotlist.baseline.json</code>, it says so before the results.
+  </p>
+
+  <p>
+    The reliable fix is to take the committed screenshots on the same platform the job uses. See
+    <a href="/docs/explanation/image-drift">Why screenshots drift</a>.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/reference/cli">Command line reference</a></li>
+    <li><a href="/docs/how-to/start-the-site">Start the site automatically</a></li>
+    <li><a href="/docs/how-to/hide-changing-data">Hide data that changes</a></li>
+  </ul>
+</Docs>

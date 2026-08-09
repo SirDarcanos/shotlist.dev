@@ -1,0 +1,188 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import DocTable from '../../../components/DocTable.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const combined = `clip:
+  css: 'li, div'
+  contains: Acme Corp
+  matching: '\\$\\d'
+  maxChildren: 12
+  pick: smallest`
+
+const ancestor = `marks:
+  dialog:
+    heading: Edit order
+    ancestor: { narrowerThan: 95vw, pick: outermost }`
+
+const finders = `finders:
+  listRow:
+    css: 'li, div'
+    contains: $1
+    matching: '\\$\\d'
+    maxChildren: 12
+    pick: smallest`
+
+const finderUse = `clip: { listRow: Acme Corp }`
+---
+
+<Docs
+  title="Queries reference"
+  description="Every key of the element query language: sources, filters, traversal, selection and shape."
+>
+  <h1 class="text-4xl font-extrabold">Queries</h1>
+
+  <p>
+    A query identifies an element. It is used by <code>clip</code>, by every entry in
+    <code>marks</code>, <code>mask</code> and <code>check.ignore</code>, and by every step that acts
+    on an element.
+  </p>
+
+  <p>
+    Keys combine: a source chooses candidates, filters narrow them, traversal moves from them, and
+    selection picks one.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={combined} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <h2 id="sources" class="mt-14 text-2xl font-bold">Sources</h2>
+
+  <DocTable
+    head={['Key', 'Matches']}
+    rows={[
+      ['<code>css</code>', 'A CSS selector'],
+      ['<code>role</code> + <code>name</code>', 'ARIA role and accessible name'],
+      ['<code>label</code>', 'Form control by its label'],
+      ['<code>placeholder</code>', 'Input by placeholder text'],
+      ['<code>testid</code>', '<code>data-testid</code>'],
+      ['<code>text</code>', 'Element whose trimmed text equals the value'],
+      ['<code>startsWith</code>', 'Element whose trimmed text begins with the value'],
+      ['<code>heading</code>', '<code>h1</code>–<code>h6</code> with this exact text'],
+    ]}
+  />
+
+  <p>
+    <code>text</code> and <code>startsWith</code> also narrow a source written alongside them.
+    <code>exact: true</code> makes <code>role</code> + <code>name</code>, <code>label</code> and
+    <code>placeholder</code> match the whole string, case-sensitively.
+  </p>
+
+  <p>
+    <code>role</code>, <code>label</code>, <code>placeholder</code> and <code>testid</code> cannot be
+    used inside <code>span</code> or <code>within</code>. Use <code>css</code>, <code>text</code>,
+    <code>startsWith</code> or <code>contains</code> there.
+  </p>
+
+  <h2 id="filters" class="mt-14 text-2xl font-bold">Filters</h2>
+
+  <DocTable
+    head={['Key', 'Keeps elements that…']}
+    rows={[
+      ['<code>contains</code>', 'contain this text'],
+      ['<code>containingAll</code>', 'contain all of these strings'],
+      ['<code>matching</code>', 'have text matching this regular expression'],
+      [
+        '<code>maxChildren</code> / <code>minChildren</code>',
+        'have at most / at least this many children',
+      ],
+      ['<code>minWidth</code> / <code>maxWidth</code>', 'are within these widths'],
+      ['<code>minHeight</code> / <code>maxHeight</code>', 'are within these heights'],
+      ['<code>narrowerThan</code> / <code>widerThan</code>', 'are narrower / wider than this'],
+      ['<code>visible</code>', 'have a non-zero size'],
+      ['<code>within</code>', 'sit inside an already-resolved region'],
+    ]}
+  />
+
+  <p>
+    Sizes take pixels (<code>400</code>) or viewport units (<code>95vw</code>, <code>50vh</code>).
+    <code>matching</code> runs inside the page and is bounded by <code>site.timeout</code>.
+  </p>
+
+  <h3 id="within">within</h3>
+
+  <p>Takes a name or a query written out. Two kinds of name resolve:</p>
+
+  <ul>
+    <li><code>clip</code>, the region being captured</li>
+    <li>any mark declared above this one</li>
+  </ul>
+
+  <p>
+    A name that has not resolved yet is an error. <code>within</code> is available to
+    <code>marks</code>, <code>mask</code> and <code>check.ignore</code>, which run after the clip is
+    known. Steps cannot use it, because <code>setup</code> runs before anything is measured.
+  </p>
+
+  <h2 id="traversal" class="mt-14 text-2xl font-bold">Traversal</h2>
+
+  <DocTable
+    head={['Key', 'Moves to']}
+    rows={[
+      ['<code>ancestor</code>', 'The first ancestor matching the filters given'],
+      ['<code>parent</code>', 'The parent element'],
+      ['<code>child: n</code>', 'The nth child; <code>-1</code> is the last'],
+      ['<code>children</code>', 'All children'],
+    ]}
+  />
+
+  <p>
+    <code>ancestor</code> climbs from the element's parent, so an element is never its own ancestor. It
+    takes <code>pick: nearest</code> (the default) or <code>pick: outermost</code>, which keeps
+    climbing while the parent also matches.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={ancestor} file="screenshots/recipes/edit-order.yaml" />
+  </div>
+
+  <h2 id="selection" class="mt-14 text-2xl font-bold">Selection and shape</h2>
+
+  <DocTable
+    head={['Key', 'Effect']}
+    rows={[
+      ['<code>pick: first | last | smallest | largest</code>', 'Which candidate to use'],
+      ['<code>nth: n</code>', 'The candidate at this position; <code>-1</code> is the last'],
+      ['<code>pad: n</code>', 'Grow the resulting box on all sides'],
+      ['<code>grow: { top, right, bottom, left }</code>', 'Grow it on specific sides'],
+      ['<code>span: [query, query]</code>', 'The bounding box of several queries'],
+      [
+        '<code>rect: [x, y, width, height]</code>',
+        'A literal box, for <code>source: file</code> recipes',
+      ],
+    ]}
+  />
+
+  <p>
+    <code>nth</code> and <code>child</code> count from the end when negative, as
+    <code>Array.at</code> does. <code>pad</code> and <code>grow</code> cannot be negative.
+  </p>
+
+  <h2 id="finders" class="mt-14 text-2xl font-bold">Finders</h2>
+
+  <p>
+    A named query defined once in the configuration and called from any recipe. <code>$1</code> and
+    <code>$2</code> stand for the arguments it is called with.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={finders} file="shotlist.config.yaml" />
+  </div>
+
+  <div class="mt-4">
+    <RecipeCard code={finderUse} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Failure</h2>
+
+  <p>
+    A query that matches nothing stops the run, naming the recipe and the key. A mask covers every
+    element its query matches; every other use resolves to exactly one.
+  </p>
+
+  <p>
+    For advice on which keys to prefer, see
+    <a href="/docs/explanation/durable-queries">Queries that survive a redesign</a>.
+  </p>
+</Docs>

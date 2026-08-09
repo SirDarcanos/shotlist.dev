@@ -1,0 +1,220 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import DocTable from '../../../components/DocTable.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const shape = `name: order-row
+install: guide
+url: http://localhost:4321/orders
+
+setup:
+  - click: { role: link, name: Orders }
+
+clip: { css: '.order-row', contains: Acme Corp, pad: 20 }
+
+marks:
+  amount: { within: clip, text: $42.00 }
+
+mask:
+  - { within: clip, css: '.updated-at' }
+
+callouts:
+  - { mark: amount, text: What they owe, place: left }`
+
+const fileSource = `name: billing-settings
+source: file
+file: captures/billing-settings.png
+
+marks:
+  plan: { rect: [866, 874, 150, 50] }
+
+callouts:
+  - { mark: plan, text: The current plan }`
+
+const checkKey = `name: roll-form
+check:
+  threshold: 0.01
+  ignore:
+    - { css: 'output#result' }`
+
+const retries = `name: order-row
+retries: 2`
+---
+
+<Docs
+  title="Recipe reference"
+  description="Every field of a recipe file, with its default and its effect."
+>
+  <h1 class="text-4xl font-extrabold">Recipe file</h1>
+
+  <p>
+    One YAML file per screenshot, in <code>paths.recipes</code>. The filename is the recipe's name
+    unless <code>name</code> says otherwise.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={shape} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Fields</h2>
+
+  <DocTable
+    head={['Field', 'Default', 'Effect']}
+    rows={[
+      ['<code>name</code>', 'filename', 'Output filename, without the extension'],
+      [
+        '<code>source</code>',
+        '<code>app</code>',
+        '<code>app</code> drives the site; <code>file</code> annotates an image',
+      ],
+      ['<code>file</code>', '—', 'Image to annotate, required with <code>source: file</code>'],
+      ['<code>install</code>', '—', 'Which named destination in <code>install</code> to copy to'],
+      [
+        '<code>url</code>',
+        '<a href="/docs/reference/configuration#site"><code>site.url</code></a>',
+        'Page to open; used verbatim, not resolved against <code>site.url</code>',
+      ],
+      ['<code>session</code>', '—', 'Which of <code>site.sessions</code> to use'],
+      [
+        '<code>viewport</code>',
+        '<a href="/docs/reference/configuration#site"><code>site.viewport</code></a>',
+        'Viewport for this recipe',
+      ],
+      [
+        '<code>scale</code>',
+        '<a href="/docs/reference/configuration#site"><code>site.scale</code></a>',
+        'Device pixel ratio for this recipe',
+      ],
+      [
+        '<code>theme</code>',
+        '<a href="/docs/reference/configuration#site"><code>site.theme</code></a>',
+        'Color scheme for this recipe',
+      ],
+      [
+        '<code>format</code>',
+        '<a href="/docs/reference/configuration#image"><code>image.format</code></a>',
+        '<code>png</code>, <code>jpeg</code> or <code>webp</code>',
+      ],
+      [
+        '<code>quality</code>',
+        '<a href="/docs/reference/configuration#image"><code>image.quality</code></a>',
+        'For the lossy formats',
+      ],
+      [
+        '<code>style</code>',
+        '—',
+        'Style overrides, same shape as <code>style</code> in the configuration',
+      ],
+      ['<code>setup</code>', '<code>[]</code>', 'Steps run before anything is measured'],
+      ['<code>clip</code>', '<code>viewport</code>', 'Region to capture'],
+      [
+        '<code>marks</code>',
+        '<code>{}</code>',
+        'Named regions, resolved in written order after <code>setup</code>',
+      ],
+      ['<code>mask</code>', '<code>[]</code>', 'Regions painted over before callouts are drawn'],
+      ['<code>callouts</code>', '<code>[]</code>', 'What to draw on the marks'],
+      ['<code>numbered</code>', '—', 'Marks to number 1…n with a disc'],
+      ['<code>retries</code>', '<code>0</code>', 'Extra attempts if the recipe fails, up to 5'],
+      [
+        '<code>check</code>',
+        '<a href="/docs/reference/configuration#check"><code>check</code></a>',
+        "This recipe's comparison settings, or <code>false</code>",
+      ],
+    ]}
+  />
+
+  <h2 id="clip" class="mt-14 text-2xl font-bold">clip</h2>
+
+  <DocTable
+    head={['Value', 'Captures']}
+    rows={[
+      ['<code>viewport</code>', 'The browser window at the effective viewport size'],
+      ['<code>full</code>', 'The whole document, however far it scrolls'],
+      ['a <a href="/docs/reference/queries">query</a>', 'The box of the element it resolves to'],
+    ]}
+  />
+
+  <p>
+    A clip is held to the width of the viewport. Its height is not: a region reaching past the fold
+    is captured by scrolling to it.
+  </p>
+
+  <h2 id="marks" class="mt-14 text-2xl font-bold">marks</h2>
+
+  <p>
+    A mapping of names you choose to <a href="/docs/reference/queries">queries</a>. Marks resolve
+    after <code>setup</code>, in written order, so <code>within: clip</code> and
+    <code>within: &lt;mark&gt;</code> can refer to anything already resolved.
+  </p>
+
+  <p>
+    A mark that matches nothing stops the run, naming the recipe and the mark. With
+    <code>source: file</code> a mark is a literal <code>rect</code> instead.
+  </p>
+
+  <h2 id="source" class="mt-14 text-2xl font-bold">source: file</h2>
+
+  <p>
+    Annotates an image on disk. No page is opened, so <code>setup</code>, <code>clip</code>,
+    <code>url</code> and <code>session</code> do not apply, marks and masks are literal rectangles, and
+    <code>retries</code> has no effect.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={fileSource} file="screenshots/recipes/billing-settings.yaml" />
+  </div>
+
+  <h2 id="check" class="mt-14 text-2xl font-bold">check</h2>
+
+  <p><code>false</code> excludes the recipe from <code>--check</code>. A mapping accepts:</p>
+
+  <DocTable
+    head={['Key', 'Default', 'Effect']}
+    rows={[
+      [
+        '<code>threshold</code>',
+        '<a href="/docs/reference/configuration#check"><code>check.threshold</code></a>',
+        'Fraction of pixels that may differ',
+      ],
+      [
+        '<code>tolerance</code>',
+        '<a href="/docs/reference/configuration#check"><code>check.tolerance</code></a>',
+        'How far one channel may move, out of 255',
+      ],
+      [
+        '<code>ignore</code>',
+        '<code>[]</code>',
+        'Queries whose contents are excluded from the comparison',
+      ],
+    ]}
+  />
+
+  <div class="mt-6">
+    <RecipeCard code={checkKey} file="screenshots/recipes/roll-form.yaml" />
+  </div>
+
+  <p>
+    An ignored region is blanked in both images where it resolves now, so a region that moves or
+    changes size is still reported.
+  </p>
+
+  <h2 id="retries" class="mt-14 text-2xl font-bold">retries</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={retries} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <p>
+    Up to 5. Each attempt uses a fresh browser context. Failures are reported while the run
+    continues rather than after it.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Failure</h2>
+
+  <p>
+    A run stops at the first recipe that fails and names the recipe and the key that could not be
+    resolved. <code>--keep-going</code> takes the rest and lists every failure at the end. Either way
+    the exit code is non-zero.
+  </p>
+</Docs>

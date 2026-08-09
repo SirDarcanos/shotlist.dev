@@ -1,0 +1,127 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+---
+
+<Docs
+  title="Why recipes cannot run code"
+  description="The reasoning behind shotlist's decision to make a recipe pure data, with no step that evaluates JavaScript."
+>
+  <h1 class="text-4xl font-extrabold">Why recipes cannot run code</h1>
+
+  <p class="text-lg">
+    A shotlist recipe is data. There is no step that evaluates JavaScript, no expression language,
+    and no escape hatch into the page's runtime. This page explains the reasoning, and what it
+    costs.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">The problem an escape hatch solves, and creates</h2>
+
+  <p>
+    Every screenshot tool that drives a browser eventually meets a page it cannot describe: a canvas
+    that has to be primed, a component that only settles after an internal event, a value that has
+    to be computed. The usual answer is an <code>eval</code> step, and it works immediately.
+  </p>
+
+  <p>
+    It also changes what the file is. A recipe with one line of JavaScript in it is no longer a
+    description of a screenshot; it is a program that happens to produce one. That difference shows
+    up in four places.
+  </p>
+
+  <h3>Who can fix a broken screenshot</h3>
+
+  <p>
+    Documentation screenshots break for boring reasons, usually a button that was renamed. If the
+    recipe is data, the person who renamed the button can read the file and fix it, whatever their
+    role. If the recipe contains code, fixing it becomes a task for whoever is comfortable reading
+    that code, and in practice it waits.
+  </p>
+
+  <h3>What review can catch</h3>
+
+  <p>
+    A change to a recipe can be reviewed by reading it. A step list has a fixed vocabulary, so a
+    reviewer knows what the whole file is capable of. Arbitrary code has no such bound, and
+    reviewing it means reasoning about what it could do rather than what it says.
+  </p>
+
+  <h3>What can be validated ahead of time</h3>
+
+  <p>
+    Because recipes are data, they can be checked against a schema before anything runs. shotlist
+    ships those schemas, editors use them for completion, and a malformed recipe is rejected at
+    parse time rather than halfway through a run that has already written files. Code can only be
+    validated by running it.
+  </p>
+
+  <h3>What a configuration is allowed to do</h3>
+
+  <p>
+    A recipe you did not write is often something you have to run anyway: a pull request from a
+    fork, a submission to a hosted service. With no evaluation step, the worst a recipe can do is
+    bounded by the step vocabulary and by the limits described in
+    <a href="/docs/explanation/security-model">What a configuration can do</a>. An
+    <code>eval</code> step would make that analysis worthless, because the answer would always be "anything
+    the browser can do".
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">What it costs</h2>
+
+  <p>
+    The cost is real. Some screenshots cannot be described with the current vocabulary, and when
+    that happens there is no workaround available to the person who hit it. They have to wait for a
+    verb to be added.
+  </p>
+
+  <p>
+    That is the intended trade. A missing verb is a gap in a language that can be closed once, for
+    everybody, with the screenshot that needed it as the evidence for its design. An escape hatch
+    closes the same gap privately, in one repository, in a way nobody else benefits from and no
+    reviewer can check.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Where the line actually falls</h2>
+
+  <p>Two things are worth distinguishing, because only one of them is forbidden.</p>
+
+  <ul>
+    <li>
+      <strong>Driving the page</strong> is fully supported, and is what <code>setup</code> steps are for.
+      Clicking, typing, selecting, waiting and looping are all available.
+    </li>
+    <li>
+      <strong>Executing your own code inside the page</strong> is not available, and will not be.
+    </li>
+  </ul>
+
+  <p>
+    Queries travel into the page as data rather than as source, so a malformed selector produces a
+    parse error rather than an execution. <code>site.serve</code> runs a program directly, without a shell,
+    so the command in your configuration cannot become a shell script by adding a pipe to it.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">If you need a step that does not exist</h2>
+
+  <p>
+    <a
+      href="https://github.com/SirDarcanos/shotlist/issues/new?title=Missing%20step%3A%20"
+      target="_blank"
+      rel="noopener noreferrer">Open an issue</a
+    > and describe the screenshot you cannot take. A missing verb is a bug report with a clear test case,
+    and the step vocabulary grows that way rather than by anticipation.
+  </p>
+
+  <p>
+    Worth putting in it: the page, the state you need it in, and the step you reached for and could
+    not find. Worth leaving out: a proposed name or signature. A verb is easier to design from the
+    screenshot that needed it than from a guess at its shape.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/reference/steps">Steps reference</a>, for the vocabulary as it stands</li>
+    <li><a href="/docs/explanation/security-model">What a configuration can do</a></li>
+    <li><a href="/docs/explanation/playwright">Why Playwright is a peer dependency</a></li>
+  </ul>
+</Docs>

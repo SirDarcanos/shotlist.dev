@@ -1,0 +1,162 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import DocTable from '../../../components/DocTable.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const callouts = `marks:
+  amount: { within: clip, text: $42.00 }
+  status: { within: clip, text: Open }
+
+callouts:
+  - { mark: amount, text: What they owe, place: left }
+  - mark: status
+    text:
+      - Where it stands
+      - and who is waiting
+    place: bottom
+    dy: 12`
+
+const numberedShort = `marks:
+  header: { css: '.statblock-header' }
+  abilities: { css: '.abilities' }
+  defenses: { css: '.defenses' }
+
+numbered: [header, abilities, defenses]`
+
+const numberedLong = `marks:
+  header: { css: '.statblock-header' }
+  abilities: { css: '.abilities' }
+  defenses: { css: '.defenses' }
+
+numbered:
+  marks: [header, abilities, defenses]
+  box: false
+  badge: ml
+  inside: false`
+
+const mask = `mask:
+  - { within: clip, css: '.updated-at' }
+  - { rect: [172, 84, 52, 20] }`
+---
+
+<Docs
+  title="Callouts and masks reference"
+  description="Every field of a callout, the numbered shorthand, and how masked regions are declared."
+>
+  <h1 class="text-4xl font-extrabold">Callouts and masks</h1>
+
+  <p>
+    A callout draws on one mark. shotlist computes the position, extends the canvas when a label or
+    a disc needs room outside the captured region, and moves a label that would overlap one already
+    drawn.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={callouts} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <h2 id="fields" class="mt-14 text-2xl font-bold">Callout fields</h2>
+
+  <DocTable
+    head={['Field', 'Default', 'Effect']}
+    rows={[
+      ['<code>mark</code>', 'required', 'Which mark to draw on'],
+      ['<code>text</code>', '—', 'Label text: one string, or a list with one line each'],
+      ['<code>n</code>', '—', 'Number shown in a disc'],
+      [
+        '<code>place</code>',
+        '<code>auto</code>',
+        '<code>auto</code>, <code>left</code>, <code>right</code>, <code>top</code>, <code>bottom</code>, or <code>corner</code>',
+      ],
+      [
+        '<code>badge</code>',
+        '<code>tl</code>',
+        'Anchor for <code>place: corner</code>: <code>tl tc tr ml mr bl br bc</code>',
+      ],
+      ['<code>box</code>', '<code>true</code>', 'Whether to draw the outline'],
+      ['<code>inside</code>', 'see below', 'Whether the label or disc sits over the capture'],
+      ['<code>dx</code>', '<code>0</code>', 'Nudge across, in image pixels'],
+      ['<code>dy</code>', '<code>0</code>', 'Nudge down, in image pixels'],
+      [
+        '<code>pad</code>',
+        '<a href="/docs/reference/configuration#style"><code>style.box.pad</code></a>',
+        'Distance between the outline and the element',
+      ],
+      [
+        '<code>gap</code>',
+        '<a href="/docs/reference/configuration#style"><code>style.label.gap</code></a>',
+        'Distance between the label and the outline',
+      ],
+    ]}
+  />
+
+  <p>
+    Left unset, a disc (<code>place: corner</code>) sits inside, on the box, and a label on a named
+    side sits outside, in a margin the canvas grows to make. An explicit <code>place</code> or
+    <code>inside</code> is obeyed exactly. For what <code>auto</code> weighs, see
+    <a href="/docs/explanation/placement">How labels are placed</a>.
+  </p>
+
+  <h2 id="numbered" class="mt-14 text-2xl font-bold">numbered</h2>
+
+  <p>A list is shorthand for one numbered disc per mark, in the order given:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={numberedShort} file="screenshots/recipes/statblock.yaml" />
+  </div>
+
+  <p>
+    A mapping carries that list under <code>marks</code>, and applies every other key to all of
+    them:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={numberedLong} file="screenshots/recipes/statblock.yaml" />
+  </div>
+
+  <DocTable
+    head={['Key', 'Default', 'Effect']}
+    rows={[
+      ['<code>marks</code>', 'required', 'Marks to number, in order'],
+      ['<code>box</code>', '<code>true</code>', 'Whether to outline each mark'],
+      ['<code>badge</code>', '<code>tl</code>', 'Which corner or edge the disc anchors to'],
+      ['<code>inside</code>', '<code>true</code>', 'Whether discs sit over the capture'],
+      ['<code>dx</code>, <code>dy</code>', '<code>0</code>', 'Nudge, in image pixels'],
+      [
+        '<code>pad</code>',
+        '<a href="/docs/reference/configuration#style"><code>style.box.pad</code></a>',
+        'Distance between the outline and the element',
+      ],
+    ]}
+  />
+
+  <p>
+    <code>place</code> is not among them. A numbered disc is always <code>corner</code>, and
+    <code>badge</code> chooses which one.
+  </p>
+
+  <h2 id="masks" class="mt-14 text-2xl font-bold">mask</h2>
+
+  <p>
+    A list of <a href="/docs/reference/queries">queries</a>. Each matched region is painted with
+    <code>style.mask.fill</code> before the callouts are drawn, so a callout may still point at a masked
+    region.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={mask} file="screenshots/recipes/dashboard.yaml" />
+  </div>
+
+  <p>
+    A mask covers every element its query matches. Add <code>pick</code> or <code>nth</code> to select
+    one. A mask that matches nothing stops the run. With <code>source: file</code>, masks are
+    literal rectangles.
+  </p>
+
+  <p>
+    Masking changes the image. To leave a region in the image but out of the
+    <code>--check</code> comparison, use <a href="/docs/reference/recipe#check"
+      ><code>check.ignore</code></a
+    > instead.
+  </p>
+</Docs>

@@ -1,0 +1,138 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const macro = `defaults:
+  who: sam@example.com
+steps:
+  - fill: { label: Email }
+    value: $who
+  - click: { role: button, name: Sign in }`
+
+const use = `setup:
+  - use: sign-in
+  - use: sign-in
+    with: { who: admin@example.com }`
+
+const rawData = `- name: Acme Corp
+  reference: INV-1042
+- name: Globex
+  reference: INV-1043`
+
+const each = `setup:
+  - each: $orders
+    as: order
+    steps:
+      - fill: { label: Search }
+        value: \${order.name}
+      - click: { role: button, name: Search }
+      - wait: { css: '.order-row' }`
+
+const literal = `setup:
+  - each: [Acme Corp, Globex, Initech]
+    as: customer
+    steps:
+      - fill: { label: Search }
+        value: $customer
+      - click: { role: button, name: Search }`
+
+const paths = `paths:
+  recipes: screenshots/recipes
+  macros: screenshots/macros
+  data: screenshots/data
+  out: screenshots/out`
+---
+
+<Docs
+  title="How to share setup between recipes"
+  description="Extract repeated setup steps into a macro, and drive a recipe from a list held in a data file."
+>
+  <h1 class="text-4xl font-extrabold">Share setup between recipes</h1>
+
+  <p class="text-lg">
+    When several recipes begin with the same clicks, put those steps in a macro. When a recipe has
+    to repeat itself over a list of values, put the list in a data file. This guide does both.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Extract steps into a macro</h2>
+
+  <p>
+    Create one file per macro in <code>screenshots/macros/</code>. The filename is the macro's name.
+    A macro holds <code>steps</code>, and optionally <code>defaults</code> for the values it accepts:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={macro} file="screenshots/macros/sign-in.yaml" />
+  </div>
+
+  <p>Call it from any recipe with <code>use</code>, overriding values with <code>with</code>:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={use} file="screenshots/recipes/dashboard.yaml" />
+  </div>
+
+  <p>
+    The first call signs in as <code>sam@example.com</code>, because that is the default the macro
+    declares. The second overrides it.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Drive a recipe from a list</h2>
+
+  <p>
+    Create a file in <code>screenshots/data/</code>. Its filename becomes the variable name, so
+    <code>orders.yaml</code> is available as <code>$orders</code>:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={rawData} file="screenshots/data/orders.yaml" />
+  </div>
+
+  <p>Iterate it with <code>each</code>, naming each item with <code>as</code>:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={each} file="screenshots/recipes/orders.yaml" />
+  </div>
+
+  <p>
+    <code>{'${order.name}'}</code> reads the <code>name</code> field of the current item. Use the braces
+    whenever the reference runs into text that would otherwise be read as part of it: a name continues
+    through letters, digits, underscores and dots, so
+    <code>{'${order.name}'}</code> and <code>$order.name</code> differ only where the next character could
+    belong to either.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Use a list without a file</h2>
+
+  <p>For a handful of values that do not deserve a file, write the list inline:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={literal} file="screenshots/recipes/searches.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Move the folders</h2>
+
+  <p>
+    Macros and data files are found by convention. Change the locations under <code>paths</code> if your
+    project needs different ones:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={paths} file="shotlist.config.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Avoid hyphens in data filenames</h2>
+
+  <p>
+    A filename becomes a <code>$name</code>, and a reference stops at a hyphen. Name the file
+    <code>orders.yaml</code> rather than <code>open-orders.yaml</code>, and group related lists into
+    one file addressed by path: <code>$orders.open</code>, <code>$orders.shipped</code>.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/reference/macros-and-data">Macros and data files reference</a></li>
+    <li><a href="/docs/reference/steps">Steps reference</a></li>
+    <li><a href="/docs/how-to/sign-in">Capture a page behind a sign-in</a></li>
+  </ul>
+</Docs>

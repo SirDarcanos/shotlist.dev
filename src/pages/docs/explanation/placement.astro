@@ -1,0 +1,110 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+---
+
+<Docs
+  title="How labels are placed"
+  description="What shotlist weighs when place is auto, why it reads the pixels under a label, and when to override the decision."
+>
+  <h1 class="text-4xl font-extrabold">How labels are placed</h1>
+
+  <p class="text-lg">
+    With <code>place: auto</code>, shotlist chooses which side of a region a label goes on, and
+    whether it sits over the screenshot or in a margin beside it. This page explains what it is
+    weighing, so you can tell when to let it decide and when to override it.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">The choice is not symmetrical</h2>
+
+  <p>
+    A label outside the capture needs space, and shotlist makes that space by extending the canvas.
+    Which side it extends matters:
+  </p>
+
+  <ul>
+    <li>a label to the left or right grows the canvas by the label's <strong>width</strong></li>
+    <li>a label above or below grows it by the label's <strong>height</strong></li>
+  </ul>
+
+  <p>
+    On a wide screenshot with short labels those two costs differ by hundreds of pixels. Placing
+    every label on the right, which is the obvious default, produces images that are mostly empty
+    margin.
+  </p>
+
+  <p>
+    So <code>auto</code> weighs the canvas cost against how far the arrow would have to travel, and against
+    whether the arrow's path would cross another mark or a masked region.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Why it reads the image</h2>
+
+  <p>
+    A label placed over the screenshot costs no canvas at all and needs only a stub of an arrow.
+    That is the best outcome available — when there is somewhere to put it.
+  </p>
+
+  <p>
+    Whether there is somewhere to put it is not a question geometry can answer, because it depends
+    on what the page rendered. So shotlist reads the pixels the label would cover and counts how
+    many are far from that region's own average color.
+  </p>
+
+  <p>
+    Measuring distance from a local average, rather than from a fixed brightness, is what makes this
+    work on real interfaces. A flat panel scores as empty however dark it is, and so does a
+    gradient. Text or a chart over either does not. A test based on brightness alone would refuse to
+    place a label on a dark sidebar, which is often the emptiest space in the image.
+  </p>
+
+  <p>When the pixels cannot be read, the decision falls back to geometry.</p>
+
+  <h2 class="mt-14 text-2xl font-bold">What it cannot judge</h2>
+
+  <p>
+    shotlist can tell that a region has detail in it. It cannot tell what that detail is
+    <em>for</em>.
+  </p>
+
+  <p>
+    An arrow drawn across a paragraph of body text is a legible arrow over a region with detail,
+    which is a case the placement logic already avoids. An arrow drawn across a diagram the reader
+    is meant to be studying is exactly the same measurement, and the same decision, but a worse
+    outcome. The difference is editorial, and it lives with you.
+  </p>
+
+  <p>
+    That is why an explicit <code>place</code> is obeyed exactly, and so is an explicit
+    <code>inside</code>. Automatic placement is a default for the many callouts where the answer
+    does not matter, not a recommendation to be argued with on the few where it does.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Overlap between labels</h2>
+
+  <p>
+    Callouts are placed one after another, and a label that would overlap one already drawn is
+    moved. This means the order of your <code>callouts</code> list affects the result: the first callout
+    gets the position it wants, and later ones accommodate it.
+  </p>
+
+  <p>
+    If a screenshot's annotations look unbalanced, reordering the list is often a smaller change
+    than naming a side for each one.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Discs are different</h2>
+
+  <p>
+    A numbered disc carries no text, so it has no width worth reasoning about and nowhere it needs
+    to escape to. It defaults to sitting inside the box, anchored to a corner you choose with
+    <code>badge</code>. There is no <code>auto</code> for discs, because the tradeoff that makes
+    <code>auto</code> useful for labels does not exist for them.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/reference/callouts">Callouts and masks reference</a></li>
+    <li><a href="/docs/tutorials/first-screenshot">Your first screenshot</a></li>
+  </ul>
+</Docs>

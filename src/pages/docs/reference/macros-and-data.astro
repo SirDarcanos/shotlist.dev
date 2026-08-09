@@ -1,0 +1,132 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import DocTable from '../../../components/DocTable.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const macro = `defaults:
+  who: sam@example.com
+steps:
+  - fill: { label: Email }
+    value: $who
+  - click: { role: button, name: Sign in }`
+
+const use = `setup:
+  - use: sign-in
+    with: { who: admin@example.com }`
+
+const rawData = `open:
+  - name: Acme Corp
+    reference: INV-1042
+shipped:
+  - name: Globex
+    reference: INV-1043`
+
+const each = `setup:
+  - each: $orders.open
+    as: order
+    steps:
+      - fill: { label: Search }
+        value: \${order.name}`
+---
+
+<Docs
+  title="Macros and data files reference"
+  description="The macro file format, how data files enter scope, and the rules for variable references."
+>
+  <h1 class="text-4xl font-extrabold">Macros and data files</h1>
+
+  <h2 class="mt-14 text-2xl font-bold">Macro files</h2>
+
+  <p>
+    One file per macro in <code>paths.macros</code>. The filename is the macro's name. A macro
+    cannot contain <code>clip</code>, <code>marks</code> or <code>callouts</code>.
+  </p>
+
+  <DocTable
+    head={['Key', 'Default', 'Effect']}
+    rows={[
+      ['<code>steps</code>', 'required', 'The steps to run'],
+      [
+        '<code>defaults</code>',
+        '<code>{}</code>',
+        'Values the macro reads, overridable by the caller',
+      ],
+    ]}
+  />
+
+  <div class="mt-6">
+    <RecipeCard code={macro} file="screenshots/macros/sign-in.yaml" />
+  </div>
+
+  <p>Call it from a recipe or another macro with the <code>use</code> step:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={use} file="screenshots/recipes/dashboard.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Data files</h2>
+
+  <p>
+    Every file in <code>paths.data</code> is in scope, named after its filename:
+    <code>orders.yaml</code> is <code>$orders</code>. A filename must contain only letters, digits
+    and underscores, because a reference stops at a hyphen.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={rawData} file="screenshots/data/orders.yaml" />
+  </div>
+
+  <div class="mt-6">
+    <RecipeCard code={each} file="screenshots/recipes/orders.yaml" />
+  </div>
+
+  <h2 id="references" class="mt-14 text-2xl font-bold">References</h2>
+
+  <DocTable
+    head={['Form', 'Meaning']}
+    rows={[
+      ['<code>$name</code>', 'The value bound to <code>name</code>'],
+      ['<code>{"${name}"}</code>', 'The same, delimited'],
+      ['<code>$a.b</code>', 'A path into the value bound to <code>a</code>'],
+      ['<code>{"${env.NAME}"}</code>', 'An environment variable the run was allowed to read'],
+    ]}
+  />
+
+  <p>
+    A name continues through letters, digits, underscores and dots, so braces are required where the
+    reference runs into text that could belong to it: <code>{'Order ${order.name}.'}</code> ends the reference
+    before the full stop, while <code>Order $order.name.</code> looks for a path ending in a dot.
+  </p>
+
+  <h3>Where values come from</h3>
+
+  <ul>
+    <li>data files, by filename</li>
+    <li><code>with</code> on a <code>use</code> step, for the macro it calls</li>
+    <li><code>readValue: … as: name</code>, for the steps that follow it</li>
+    <li><code>each: … as: name</code>, for its own steps only</li>
+  </ul>
+
+  <h3>Rules</h3>
+
+  <ul>
+    <li>
+      A reference that is the whole value keeps that value's type. A reference inside a longer
+      string becomes text.
+    </li>
+    <li>
+      References are substituted in steps only, never in <code>clip</code>, <code>marks</code> or <code
+        >callouts</code
+      >.
+    </li>
+    <li>A reference that matches nothing is an error, not an empty string.</li>
+    <li>A literal <code>$</code> inside a longer string is left alone.</li>
+    <li>
+      <code>__proto__</code>, <code>constructor</code> and <code>prototype</code> resolve to nothing.
+    </li>
+    <li>
+      <code>{'${env.NAME}'}</code> resolves only for names given to <code>--allow-env</code> or listed
+      in <code>SHOTLIST_ENV</code>; an <code>--untrusted</code> run resolves none.
+    </li>
+  </ul>
+</Docs>

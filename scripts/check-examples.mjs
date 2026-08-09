@@ -24,6 +24,7 @@ const CONFIG_KEYS = [
   'finders:',
   'style:',
   'deny:',
+  'allowEnv:',
   'check:',
   'image:',
 ]
@@ -47,13 +48,15 @@ for (const file of readdirSync(RECIPES).filter((f) => f.endsWith('.yaml'))) {
   }
 }
 
-// The examples on the pages.
-for (const file of readdirSync(DOCS).filter((f) => f.endsWith('.astro'))) {
+// The examples on the pages. The docs are one folder per Diátaxis quadrant, so this walks.
+const pages = readdirSync(DOCS, { recursive: true }).filter((f) => String(f).endsWith('.astro'))
+
+for (const file of pages) {
   const source = readFileSync(join(DOCS, file), 'utf8')
 
   // Which consts are rendered as something other than YAML.
   const notYaml = new Set(
-    [...source.matchAll(/<RecipeCard\s+code=\{(\w+)\}[^>]*lang="(bash|ts)"/g)].map((m) => m[1]),
+    [...source.matchAll(/<RecipeCard\s+code=\{(\w+)\}[^>]*lang="(bash|ts|css)"/g)].map((m) => m[1]),
   )
 
   // Every finder defined anywhere on the page, so a snippet that calls one resolves.
@@ -69,6 +72,9 @@ for (const file of readdirSync(DOCS).filter((f) => f.endsWith('.astro'))) {
 
   for (const [, name, body] of source.matchAll(/^const (\w+) = `([\s\S]*?)`$/gm)) {
     if (notYaml.has(name)) continue
+    // A `raw…` name is YAML that is not shotlist's — a CI workflow, an editor setting. It is
+    // still parsed as YAML, so a broken one fails, but no shotlist schema is applied to it.
+    const raw = /^raw[A-Z]/.test(name)
     const label = `${file} → ${name}`
     let doc
     try {
@@ -77,6 +83,8 @@ for (const file of readdirSync(DOCS).filter((f) => f.endsWith('.astro'))) {
       fail(label, error)
       continue
     }
+    // A data file is a list or a plain mapping of values, not a document any schema describes.
+    if (raw || Array.isArray(doc)) continue
     if (doc === null || typeof doc !== 'object') continue
 
     const isConfig = CONFIG_KEYS.some((key) => body.trimStart().startsWith(key)) && !('name' in doc)

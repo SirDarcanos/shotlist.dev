@@ -1,0 +1,157 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const setup = `name: order-detail
+
+setup:
+  - click: { role: link, name: Orders }
+  - fill: { label: Search }
+    value: Acme
+  - wait: { css: '.order-row' }
+
+clip: { css: '.order-row', contains: Acme Corp, pad: 20 }`
+
+const optional = `setup:
+  - optional:
+      - click: { role: button, name: Accept cookies }
+  - click: { role: link, name: Orders }`
+
+const repeat = `setup:
+  - click: { role: link, name: Orders }
+  - repeat: 3
+    steps:
+      - click: { role: button, name: Load more }
+      - wait: 250`
+
+const readValue = `setup:
+  - readValue: { label: Order total }
+    as: total
+  - fill: { label: Refund amount }
+    value: $total`
+
+const secondPage = `setup:
+  - openPage: /orders/1042/invoice
+    as: invoice
+    viewport: { width: 800, height: 1200 }
+  - usePage: invoice`
+
+const comment = `setup:
+  - wait: { css: '.order-row' }
+    comment: the list has settled, so the row can be measured`
+---
+
+<Docs
+  title="How to capture a page after interaction"
+  description="Use setup steps to click, type and wait so that a screenshot shows the state you want rather than the page as it first loads."
+>
+  <h1 class="text-4xl font-extrabold">Capture a page after interaction</h1>
+
+  <p class="text-lg">
+    Most screenshots worth taking are not of a page as it first loads. This guide drives the page
+    into the state you want before anything is measured or captured.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Add setup steps</h2>
+
+  <p>
+    Put the interaction under <code>setup</code>. Steps run in order, before <code>clip</code> and
+    <code>marks</code> are resolved:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={setup} file="screenshots/recipes/order-detail.yaml" />
+  </div>
+
+  <p>
+    Each step is a mapping led by one verb. Some verbs take a second key alongside:
+    <code>fill</code> takes <code>value</code>, <code>select</code> takes <code>option</code>, and
+    <code>press</code> and <code>type</code> take <code>on</code>. The full list is in the
+    <a href="/docs/reference/steps">steps reference</a>.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Wait for the right thing</h2>
+
+  <p>
+    <code>wait</code> accepts either a number of milliseconds or a query. Prefer the query: it finishes
+    as soon as the element exists, and it fails loudly if the element never arrives, where a fixed wait
+    silently captures a half-rendered page.
+  </p>
+
+  <p>
+    If the page needs a moment to settle after the element appears, set <code>site.settle</code> in your
+    configuration rather than adding fixed waits to every recipe.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Handle something that may not be there</h2>
+
+  <p>
+    A consent banner that appears only on a fresh browser profile will break a recipe that always
+    clicks it. Wrap those steps in <code>optional</code>, which ignores failures:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={optional} file="screenshots/recipes/order-detail.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Repeat a step</h2>
+
+  <p>Use <code>repeat</code> when the same interaction has to happen several times:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={repeat} file="screenshots/recipes/order-list.yaml" />
+  </div>
+
+  <p>
+    <code>repeat</code> is capped at 1000 iterations. To run steps once per item in a list instead, use
+    <code>each</code> — see <a href="/docs/how-to/share-setup">Share setup between recipes</a>.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Carry a value between steps</h2>
+
+  <p>
+    <code>readValue</code> puts the contents of an input into a variable that later steps can read:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={readValue} file="screenshots/recipes/refund.yaml" />
+  </div>
+
+  <p>
+    Variables are substituted in steps only. A <code>$total</code> written in
+    <code>callouts</code> or <code>marks</code> is treated as literal text.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Capture a page that opens in a new tab</h2>
+
+  <p>Open the second page explicitly, give it a name, and switch to it:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={secondPage} file="screenshots/recipes/invoice.yaml" />
+  </div>
+
+  <p>Every step after <code>usePage</code> drives that page, and so does the capture.</p>
+
+  <h2 class="mt-14 text-2xl font-bold">Leave a note for the next reader</h2>
+
+  <p>
+    Any step accepts <code>comment</code>, which is ignored at run time. It rides alongside a verb
+    rather than being one, so a comment cannot be a step on its own:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={comment} file="screenshots/recipes/order-detail.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/reference/steps">Steps reference</a></li>
+    <li><a href="/docs/reference/queries">Queries reference</a></li>
+    <li><a href="/docs/how-to/share-setup">Share setup between recipes</a></li>
+    <li>
+      <a href="/docs/explanation/no-code">Why recipes cannot run code</a>, if the step you want does
+      not exist
+    </li>
+  </ul>
+</Docs>

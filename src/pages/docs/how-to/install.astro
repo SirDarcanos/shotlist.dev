@@ -1,0 +1,138 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import CommandTabs from '../../../components/CommandTabs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const install = [
+  { label: 'npm', code: 'npm i -D shotlist playwright' },
+  { label: 'pnpm', code: 'pnpm add -D shotlist playwright' },
+  { label: 'yarn', code: 'yarn add -D shotlist playwright' },
+]
+
+const scaffold = `npx shotlist --init`
+
+const written = `shotlist.config.yaml
+screenshots/recipes/example.yaml`
+
+const config = `site:
+  url: http://localhost:3000
+  serve: npm run dev
+
+install:
+  docs: docs/images`
+
+const verify = `npx shotlist`
+
+const schema = `# yaml-language-server: $schema=../../node_modules/shotlist/dist/recipe.schema.json`
+
+const skill = `mkdir -p .claude/skills
+cp -R node_modules/shotlist/skills/shotlist .claude/skills/`
+---
+
+<Docs
+  title="How to add shotlist to a project"
+  description="Install shotlist and Playwright in an existing project, scaffold a configuration, and set up editor and agent support."
+>
+  <h1 class="text-4xl font-extrabold">Add shotlist to a project</h1>
+
+  <p class="text-lg">
+    This guide installs shotlist into an application you already have. If you would rather learn on
+    a prepared project first, start with
+    <a href="/docs/tutorials/first-screenshot">Your first screenshot</a>, which downloads one.
+  </p>
+
+  <p>You need Node.js 20 or later, and a <code>package.json</code>.</p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 1: install the packages</h2>
+
+  <CommandTabs commands={install} class="mt-6" />
+
+  <p>
+    Playwright is a separate install because its own install step downloads browser binaries.
+    shotlist needs a browser whenever it writes an image, including for <code>--check</code>. See
+    <a href="/docs/explanation/playwright">Why Playwright is a peer dependency</a> for which commands
+    run without one.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 2: scaffold the configuration</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={scaffold} lang="bash" />
+  </div>
+
+  <p>This writes two commented files, and overwrites neither if they already exist:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={written} lang="bash" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 3: point it at your application</h2>
+
+  <p>
+    Edit <code>shotlist.config.yaml</code>. Two things matter to begin with: where the application
+    runs, and where its screenshots belong.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={config} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    Every path in the configuration resolves from the file's own folder, not from wherever you run
+    the command. <code>site.serve</code> is optional — leave it out if something is always running already.
+    See <a href="/docs/how-to/start-the-site">Start the site automatically</a>.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 4: verify the install</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={verify} lang="bash" />
+  </div>
+
+  <p>
+    With no arguments, shotlist lists the recipes it found and opens no browser. If it prints the
+    scaffolded <code>example</code> recipe, the install is working.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Set up editor completion</h2>
+
+  <p>
+    The package ships JSON Schemas generated from the same definitions that validate a run. Point a
+    recipe at one and your editor completes and checks the keys as you type:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={schema} lang="bash" file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <p>
+    <code>dist/config.schema.json</code> describes the configuration and
+    <code>dist/macro.schema.json</code> describes a macro. The scaffolded recipe already carries the line.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Set up agent support</h2>
+
+  <p>
+    A skill for coding agents ships with the package. It covers what reference cannot: choosing a
+    query that survives a redesign, which side of a mark a label belongs on, and what each error
+    means.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={skill} lang="bash" />
+  </div>
+
+  <p>
+    It is Markdown with YAML frontmatter and nothing else, so any agent that reads instruction files
+    can use it — point yours at
+    <code>node_modules/shotlist/skills/shotlist/SKILL.md</code>.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/tutorials/first-screenshot">Your first screenshot</a></li>
+    <li><a href="/docs/reference/configuration">Configuration reference</a></li>
+    <li><a href="/docs/how-to/run-in-ci">Run shotlist in CI</a></li>
+  </ul>
+</Docs>

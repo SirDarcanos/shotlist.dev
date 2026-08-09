@@ -1,0 +1,323 @@
+---
+import CommandTabs from '../../../components/CommandTabs.astro'
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const serve = `cd shotlist-example
+npm run dev`
+
+const install = [
+  { label: 'npm', code: 'npm i -D shotlist playwright' },
+  { label: 'pnpm', code: 'pnpm add -D shotlist playwright' },
+  { label: 'yarn', code: 'yarn add -D shotlist playwright' },
+]
+
+const config = `site:
+  url: http://localhost:3000
+  serve: npm run dev`
+
+const viewportRecipe = `name: order-row
+clip: viewport`
+
+const firstRun = `npx shotlist order-row`
+
+const firstOutput = `  ✓ order-row → screenshots/out/order-row.png`
+
+const clipRecipe = `name: order-row
+
+clip:
+  css: 'li, div'
+  contains: Acme Corp
+  matching: '\\$\\d'
+  maxChildren: 12
+  pick: smallest
+  pad: 20`
+
+const marksRecipe = `name: order-row
+
+clip:
+  css: 'li, div'
+  contains: Acme Corp
+  matching: '\\$\\d'
+  maxChildren: 12
+  pick: smallest
+  pad: 20
+
+marks:
+  amount: { within: clip, text: $42.00 }
+  status: { within: clip, text: Open }
+
+callouts:
+  - { mark: amount, text: What they owe, place: top }
+  - { mark: status, text: Where it stands, place: bottom }`
+
+const brokenRun = `recipe "order-row": marks.status — no element matched {"text":"Opened","within":"clip"}`
+
+const numberedRecipe = `name: order-row
+
+clip:
+  css: 'li, div'
+  contains: Acme Corp
+  matching: '\\$\\d'
+  maxChildren: 12
+  pick: smallest
+  pad: 20
+
+marks:
+  amount: { within: clip, text: $42.00 }
+  status: { within: clip, text: Open }
+
+numbered: [amount, status]`
+
+const listRecipes = `npx shotlist`
+---
+
+<Docs
+  title="Tutorial: your first screenshot"
+  description="A step-by-step lesson that installs shotlist into a small example application and produces an annotated screenshot of one of its pages."
+>
+  <h1 class="text-4xl font-extrabold">Your first screenshot</h1>
+
+  <p class="text-lg">
+    In this tutorial you will install shotlist into a small application and produce an annotated
+    screenshot of part of it. You will finish with a PNG showing one row of an orders list, with two
+    labelled arrows pointing at the parts that matter.
+  </p>
+
+  <p>
+    Everything runs on your own machine. You do not need an application of your own, and you will
+    not write any JavaScript — everything you write here is YAML. The tutorial takes about fifteen
+    minutes.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Before you begin</h2>
+
+  <p>You need Node.js 20 or later, npm, and a terminal.</p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 1: get the example application</h2>
+
+  <p>
+    Download <a href="/shotlist-example.zip" download>shotlist-example.zip</a> and unzip it wherever you
+    keep projects. Inside is a small fake invoicing screen called Ledger, with a documentation page alongside
+    it. It has no dependencies of its own.
+  </p>
+
+  <p>Start it:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={serve} lang="bash" />
+  </div>
+
+  <p>
+    Open <a href="http://localhost:3000" rel="noopener noreferrer" target="_blank"
+      >http://localhost:3000</a
+    >. You should see a list of orders, one row per invoice, each with a customer name, a reference,
+    an amount and a status. This is the application you are going to photograph.
+  </p>
+
+  <p>
+    If it reports that port 3000 is already in use, stop whatever is holding it, or run
+    <code>PORT=3001 npm run dev</code> instead and use that port everywhere this tutorial says 3000 —
+    including in <code>site.url</code> in step 3.
+  </p>
+
+  <p>
+    Leave it running, and open a second terminal in the same folder for everything that follows.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 2: install shotlist</h2>
+
+  <CommandTabs commands={install} class="mt-6" />
+
+  <p>
+    This takes a minute or two, because Playwright downloads a copy of Chromium. shotlist uses that
+    browser to open the page and take the picture. For why the browser is a separate install, see
+    <a href="/docs/explanation/playwright">Why Playwright is a peer dependency</a>.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 3: point shotlist at the application</h2>
+
+  <p>
+    Create a file called <code>shotlist.config.yaml</code> in the root of the example project, beside
+    <code>package.json</code>:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={config} file="shotlist.config.yaml" />
+  </div>
+
+  <ul>
+    <li>
+      <code>site.url</code> is where the application is running. It is the only key shotlist requires,
+      and it also decides which addresses your recipes are allowed to open.
+    </li>
+    <li>
+      <code>site.serve</code> is the command that starts the application. shotlist requests
+      <code>site.url</code> first and uses the server you already started, so this line is what matters
+      on a machine where nothing is running yet.
+    </li>
+  </ul>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 4: write a recipe and take a picture</h2>
+
+  <p>
+    A recipe is one YAML file describing one screenshot. Create the folder
+    <code>screenshots/recipes/</code> and, inside it, a file called <code>order-row.yaml</code>:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={viewportRecipe} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <p>Take it:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={firstRun} lang="bash" />
+  </div>
+
+  <p>You should see:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={firstOutput} lang="bash" />
+  </div>
+
+  <p>
+    Open <code>screenshots/out/order-row.png</code>. It is the whole browser window, which is rarely
+    what documentation wants. Next you will narrow it to a single row.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 5: capture one region</h2>
+
+  <p>Replace the recipe with this, and run the same command again:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={clipRecipe} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <p>
+    The image is now a single row: Acme Corp, INV-1042, $42.00, Open. The query narrowed down to it
+    in stages:
+  </p>
+
+  <ul>
+    <li><code>css</code> collects every list item and every div on the page.</li>
+    <li><code>contains</code> keeps the ones holding the text "Acme Corp".</li>
+    <li><code>matching</code> keeps the ones whose text also holds a currency figure.</li>
+    <li><code>maxChildren</code> discards containers with a great many children.</li>
+    <li>
+      <code>pick: smallest</code> chooses between what is left. Both the row and the panel around it match
+      everything above, and the row is the smaller of the two.
+    </li>
+    <li><code>pad</code> adds 20 pixels of room on every side.</li>
+  </ul>
+
+  <p>
+    Notice what the query does not mention: no class names, no positions in the document. Rename
+    <code>order-row</code> in the stylesheet and this recipe still works.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 6: point at something</h2>
+
+  <p>Now add two callouts: a labelled arrow to the amount, and another to the status.</p>
+
+  <div class="mt-6">
+    <RecipeCard code={marksRecipe} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <p>Two new sections appeared:</p>
+
+  <ul>
+    <li>
+      <code>marks</code> gives a name to each region you care about. <code>within: clip</code> limits
+      the search to the region being captured, which matters here: more than one row on the page says
+      "Open", and only one of them is in your screenshot.
+    </li>
+    <li>
+      <code>callouts</code> is what gets drawn. Each entry names a mark, the label text, and which side
+      of the region the label sits on.
+    </li>
+  </ul>
+
+  <p>
+    Run the command again and open the image. Both regions are outlined in red, with an arrow
+    running from a red label to each outline. shotlist made the canvas taller than the captured row
+    so the labels have somewhere to sit.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 7: see what happens when a mark is wrong</h2>
+
+  <p>
+    This step breaks the recipe on purpose, so you recognize the error when you meet it for real.
+  </p>
+
+  <p>Change <code>text: Open</code> to <code>text: Opened</code> and run the command again:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={brokenRun} lang="bash" />
+  </div>
+
+  <p>
+    No image was written. A recipe is an assertion that the page contains the things it points at,
+    and shotlist would rather fail than publish a screenshot with an arrow pointing at nothing.
+  </p>
+
+  <p>Change <code>Opened</code> back to <code>Open</code> and confirm the run succeeds again.</p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 8: number the parts instead of labelling them</h2>
+
+  <p>
+    When the prose beside a screenshot is already a numbered list, discs are tidier than labels.
+    Replace the whole <code>callouts</code> section with a single <code>numbered</code> line:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={numberedRecipe} file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <p>
+    Run the command once more. The labels and arrows are gone, and each region now carries a small
+    red disc, numbered in the order you listed the marks.
+  </p>
+
+  <p>Put the <code>callouts</code> section back before you move on — the next tutorial uses it.</p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 9: list what you have</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={listRecipes} lang="bash" />
+  </div>
+
+  <p>
+    With no arguments, shotlist prints every recipe it found. In a real project this folder holds
+    one file per screenshot in your documentation, and <code>npx shotlist --all</code> re-takes all of
+    them.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">What you have learned</h2>
+
+  <ul>
+    <li>installed shotlist and Playwright into a project</li>
+    <li>written a configuration naming the application to photograph</li>
+    <li>captured a whole window, then narrowed the capture to one region</li>
+    <li>described that region by what a person sees rather than by its markup</li>
+    <li>annotated it with labelled callouts, and with numbered discs</li>
+    <li>seen shotlist refuse to produce a screenshot whose annotations no longer match the page</li>
+  </ul>
+
+  <h2 class="mt-14 text-2xl font-bold">Next steps</h2>
+
+  <ul>
+    <li>
+      <a href="/docs/tutorials/keeping-a-screenshot-current">Keeping a screenshot current</a> continues
+      in the same project. It publishes this screenshot into Ledger's own documentation page, then detects
+      when the application changes underneath it.
+    </li>
+    <li>
+      <a href="/docs/how-to/drive-a-page">Capture a page after interaction</a> shows how to click and
+      type before capturing. The example application has a "Load more" button to practise on.
+    </li>
+    <li>
+      <a href="/docs/reference/recipe">Recipe file</a> lists every field a recipe can contain.
+    </li>
+  </ul>
+</Docs>

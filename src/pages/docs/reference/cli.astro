@@ -1,0 +1,226 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import DocTable from '../../../components/DocTable.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const usage = `shotlist [<name>…] [options]`
+
+const report = `{
+  "changed": 1,
+  "total": 2,
+  "drift": [{ "field": "chromium", "was": "141.0.0.0", "now": "139.0.0.0" }],
+  "results": [
+    {
+      "name": "order-row",
+      "status": "changed",
+      "ratio": 0.0213,
+      "shot": "screenshots/out/order-row.png",
+      "against": "content/guide/images/order-row.png",
+      "diff": "screenshots/out/diff/order-row.png"
+    }
+  ]
+}`
+
+const api = `import { check, loadConfig, loadLibrary, shoot, withNumbering } from 'shotlist'
+
+const loaded = loadConfig()
+const { paths, finders } = loaded.config
+const library = loadLibrary({ ...paths, finders })
+
+const recipe = withNumbering(library.recipes.get('order-row')!)
+await shoot(recipe, library, loaded, { install: true })
+
+const results = await check([recipe], library, loaded)`
+
+const schema = `# yaml-language-server: $schema=../../node_modules/shotlist/dist/recipe.schema.json`
+---
+
+<Docs
+  title="Command line reference"
+  description="Every shotlist command, option, exit code and environment variable, and the shape of the JSON report."
+>
+  <h1 class="text-4xl font-extrabold">Command line</h1>
+
+  <div class="mt-6">
+    <RecipeCard code={usage} lang="bash" />
+  </div>
+
+  <p>
+    With one or more names, shotlist takes those recipes. With no names and no options, it lists the
+    recipes it found.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Options</h2>
+
+  <DocTable
+    head={['Option', 'Effect']}
+    rows={[
+      ['<code>--all</code>', 'Take every recipe'],
+      ['<code>--install</code>', "Copy each image to the recipe's install destination"],
+      ['<code>--check</code>', 'Re-take and compare against the installed images'],
+      ['<code>--diff</code>', 'With <code>--check</code>, write a three-panel diff image'],
+      ['<code>--json</code>', 'With <code>--check</code>, write the report to stdout as JSON'],
+      [
+        '<code>--lint</code>',
+        'Parse every config, recipe, macro and data file, report everything wrong, and stop',
+      ],
+      [
+        '<code>--warnings</code>',
+        'With <code>--lint</code>, also report what is legal but probably unmeant',
+      ],
+      [
+        '<code>--keep-going</code>',
+        'Carry on past a recipe that fails, and list them all at the end',
+      ],
+      ['<code>--init</code>', 'Write a starter configuration and recipe; never overwrites'],
+      ['<code>--config &lt;file&gt;</code>', 'Use a specific configuration file'],
+      ['<code>--login &lt;name&gt;</code>', 'Sign in and save the named session'],
+      [
+        '<code>--using &lt;macro&gt;</code>',
+        'With <code>--login</code>, sign in by running a macro',
+      ],
+      ['<code>--untrusted</code>', 'Run with the restrictions listed below'],
+      ['<code>--allow &lt;host&gt;</code>', 'Permit an extra host; repeatable'],
+      ['<code>--allow-path &lt;dir&gt;</code>', 'Permit an extra directory; repeatable'],
+      [
+        '<code>--allow-env &lt;name&gt;</code>',
+        "Permit a recipe to read this variable from the run's environment; repeatable",
+      ],
+      ['<code>--deny &lt;name&gt;</code>', 'Forbid a file or folder name; repeatable'],
+      ['<code>--help</code>', 'Print the option list'],
+      ['<code>--version</code>', 'Print the version'],
+    ]}
+  />
+
+  <h2 class="mt-14 text-2xl font-bold">Exit codes</h2>
+
+  <DocTable
+    head={['Code', 'Meaning']}
+    rows={[
+      ['<code>0</code>', 'Every recipe succeeded; with <code>--check</code>, nothing changed'],
+      ['<code>non-zero</code>', 'A recipe failed, or a checked screenshot changed'],
+      [
+        '<code>--lint</code>',
+        'Non-zero when a file has an error; warnings alone leave it at <code>0</code>',
+      ],
+    ]}
+  />
+
+  <h2 class="mt-14 text-2xl font-bold">Environment variables</h2>
+
+  <DocTable
+    head={['Variable', 'Effect']}
+    rows={[
+      [
+        '<code>SHOTLIST_ENV</code>',
+        'Names a recipe may read, in addition to <code>--allow-env</code>',
+      ],
+      [
+        '<code>SHOTLIST_ENV_DENY</code>',
+        'Variable names no config key or flag may grant; globs allowed, subtracted last',
+      ],
+      ['<code>SHOTLIST_DENY</code>', 'Forbidden names, separated by commas or colons'],
+      [
+        '<code>SHOTLIST_UNTRUSTED</code>',
+        'Set to <code>1</code> for the effect of <code>--untrusted</code>',
+      ],
+    ]}
+  />
+
+  <p>
+    These are read from the process environment. shotlist does not load a <code>.env</code> file — that
+    name is one it refuses to open — so anything kept there has to be in the environment before the command
+    runs. See
+    <a href="/docs/how-to/sign-in">Capture a page behind a sign-in</a>.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Check statuses</h2>
+
+  <DocTable
+    head={['Status', 'Meaning']}
+    rows={[
+      ['<code>same</code>', 'Within the configured threshold and tolerance'],
+      ['<code>changed</code>', 'Outside them'],
+      ['<code>new</code>', 'Nothing is committed at the destination'],
+      ['<code>skipped</code>', 'The recipe installs nowhere, so there is nothing to compare'],
+      ['<code>failed</code>', 'The recipe could not be taken'],
+    ]}
+  />
+
+  <h2 id="json" class="mt-14 text-2xl font-bold">JSON report</h2>
+
+  <p>Written by <code>--check --json</code>. Human-readable output moves to stderr.</p>
+
+  <div class="mt-6">
+    <RecipeCard code={report} lang="ts" file="report.json" />
+  </div>
+
+  <DocTable
+    head={['Field', 'Type', 'Meaning']}
+    rows={[
+      ['<code>changed</code>', 'number', 'How many screenshots differ'],
+      ['<code>total</code>', 'number', 'How many were compared'],
+      ['<code>drift</code>', 'array', 'Differences between this machine and the recorded baseline'],
+      ['<code>results[].name</code>', 'string', 'Recipe name'],
+      ['<code>results[].status</code>', 'string', 'One of the statuses above'],
+      ['<code>results[].ratio</code>', 'number', 'Fraction of pixels that differ'],
+      ['<code>results[].shot</code>', 'string', 'Path to the image just taken'],
+      ['<code>results[].against</code>', 'string', 'Path to the committed image'],
+      ['<code>results[].diff</code>', 'string', 'Path to the diff image, with <code>--diff</code>'],
+    ]}
+  />
+
+  <h2 class="mt-14 text-2xl font-bold">Baseline file</h2>
+
+  <p>
+    <code>--install</code> writes <code>shotlist.baseline.json</code> beside the configuration file, recording
+    the shotlist, Playwright and Chromium versions and the platform that produced the images.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Node.js API</h2>
+
+  <p>The command line is a wrapper over exported functions.</p>
+
+  <div class="mt-6">
+    <RecipeCard code={api} lang="ts" />
+  </div>
+
+  <DocTable
+    head={['Export', 'Purpose']}
+    rows={[
+      ['<code>loadConfig()</code>', 'Read and validate <code>shotlist.config.yaml</code>'],
+      ['<code>loadLibrary()</code>', 'Read recipes, macros and data files'],
+      ['<code>shoot()</code>', 'Take one recipe; pass <code>browser</code> to reuse one'],
+      ['<code>check()</code>', 'Compare recipes against installed images'],
+      ['<code>withNumbering()</code>', 'Expand <code>numbered</code> into callouts'],
+      [
+        '<code>parseConfig()</code>, <code>parseRecipe()</code>, <code>parseQuery()</code>',
+        'Validate a parsed YAML document',
+      ],
+      ['<code>Macro</code>', 'The macro schema'],
+    ]}
+  />
+
+  <h2 class="mt-14 text-2xl font-bold">JSON Schemas</h2>
+
+  <DocTable
+    head={['File', 'Describes']}
+    rows={[
+      ['<code>shotlist/dist/config.schema.json</code>', '<code>shotlist.config.yaml</code>'],
+      ['<code>shotlist/dist/recipe.schema.json</code>', 'A recipe'],
+      ['<code>shotlist/dist/macro.schema.json</code>', 'A macro'],
+    ]}
+  />
+
+  <p>Reference one from a file for editor completion and inline validation:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={schema} lang="bash" file="screenshots/recipes/order-row.yaml" />
+  </div>
+
+  <p>
+    The config's schema was <code>dist/schema.json</code> before 0.4.0, which named one of three files
+    "the schema". That file is still written and <code>shotlist/schema.json</code> still resolves to the
+    config schema, so an existing YAML header or editor setting keeps working. Both go at 1.0.
+  </p>
+</Docs>
