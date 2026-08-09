@@ -7,12 +7,14 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/compress-html.mjs && node scripts/check-spacing.mjs",
+    "build": "node scripts/check-examples.mjs && astro build && node scripts/compress-html.mjs && node scripts/check-spacing.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check:spacing": "node scripts/check-spacing.mjs"
+    "check:spacing": "node scripts/check-spacing.mjs",
+    "check:examples": "node scripts/check-examples.mjs",
+    "shots": "shotlist --all --install"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
@@ -23,6 +25,7 @@
   },
   "devDependencies": {
     "prettier": "^3.9.6",
-    "prettier-plugin-astro": "^0.14.1"
+    "prettier-plugin-astro": "^0.14.1",
+    "shotlist": "^0.3.0"
   }
 }

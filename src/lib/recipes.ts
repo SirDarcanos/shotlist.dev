@@ -1,54 +1,23 @@
 /**
- * Recipes shown on the site.
+ * The recipes shown on the site, read from the recipe files themselves.
  *
- * These are written against the real schema and would parse today — the shots they
- * describe are not taken yet, so nothing here is claimed to be generated. When the site
- * shoots itself, these strings get read from the recipe files instead of living here.
+ * They used to be strings in this module, which meant the site could show a recipe that
+ * would not parse, and did once. These are the files `npm run shots` runs, checked by
+ * `scripts/check-examples.mjs` against the same schemas that validate a real run — so a
+ * recipe on the page is one that works, or the build fails.
+ *
+ * Imported with `?raw` rather than read with `fs`: the bundler resolves the path at build
+ * time, where `import.meta.url` would point at whichever chunk this ends up in.
  */
+import anatomy from '../../screenshots/recipes/recipe-anatomy.yaml?raw'
+import orderRow from '../../screenshots/recipes/order-row.yaml?raw'
+import config from '../../shotlist.config.yaml?raw'
 
 /** The hero: the recipe for a shot of this site's own docs page. */
-export const heroRecipe = `# The shot at the top of this page, described in full.
-name: recipe-anatomy
-install: site
-
-setup:
-  - click: { role: link, name: Docs }
-  - wait: { css: '[data-recipe]' }
-
-clip:
-  css: '[data-recipe]'
-  pad: 24
-
-marks:
-  drive:  { within: clip, text: 'setup:' }
-  region: { within: clip, text: 'clip:' }
-  draw:   { within: clip, text: 'callouts:' }
-
-callouts:
-  - { mark: drive,  text: Drive the page, place: left }
-  - { mark: region, text: Clip a region,  place: left }
-  - { mark: draw,   text: Draw on top,    place: right }
-`
+export const heroRecipe = anatomy.trimEnd()
 
 /** The four-line version, for the "how it works" walk-through. */
-export const minimalRecipe = `name: order-row
-install: guide
+export const minimalRecipe = orderRow.trimEnd()
 
-clip: { css: '.order-row', contains: Acme Corp, pad: 20 }
-
-marks:
-  amount: { within: clip, text: $42.00 }
-
-callouts:
-  - { mark: amount, text: What they owe, place: left }
-`
-
-/** A project's config, for the install section. */
-export const configExample = `site:
-  url: http://localhost:3000
-  viewport: { width: 1440, height: 900 }
-  scale: 2
-
-install:
-  guide: content/guide/images
-`
+/** This project's own config. */
+export const configExample = config.trimEnd()

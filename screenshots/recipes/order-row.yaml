@@ -1,0 +1,10 @@
+name: order-row
+install: public
+
+clip: { css: '.order-row', contains: Acme Corp, pad: 20 }
+
+marks:
+  amount: { within: clip, text: $42.00 }
+
+callouts:
+  - { mark: amount, text: What they owe, place: left }

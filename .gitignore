@@ -1,5 +1,7 @@
 # build output
 dist/
+# what a shoot writes before `--install` copies it where it belongs
+screenshots/out/
 # generated types
 .astro/
 

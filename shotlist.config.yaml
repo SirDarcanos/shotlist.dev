@@ -1,0 +1,12 @@
+site:
+  url: http://localhost:4321
+  serve: npm run dev
+  viewport: { width: 1280, height: 800 }
+  scale: 2
+
+paths:
+  recipes: screenshots/recipes
+  out: screenshots/out
+
+install:
+  public: public
