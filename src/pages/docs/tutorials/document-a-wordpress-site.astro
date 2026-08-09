@@ -123,9 +123,8 @@ marks:
 callouts:
   - mark: upload
     text: Upload from your computer
-    place: bottom
+    place: left
     inside: true
-    dy: 100
   - mark: library
     text: Or choose one already uploaded
     place: bottom
@@ -360,8 +359,8 @@ const expired = `recipe "new-post": session "editor" is signed out — run: shot
   <p>
     <code>inside: true</code> keeps the labels over the screenshot rather than in a margin the canvas
     grows to make, and <code>dy</code> pushes them clear of the block, so the image stays exactly the
-    viewport size. Both callouts ask for the same place; shotlist moves the second one aside rather than
-    drawing it over the first.
+    viewport size. The two callouts name different sides, so each arrow is short and neither label has
+    to be moved out of the other's way.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Step 9: take them all, and install them</h2>
