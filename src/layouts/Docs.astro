@@ -90,7 +90,7 @@ const sections = [
               <p class="mb-3 font-mono text-[0.6875rem] tracking-wider text-(--muted) uppercase">
                 {section.label}
               </p>
-              <ul class="space-y-2 text-sm">
+              <ul class="text-sm">
                 {section.items.map((item) =>
                   item.ready ? (
                     <li>
@@ -98,7 +98,7 @@ const sections = [
                         href={item.href}
                         aria-current={path === item.href ? 'page' : undefined}
                         class:list={[
-                          'block border-l-2 py-0.5 pl-3 transition-colors',
+                          'block border-l-2 py-1.5 pl-3 transition-colors',
                           path === item.href
                             ? 'border-mark font-medium text-mark'
                             : 'border-(--rule) text-(--muted) hover:border-(--rule-strong) hover:text-ink',
@@ -109,7 +109,7 @@ const sections = [
                     </li>
                   ) : (
                     <li>
-                      <span class="block cursor-default border-l-2 border-(--rule) py-0.5 pl-3 text-(--muted) opacity-45">
+                      <span class="block cursor-default border-l-2 border-(--rule) py-1.5 pl-3 text-(--muted) opacity-45">
                         {item.label}
                       </span>
                     </li>
@@ -141,14 +141,13 @@ const sections = [
    * styling made a heading look like another page to go to.
    */
   :global(.page-toc) {
-    margin: 0.5rem 0 0.75rem 0.875rem;
-    padding-left: 0.875rem;
-    border-left: 1px solid var(--rule);
+    border-left: 2px solid var(--rule);
+    padding-block: 0.125rem;
   }
 
   :global(.page-toc a) {
     display: block;
-    padding-block: 0.1875rem;
+    padding: 0.1875rem 0 0.1875rem 1.625rem;
     font-size: 0.75rem;
     line-height: 1.45;
     color: var(--muted);
