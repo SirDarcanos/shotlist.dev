@@ -41,6 +41,15 @@
     font-feature-settings: 'cv05' 1; /* Inter's single-storey l, clearer beside 1 and I */
   }
 
+  /*
+   * `hidden` is a user agent rule, so any author rule setting `display` outranks it —
+   * preflight gives every `svg` `display: block`, and a `grid` utility does the same to
+   * whatever carries it. Both were showing an element that said it was hidden.
+   */
+  [hidden] {
+    display: none !important;
+  }
+
   h1,
   h2,
   h3,
@@ -78,8 +87,33 @@
     @apply mt-0;
   }
 
+  .docs-page article h3 {
+    @apply mt-10 text-lg font-semibold;
+  }
+
+  .docs-page article :is(ul, ol) {
+    @apply mt-5 space-y-2 pl-6 leading-relaxed text-muted;
+  }
+
+  .docs-page article ul {
+    @apply list-disc;
+  }
+
+  .docs-page article ol {
+    @apply list-decimal;
+  }
+
+  .docs-page article li::marker {
+    @apply text-muted;
+  }
+
+  .docs-page article li > :is(p, div) {
+    @apply mt-3;
+  }
+
   .docs-page article a,
-  .docs-page article :is(p, li) a code {
+  .docs-page article :is(p, li) a code,
+  .docs-page article .doc-table tr td a code {
     @apply text-mark underline underline-offset-2;
   }
 

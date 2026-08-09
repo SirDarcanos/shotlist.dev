@@ -1,13 +1,14 @@
 ---
 import { Code } from 'astro:components'
 import Arrow from './Arrow.astro'
+import CopyButton from './CopyButton.astro'
 import { codeTheme } from '../lib/code-theme'
 
 interface Props {
   code: string
   /** Shown in the panel's header bar, as the file this would be saved as. */
   file?: string
-  lang?: 'yaml' | 'bash' | 'ts'
+  lang?: 'yaml' | 'bash' | 'ts' | 'css'
   class?: string
 }
 
@@ -22,19 +23,23 @@ const { code, file, lang = 'yaml', class: className = '' } = Astro.props
     // `tone-light` because the card brings its own white ground. Dropped into a section
     // with a dark or red tone it would otherwise inherit that section's near-paper
     // `--color-muted`, and the file path would vanish against the card's own fill.
-    'tone-light min-w-0 overflow-hidden rounded-lg border border-rule-strong bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04),0_12px_32px_-12px_rgba(28,25,23,0.12)]',
+    'tone-light relative min-w-0 overflow-hidden rounded-lg border border-rule-strong bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04),0_12px_32px_-12px_rgba(28,25,23,0.12)]',
     className,
   ]}
+  data-code-card
 >
   {
     file && (
-      <div class="flex items-center gap-3 border-b border-rule py-2.5 pr-4 pl-4">
+      <div class="flex items-center gap-3 border-b border-rule py-2 pr-2 pl-4">
         <Arrow class="w-4 shrink-0" />
         <span class="font-mono text-xs text-muted">{file}</span>
+        <CopyButton class="ml-auto" />
       </div>
     )
   }
   <div class="p-5 sm:p-6">
+    {/* With no header bar there is nowhere to put the button, so it sits over the code. */}
+    {!file && <CopyButton class="absolute top-2.5 right-2.5 bg-white/85 backdrop-blur-sm" />}
     <Code code={code.trimEnd()} lang={lang} theme={codeTheme as never} />
   </div>
 </div>

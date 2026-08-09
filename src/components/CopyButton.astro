@@ -1,0 +1,106 @@
+---
+/**
+ * Copies the code block it sits in.
+ *
+ * Ships `hidden` and is revealed by its own script, so a reader without JavaScript is
+ * never offered a control that cannot work.
+ */
+interface Props {
+  class?: string
+}
+
+const { class: className = '' } = Astro.props
+---
+
+<button
+  type="button"
+  data-copy
+  hidden
+  aria-label="Copy to clipboard"
+  class:list={[
+    'group grid size-7 shrink-0 place-items-center rounded-md text-muted transition-colors hover:bg-wash hover:text-ink',
+    className,
+  ]}
+>
+  <svg
+    class="copy-mark size-4"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+  </svg>
+  <svg
+    class="done-mark size-4"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    hidden
+  >
+    <path d="M20 6 9 17l-5-5"></path>
+  </svg>
+</button>
+
+<style>
+  /* Both icons occupy the same cell, so swapping them cannot move the button. */
+  button > svg {
+    grid-area: 1 / 1;
+  }
+</style>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
+    button.hidden = false
+  }
+
+  // One listener for every card on the page, so a page of forty snippets costs one.
+  document.addEventListener('click', async (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-copy]')
+    if (!button) return
+
+    const card = button.closest('[data-code-card]')
+    // A tabbed card holds one block per package manager; the copy belongs to the one on show.
+    const block =
+      card?.querySelector('[role="tabpanel"]:not([hidden]) pre') ?? card?.querySelector('pre')
+    if (!block) return
+
+    // Line numbers are a CSS counter rather than text, so this is the code and nothing else.
+    const code = block.textContent ?? ''
+
+    const copy = button.querySelector<SVGElement>('.copy-mark')!
+    const done = button.querySelector<SVGElement>('.done-mark')!
+
+    /*
+     * `toggleAttribute`, not `.hidden`. The `hidden` property belongs to `HTMLElement`,
+     * and an `svg` is an `SVGElement` — assigning to it sets a plain JavaScript property
+     * and never touches the attribute the stylesheet reads, so the icon never changed.
+     */
+    const show = (mark: SVGElement, visible: boolean) => mark.toggleAttribute('hidden', !visible)
+
+    try {
+      await navigator.clipboard.writeText(code)
+    } catch {
+      button.setAttribute('aria-label', 'Copy failed — select the code and copy it')
+      return
+    }
+
+    show(copy, false)
+    show(done, true)
+    button.setAttribute('aria-label', 'Copied')
+    // Long enough to be seen, short enough that the button is ready for the next snippet.
+    setTimeout(() => {
+      show(copy, true)
+      show(done, false)
+      button.setAttribute('aria-label', 'Copy to clipboard')
+    }, 1600)
+  })
+</script>

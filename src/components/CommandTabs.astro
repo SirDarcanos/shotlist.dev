@@ -1,5 +1,6 @@
 ---
 import { Code } from 'astro:components'
+import CopyButton from './CopyButton.astro'
 import { codeTheme } from '../lib/code-theme'
 
 /**
@@ -25,23 +26,28 @@ const id = `tabs-${Math.random().toString(36).slice(2, 9)}`
     className,
   ]}
   data-command-tabs
+  data-code-card
 >
-  <div class="flex border-b border-rule" role="tablist" aria-label="Package manager">
-    {
-      commands.map((command, i) => (
-        <button
-          type="button"
-          role="tab"
-          id={`${id}-tab-${i}`}
-          aria-controls={`${id}-panel-${i}`}
-          aria-selected={i === 0 ? 'true' : 'false'}
-          tabindex={i === 0 ? 0 : -1}
-          class="-mb-px border-b-2 border-transparent px-4 py-2.5 font-mono text-xs text-muted transition-colors hover:text-ink aria-selected:border-mark aria-selected:font-medium aria-selected:text-ink"
-        >
-          {command.label}
-        </button>
-      ))
-    }
+  <!-- The copy button is a sibling of the tablist, not a child: a tablist holds tabs. -->
+  <div class="flex items-center border-b border-rule pr-2">
+    <div class="flex" role="tablist" aria-label="Package manager">
+      {
+        commands.map((command, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`${id}-tab-${i}`}
+            aria-controls={`${id}-panel-${i}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+            class="-mb-px border-b-2 border-transparent px-4 py-2.5 font-mono text-xs text-muted transition-colors hover:text-ink aria-selected:border-mark aria-selected:font-medium aria-selected:text-ink"
+          >
+            {command.label}
+          </button>
+        ))
+      }
+    </div>
+    <CopyButton class="ml-auto" />
   </div>
   {
     commands.map((command, i) => (

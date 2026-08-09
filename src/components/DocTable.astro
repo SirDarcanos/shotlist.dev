@@ -63,6 +63,16 @@ const { head, rows, class: className = '' } = Astro.props
     color: var(--color-ink);
   }
 
+  /*
+   * A key that links somewhere takes the link color, and it has to be said here.
+   * `global.css` colors links in `@layer base`, and an unlayered rule — which every
+   * scoped style in a component is — outranks any layer whatever its specificity. The
+   * rule above would win from two selectors away.
+   */
+  td :global(a code) {
+    color: var(--color-mark);
+  }
+
   @media (width < 40rem) {
     .doc-table,
     .doc-table tbody,
