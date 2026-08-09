@@ -33,6 +33,12 @@ const withEnvFile = `node --env-file=.env node_modules/.bin/shotlist --all --ins
 const sourced = `set -a; . ./.env; set +a
 npx shotlist --all --install`
 
+const useSession = `name: dashboard
+install: guide
+session: admin
+
+clip: { css: '.panel' }`
+
 const ignore = `.shotlist/`
 ---
 
@@ -86,9 +92,15 @@ const ignore = `.shotlist/`
 
   <h2 class="mt-14 text-2xl font-bold">Step 3: point a recipe at the session</h2>
 
+  <p>Add one line to any recipe that should be taken as that account:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={useSession} file="screenshots/recipes/dashboard.yaml" />
+  </div>
+
   <p>
-    Add <code>session: admin</code> to any recipe that should be taken as that account. Leave it out and
-    the browser is a stranger to the site, which is what you want for screenshots of signed-out pages.
+    Leave it out and the browser is a stranger to the site, which is what you want for screenshots
+    of signed-out pages.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Sign in without a person at the keyboard</h2>

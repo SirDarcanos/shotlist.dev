@@ -24,6 +24,11 @@ const finders = `finders:
     pick: smallest`
 
 const finderUse = `clip: { listRow: Acme Corp }`
+
+const framed = `clip:
+  frame: { css: 'iframe[title="Checkout"]' }
+  css: '.order-total'
+  pad: 12`
 ---
 
 <Docs
@@ -157,6 +162,42 @@ const finderUse = `clip: { listRow: Acme Corp }`
   <p>
     <code>nth</code> and <code>child</code> count from the end when negative, as
     <code>Array.at</code> does. <code>pad</code> and <code>grow</code> cannot be negative.
+  </p>
+
+  <h2 id="frames" class="mt-14 text-2xl font-bold">Frames</h2>
+
+  <DocTable
+    head={['Key', 'Effect']}
+    rows={[
+      [
+        '<code>frame</code>',
+        'The <code>&lt;iframe&gt;</code> to resolve inside, named by a query of its own',
+      ],
+    ]}
+  />
+
+  <p>
+    Everything written beside <code>frame</code> resolves in that iframe's document — sources, filters,
+    traversal and selection alike. The rect comes back in page coordinates.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={framed} file="screenshots/recipes/checkout.yaml" />
+  </div>
+
+  <DocTable
+    head={['', '']}
+    rows={[
+      ['A frame inside a frame', 'Needs nothing extra'],
+      ['Cross-origin frames', 'Resolve; the browser does it, not the page'],
+      ['<code>within</code> naming a mark outside the frame', 'Refused'],
+      ['<code>transform</code> or <code>zoom</code> on the iframe', 'Not compensated for'],
+    ]}
+  />
+
+  <p>
+    Steps take queries, so <code>click</code>, <code>fill</code> and <code>wait</code> reach inside a
+    frame with the same key and no extra verb.
   </p>
 
   <h2 id="finders" class="mt-14 text-2xl font-bold">Finders</h2>

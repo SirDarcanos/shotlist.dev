@@ -1,0 +1,159 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const clip = `name: order-total
+
+clip:
+  frame: { css: 'iframe[title="Checkout"]' }
+  css: '.order-total'
+  pad: 16`
+
+const mark = `name: checkout
+
+clip: { css: '.checkout-panel' }
+
+marks:
+  card:
+    frame: { css: 'iframe[title="Payment"]' }
+    label: Card number
+
+callouts:
+  - { mark: card, text: Your card is never sent to us, place: right }`
+
+const drive = `setup:
+  - fill:
+      frame: { css: 'iframe[title="Payment"]' }
+      label: Card number
+    value: '4242 4242 4242 4242'
+  - wait:
+      frame: { css: 'iframe[title="Payment"]' }
+      text: Card accepted`
+
+const nested = `marks:
+  total:
+    frame: { css: 'iframe[title="Checkout"]' }
+    css: '.total'`
+
+const settle = `setup:
+  - click: { role: button, name: Add a block }
+  - wait:
+      frame: { css: 'iframe[name="editor-canvas"]' }
+      text: Media Library
+  - wait: 1500
+    comment: the application rebuilt its frame, and the new one has not painted yet`
+---
+
+<Docs
+  title="How to capture an element inside an iframe"
+  description="Point a clip, a mark or a step at something inside an iframe with the frame key, including cross-origin frames."
+>
+  <h1 class="text-4xl font-extrabold">Capture an element inside an iframe</h1>
+
+  <p class="text-lg">
+    An iframe is a separate document, and a query does not cross into one on its own. This guide
+    names the iframe so everything after it resolves inside — a payment field, an embedded checkout,
+    a block editor's canvas.
+  </p>
+
+  <p>Requires shotlist 0.4.0 or later.</p>
+
+  <h2 class="mt-14 text-2xl font-bold">Clip a region inside a frame</h2>
+
+  <p>
+    <code>frame</code> takes a query of its own, which finds the <code>&lt;iframe&gt;</code> element.
+    Everything written beside it then resolves in that iframe's document:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={clip} file="screenshots/recipes/order-total.yaml" />
+  </div>
+
+  <p>
+    Name the iframe by something it carries — a <code>title</code>, a <code>name</code>, an
+    <code>id</code>. Those are attributes on the element in the page you opened, so an ordinary
+    query finds them.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Mark something inside a frame</h2>
+
+  <p>
+    A mark takes <code>frame</code> the same way, and it does not have to be the region you clipped. Here
+    the capture is a panel in the page and the callout points at a field inside an embedded payment form:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={mark} file="screenshots/recipes/checkout.yaml" />
+  </div>
+
+  <p>
+    The rect comes back in page coordinates, so the callout lands where a reader sees the field
+    rather than where the frame thinks it is.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Click and type inside a frame</h2>
+
+  <p>Steps take queries, so nothing new is needed:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={drive} file="screenshots/recipes/checkout.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Cross-origin frames</h2>
+
+  <p>
+    They work. Resolution goes through the browser rather than the page's own JavaScript, which is
+    why a hosted payment field or an embedded checkout on another origin is reachable — the page it
+    sits in could not read into it, and neither could a query written any other way.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">A frame inside a frame</h2>
+
+  <p>
+    Needs nothing extra. Name the inner one and the coordinates still come back against the page:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={nested} file="screenshots/recipes/order-total.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">When the frame is empty in the picture</h2>
+
+  <p>
+    An application that renders its own frame — a block editor, a live preview — often replaces it
+    when its content changes. A query resolves against the frame that is there when it runs, and the
+    replacement has not painted yet, so the capture comes out blank while the callout sits in
+    exactly the right place.
+  </p>
+
+  <p>Wait for the content, then let it settle:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={settle} file="screenshots/recipes/editor.yaml" />
+  </div>
+
+  <p>
+    <code>site.settle</code> does the same for every recipe in the project, which is the better home for
+    it once more than one shot needs it.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">What it does not handle</h2>
+
+  <ul>
+    <li>
+      A <code>transform</code> or <code>zoom</code> on the iframe element is not compensated for, so a
+      scaled preview places its callouts off the mark.
+    </li>
+    <li>
+      <code>within</code> naming a mark outside the frame is refused rather than quietly scoped to nothing.
+    </li>
+  </ul>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/reference/queries#frames">Queries reference: <code>frame</code></a></li>
+    <li><a href="/docs/how-to/drive-a-page">Capture a page after interaction</a></li>
+    <li><a href="/docs/explanation/durable-queries">Queries that survive a redesign</a></li>
+  </ul>
+</Docs>

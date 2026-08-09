@@ -26,6 +26,6 @@
   "devDependencies": {
     "prettier": "^3.9.6",
     "prettier-plugin-astro": "^0.14.1",
-    "shotlist": "^0.3.0"
+    "shotlist": "^0.4.0"
   }
 }

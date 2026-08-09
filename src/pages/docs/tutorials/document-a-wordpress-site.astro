@@ -1,0 +1,392 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const project = `mkdir client-handbook
+cd client-handbook
+npm init -y
+npm install --save-dev shotlist playwright`
+
+const config = `site:
+  url: http://localhost:8883
+  viewport: { width: 1440, height: 900 }
+  sessions:
+    editor:
+      path: .shotlist/editor.json
+      verify: 'body.wp-admin'
+
+allowEnv:
+  - WP_ADMIN_PASSWORD
+
+install:
+  handbook: handbook/images`
+
+const signIn = `steps:
+  - goto: http://localhost:8883/wp-login.php
+  - fill: { css: '#user_login' }
+    value: admin
+  - fill: { css: '#user_pass' }
+    value: \${env.WP_ADMIN_PASSWORD}
+  - click: { css: '#wp-submit' }
+  - wait: { css: '#wpadminbar' }
+    comment: the admin bar only exists once the sign-in has gone through`
+
+const login = `export WP_ADMIN_PASSWORD='the password Studio shows you'
+npx shotlist --login editor --using sign-in`
+
+const newPost = `name: new-post
+install: handbook
+session: editor
+url: http://localhost:8883/wp-admin/post-new.php
+
+setup:
+  - optional:
+      - click: { role: button, name: Close }
+  - wait: { role: button, name: Block Inserter }
+
+clip: { css: '.editor-header', pad: 12 }
+
+marks:
+  inserter: { role: button, name: Block Inserter }
+  publish: { within: clip, text: Publish }
+
+callouts:
+  - { mark: inserter, text: Add a block, place: bottom }
+  - { mark: publish, text: Publish when it is ready, place: bottom }`
+
+const imageBlock = `name: image-block
+install: handbook
+session: editor
+url: http://localhost:8883/wp-admin/post-new.php
+
+setup:
+  - optional:
+      - click: { role: button, name: Close }
+  - click: { role: button, name: Block Inserter }
+  - wait: { role: option, name: Image, exact: true }
+  - click: { role: option, name: Image, exact: true }
+  - wait:
+      frame: { css: 'iframe[name="editor-canvas"]' }
+      text: Media Library
+    comment: the block appears before its placeholder paints, so wait for the button itself
+  - wait: 1500
+    comment: the editor rebuilds the canvas after the first insert; let it settle
+
+clip:
+  frame: { css: 'iframe[name="editor-canvas"]' }
+  css: '.wp-block-image'
+  grow: { top: 72, right: 32, bottom: 32, left: 32 }
+
+marks:
+  library:
+    frame: { css: 'iframe[name="editor-canvas"]' }
+    text: Media Library
+
+callouts:
+  - { mark: library, text: Or choose one already uploaded, place: bottom }`
+
+const shoot = `npx shotlist --all --install`
+
+const expired = `recipe "new-post": session "editor" is signed out — run: shotlist --login editor`
+---
+
+<Docs
+  title="Tutorial: document a client's WordPress site"
+  description="Run WordPress locally with Studio, sign shotlist in once, and produce annotated screenshots for a client handbook — including inside the block editor's canvas."
+>
+  <h1 class="text-4xl font-extrabold">Document a client's WordPress site</h1>
+
+  <p class="text-lg">
+    In this tutorial you will build a page of a client handbook: two annotated screenshots showing
+    how to start a post and how to add an image to it. The site runs on your own machine, shotlist
+    signs into it once and reuses that session, and the second screenshot reaches inside the block
+    editor's canvas.
+  </p>
+
+  <p>
+    It is the first tutorial where the pages are behind a login, so it assumes you have finished
+    <a href="/docs/tutorials/first-screenshot">Your first screenshot</a> and that recipes, marks and callouts
+    are familiar.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Before you begin</h2>
+
+  <p>
+    You need Node.js 20 or later, and <a
+      href="https://developer.wordpress.com/studio/"
+      rel="noopener noreferrer"
+      target="_blank">WordPress.com Studio</a
+    >, which runs WordPress locally with no server to configure.
+  </p>
+
+  <p>
+    Written and run against <span class="font-medium text-ink">WordPress 7.0.3</span>. The editor's
+    markup moves between releases, so see
+    <a href="#when-wordpress-changes">when WordPress changes</a> below if a query stops matching.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 1: create the site</h2>
+
+  <p>
+    In Studio, choose <strong>Add site</strong> and name it <code>shotlist</code>. Studio installs
+    WordPress and starts it. Two things from its panel are what the rest of this needs:
+  </p>
+
+  <ul>
+    <li>the site's address, written here as <code>http://localhost:8883</code></li>
+    <li>the administrator password, which Studio generates and shows you</li>
+  </ul>
+
+  <p>
+    <span class="font-medium text-ink">Do not give it a custom domain.</span> Studio offers names like
+    <code>shotlist.wp.local</code>, and macOS resolves anything ending in
+    <code>.local</code> through multicast DNS — which takes about five seconds per lookup even with the
+    name in <code>/etc/hosts</code>. A browser resolves per connection, so an admin page pulling a
+    hundred assets never finishes loading. The <code>localhost</code> address Studio gives you by default
+    has none of that.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 2: start the handbook project</h2>
+
+  <p>
+    The handbook is its own project. You do not want a <code>node_modules</code> folder inside a client's
+    WordPress install:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={project} lang="bash" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 3: point at the site and name the session</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={config} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    <code>path</code> is where shotlist writes the cookies once you have signed in.
+    <code>verify</code> is a selector only a signed-in page has. <code>body.wp-admin</code> is the class
+    WordPress puts on every admin screen, and a signed-out visitor is redirected to a login page that
+    does not carry it.
+  </p>
+
+  <p>
+    Do not reach for <code>#wpadminbar</code> here, which is the obvious choice and the wrong one: the
+    editor opens full-screen and hides the admin bar with CSS, so the element is in the page but never
+    visible, and every recipe fails as though the session had expired.
+  </p>
+
+  <p>
+    Set <code>verify</code> on every WordPress session. Without it an expired login does not fail: WordPress
+    redirects to its sign-in form, every screenshot becomes a picture of that form, and
+    <code>--install</code> publishes them into the handbook.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 4: sign in once</h2>
+
+  <p>
+    Signing in is ordinary steps, so it goes in a macro. Create
+    <code>screenshots/macros/sign-in.yaml</code>:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={signIn} file="screenshots/macros/sign-in.yaml" />
+  </div>
+
+  <p>
+    The last <code>wait</code> is not decoration. Clicking the button starts a navigation, and without
+    something to wait for, shotlist would save the session before WordPress had finished signing you in
+    — leaving a file that looks fine and works for nothing.
+  </p>
+
+  <p>
+    Put the password in the environment and run the sign-in. The
+    <code>allowEnv</code> line in your configuration is what lets the macro read it:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={login} lang="bash" />
+  </div>
+
+  <p>
+    <code>{'${env.WP_ADMIN_PASSWORD}'}</code> resolves only because that name was allowed. The password
+    itself is never in the configuration, never in the macro, and never in anything shotlist writes —
+    only its name is. A name that was allowed but is empty stays unresolved and the run says which one,
+    rather than submitting an empty field and reporting a sign-in that failed for no visible reason.
+  </p>
+
+  <p>
+    Keeping it in a <code>.env</code> works too, as long as something loads that file first — shotlist
+    refuses to open one. See
+    <a href="/docs/how-to/sign-in">Capture a page behind a sign-in</a>.
+  </p>
+
+  <p>
+    The session file is a credential — anyone holding it is signed in as that administrator. Add
+    <code>.shotlist/</code> to <code>.gitignore</code> before committing anything.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 5: photograph the editor's controls</h2>
+
+  <p>Create <code>screenshots/recipes/new-post.yaml</code>:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={newPost} file="screenshots/recipes/new-post.yaml" />
+  </div>
+
+  <ul>
+    <li>
+      <code>session: editor</code> is what makes this work at all. Without it the browser is a stranger
+      and <code>post-new.php</code> is a login form.
+    </li>
+    <li>
+      The <code>optional</code> block dismisses the welcome dialog WordPress shows the first time somebody
+      opens the editor. It ignores failures, so the recipe works whether or not the dialog is there —
+      and it is there exactly once per account.
+    </li>
+    <li>
+      <code>wait</code> holds until the toolbar exists. The editor is a JavaScript application, so the
+      page responding is not the page being ready.
+    </li>
+  </ul>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 6: add an image block, and photograph it</h2>
+
+  <p>
+    Now the screenshot the handbook is really for. This one drives the editor — opens the inserter,
+    chooses the Image block — and then photographs the block that appears in the post:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={imageBlock} file="screenshots/recipes/image-block.yaml" />
+  </div>
+
+  <p>
+    <code>frame:</code> is the new part. The post being edited is not in the page shotlist opened — the
+    editor renders it inside an iframe, and a query cannot cross into one on its own.
+    <code>frame:</code> names that iframe with a query of its own, and everything beside it resolves in
+    the document inside.
+  </p>
+
+  <p>
+    Both the <code>clip</code> and the mark use it, and so does the <code>wait</code>. A step takes
+    a query like any other key, so nothing new is needed to wait for something inside a frame.
+  </p>
+
+  <p>
+    The plain <code>wait: 1500</code> after it is not padding. Inserting the first block makes the editor
+    rebuild its canvas, and the iframe that replaces the old one has not painted yet — capture at that
+    moment and the block is in the page, the callout lands in the right place, and the picture is empty.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 7: take both, and install them</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={shoot} lang="bash" />
+  </div>
+
+  <p>
+    Both images land in <code>handbook/images/</code>, ready for the page that explains the steps
+    beside them.
+  </p>
+
+  <p>
+    When the session expires the run stops and says so, rather than photographing the login form:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={expired} lang="bash" />
+  </div>
+
+  <p>
+    Run <code>npx shotlist --login editor</code> again and the screenshots are current once more.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">What to know about frames</h2>
+
+  <p>
+    A rect measured inside a frame starts at that frame's top-left, and the canvas sits well down
+    the page. shotlist converts it to page coordinates, so a callout lands where the reader sees the
+    element rather than where the frame thinks it is. A frame inside a frame costs nothing extra.
+  </p>
+
+  <p>Two things are worth knowing before you rely on it:</p>
+
+  <ul>
+    <li>
+      A cross-origin frame works, because resolution goes through the browser rather than the page's
+      own JavaScript — an embedded checkout or a payment field is reachable.
+    </li>
+    <li>
+      A <code>transform</code> or <code>zoom</code> on the iframe itself is not compensated for, so a
+      scaled preview will place its callouts off the mark.
+    </li>
+  </ul>
+
+  <h2 id="when-wordpress-changes" class="mt-14 text-2xl font-bold">When WordPress changes</h2>
+
+  <p>
+    The block editor is a moving target, and the queries here are not all equally exposed to that.
+    Two kinds are doing the work:
+  </p>
+
+  <ul>
+    <li>
+      <span class="font-medium text-ink">What a person can see</span> — <code>Block Inserter</code>,
+      <code>Image</code>, <code>Publish</code>, <code>Media Library</code>. These are accessible
+      names and visible text, so they change only when WordPress changes the interface, and then the
+      screenshot needed updating anyway.
+    </li>
+    <li>
+      <span class="font-medium text-ink">Gutenberg's own class names</span> —
+      <code>.editor-header</code> and <code>.wp-block-image</code>. These are internal, and they are
+      the ones that break quietly. They appear here only where the markup offers no other handle:
+      the editor header carries no role or label, and a placed block has no accessible name.
+    </li>
+  </ul>
+
+  <p>
+    That second kind has moved before. The inserter button used to be
+    <code>.edit-post-header-toolbar__inserter-toggle</code>, which had already gone by WordPress
+    6.9.4 — a recipe written against it would fail today with nothing to say beyond "no element
+    matched". It is the first place to look after a WordPress update.
+  </p>
+
+  <p>
+    We keep this page current as WordPress moves. If a query here stops matching on a version you
+    are running,
+    <a
+      href="https://github.com/SirDarcanos/shotlist/issues/new?title=Docs%3A%20WordPress%20tutorial%20selector%20"
+      target="_blank"
+      rel="noopener noreferrer">open an issue</a
+    > with the version and the query, and it gets fixed here rather than in everybody's private copy.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">What you have learned</h2>
+
+  <ul>
+    <li>run a real WordPress site locally, with no server to configure</li>
+    <li>declare a named session, and prove it is live with a <code>verify</code> selector</li>
+    <li>sign in once by hand, without the password reaching shotlist</li>
+    <li>drive a JavaScript application before capturing it</li>
+    <li>ignore a dialog that may or may not be there</li>
+    <li>clip, mark and wait inside an iframe with <code>frame:</code></li>
+  </ul>
+
+  <h2 class="mt-14 text-2xl font-bold">Next steps</h2>
+
+  <ul>
+    <li>
+      <a href="/docs/how-to/sign-in">Capture a page behind a sign-in</a> covers signing in with a macro,
+      for a run with nobody at the keyboard.
+    </li>
+    <li>
+      <a href="/docs/how-to/hide-changing-data">Hide data that changes</a> deals with the dates and counts
+      a WordPress admin screen is full of.
+    </li>
+    <li>
+      <a href="/docs/tutorials/keeping-a-screenshot-current">Keeping a screenshot current</a> catches
+      these going stale when the client updates WordPress.
+    </li>
+  </ul>
+</Docs>
