@@ -1,11 +1,9 @@
 @import 'tailwindcss';
 
 /*
- * Three colours: the annotation red, a warm ink, and a warm paper. Everything else on
- * the site — borders, muted text, tints — is mixed from these rather than introduced as
- * a fourth hue, so the palette cannot drift.
- *
- * The neutrals are warm on purpose. #DC2626 sits badly on a cool slate grey.
+ * Three colours. Everything else — borders, muted text, tints — is mixed from these
+ * rather than introduced as a fourth hue, so the palette cannot drift. The neutrals are
+ * warm on purpose: #DC2626 sits badly on a cool slate grey.
  */
 @theme {
   --color-mark: #dc2626;
@@ -29,60 +27,54 @@
   }
 
   html {
-    scroll-behavior: smooth;
+    @apply scroll-smooth;
     -webkit-text-size-adjust: 100%;
   }
 
   body {
-    background: var(--color-paper);
-    color: var(--color-ink);
-    font-family: var(--font-sans);
+    @apply bg-paper text-ink font-sans antialiased;
     font-feature-settings: 'cv05' 1; /* Inter's single-storey l, clearer beside 1 and I */
-    -webkit-font-smoothing: antialiased;
   }
 
   h1,
   h2,
   h3,
   h4 {
-    font-family: var(--font-display);
+    @apply font-display text-balance;
     font-variation-settings:
       'SOFT' 0,
       'WONK' 1;
     letter-spacing: -0.02em;
-    text-wrap: balance;
   }
 
   p {
-    text-wrap: pretty;
+    @apply text-pretty;
   }
-  
+
+  /* Once, rather than three utility classes at all 272 mentions. Scoped to `p` and `li`
+     because a `code` elsewhere takes its size from the heading, the table or the syntax
+     theme it sits in. */
   .docs-page article :is(p, li) code {
     @apply font-mono text-sm text-ink;
   }
 
-  .docs-page article a {
+  .docs-page article a,
+  .docs-page article :is(p, li) a code {
     @apply text-mark underline underline-offset-2;
   }
 
   ::selection {
-    background: var(--color-mark);
-    color: var(--color-paper);
+    @apply bg-mark text-paper;
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-mark);
-    outline-offset: 3px;
+    @apply outline-2 outline-offset-[3px] outline-mark;
     border-radius: 2px;
   }
 }
 
 @layer components {
-  /*
-   * A washed band that fades in and out of the page rather than butting against it. The
-   * hard rules these replaced cut the page into slabs; a gradient lets one section become
-   * the next.
-   */
+  /* Fades in and out of the page. The hard rules this replaced cut it into slabs. */
   .band-wash {
     background: linear-gradient(
       to bottom,
@@ -94,23 +86,10 @@
   }
 
   /*
-   * Text on the red ground.
-   *
-   * White on `mark` is 4.8:1 — the AA floor, with nothing left over to dim a muted token
-   * with. `--red-deep` buys that headroom back, so `--muted` can actually be muted here.
-   */
-  /*
-   * The red ground, ramping from the accent down to the deep red it hands to the footer.
-   *
-   * This ramp is safe where the earlier paper-to-red ones were not: both ends are red, so
-   * it never passes through a neutral and there is no dead zone. It also runs from lower
-   * contrast to higher — white is 4.8:1 at the top and 7:1 at the bottom — so the tightest
-   * point is the top, where only the heading sits.
-   *
-   * Weighted rather than even: on a straight ramp the first paragraph landed at 4.42:1,
-   * just under AA. Darkening faster over the first third puts the body copy on ground that
-   * carries it, instead of paying for it by whitening the muted token until it is not
-   * muted at all.
+   * Safe where a paper-to-red ramp was not: both ends are red, so it never passes through
+   * a neutral. Weighted rather than even — on a straight ramp the first paragraph landed
+   * at 4.42:1, just under AA. Darkening faster over the first third puts the copy on
+   * ground that carries it.
    */
   .ground-red-ramp {
     background: linear-gradient(
@@ -126,8 +105,12 @@
     background: var(--red-deep);
   }
 
+  /*
+   * White on `mark` is 4.8:1 — the AA floor, with nothing left to dim a muted token with.
+   * `--red-deep` buys that headroom back.
+   */
   .tone-red {
-    color: #fff;
+    @apply text-white;
     --muted: color-mix(in oklab, #fff 90%, var(--red-deep));
     --rule: color-mix(in oklab, #fff 22%, var(--red-deep));
     --rule-strong: color-mix(in oklab, #fff 40%, var(--red-deep));
@@ -135,10 +118,9 @@
   }
 
   /*
-   * Restores the light-ground tokens inside a card that carries its own white fill.
-   *
-   * Without it a card inside `.tone-dark` or `.tone-red` inherits a `--muted` chosen for
-   * that ground — near-paper — and its file path goes invisible against the card's white.
+   * For a card carrying its own white fill. Without it a card inside `.tone-dark` or
+   * `.tone-red` inherits a `--muted` chosen for that ground, and its file path goes
+   * invisible against the white.
    */
   .tone-light {
     --muted: color-mix(in oklab, var(--color-ink) 55%, var(--color-paper));
@@ -147,19 +129,12 @@
   }
 
   /*
-   * A soft bloom of the annotation red, placed off-centre in a section.
-   *
-   * Used on the inverted section and nowhere else. On a light ground the red has to stay
-   * so faint to avoid reading as pink that it earns nothing, and at any strength where it
-   * does show it reads as a stain — they were tried across the light sections and removed.
-   * A dark ground carries far more before it registers as colour at all.
-   *
-   * Position, size and strength are all custom properties, so a section places its own.
+   * The inverted section only. On a light ground the red has to stay so faint to avoid
+   * reading as pink that it earns nothing, and at any strength where it shows it reads as
+   * a stain. Position, size and strength are properties, so a section places its own.
    */
   .glow {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
+    @apply pointer-events-none absolute inset-0;
     background: radial-gradient(
       var(--glow-size, 46rem 26rem) at var(--glow-at, 50% 0%),
       color-mix(in oklab, var(--color-mark) var(--glow-strength, 9%), transparent),
@@ -167,10 +142,8 @@
     );
   }
 
-  /*
-   * Graph paper — the surface a shot gets measured on. Faint enough to read as texture
-   * rather than pattern, and masked so it fades out instead of stopping at an edge.
-   */
+  /* Graph paper: the surface a shot gets measured on. Masked so it fades rather than
+     stopping at an edge. */
   .paper-grid {
     background-image:
       linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
@@ -181,13 +154,11 @@
   }
 
   /*
-   * The inverted section. Every neutral is a custom property, so flipping the tone is a
-   * matter of redefining them here — anything inside that reads `--muted` or `--rule`,
-   * including the recipe card it holds, follows without knowing it moved.
+   * Every neutral is a property, so flipping the tone is a matter of redefining them here
+   * — anything inside that reads `--muted` or `--rule` follows without knowing it moved.
    */
   .tone-dark {
-    background: var(--color-ink);
-    color: var(--color-paper);
+    @apply bg-ink text-paper;
     /* 68%, not the 62% that mirrors the light tone: at 62% body copy lands at 6.3:1,
        which passes AA but is thin going on a dark ground. This clears 7:1. */
     --muted: color-mix(in oklab, var(--color-paper) 68%, var(--color-ink));
@@ -196,41 +167,32 @@
     --grid-line: color-mix(in oklab, var(--color-paper) 9%, transparent);
   }
 
-  /*
-   * A code block. Shiki writes the token colours inline from the theme in
-   * `src/lib/code-theme.ts`; everything structural is here.
-   */
+  /* Shiki writes the token colours inline from `src/lib/code-theme.ts`. */
   .astro-code {
+    @apply overflow-x-auto font-mono;
     background: transparent !important;
-    font-family: var(--font-mono);
     font-size: 0.8125rem;
     line-height: 1.75;
-    overflow-x: auto;
     tab-size: 2;
   }
 
   .astro-code code {
-    display: block;
-    width: fit-content;
-    min-width: 100%;
+    @apply block w-fit min-w-full;
     counter-reset: line;
   }
 
   /*
-   * Line numbers. Shiki wraps every line in `.line`, so a counter does this without any
-   * markup — and `user-select: none` keeps the numbers out of a copied recipe, which is
-   * the whole point of a recipe being a file you can paste.
+   * Shiki wraps every line in `.line`, so a counter needs no markup — and `select-none`
+   * keeps the numbers out of a copied recipe, which is the point of a recipe being a file
+   * you can paste.
    */
   .astro-code .line::before {
+    @apply inline-block text-right select-none;
     counter-increment: line;
     content: counter(line);
-    display: inline-block;
     width: 2ch;
     margin-right: 2ch;
-    text-align: right;
     color: color-mix(in oklab, var(--color-ink) 32%, var(--color-paper));
-    user-select: none;
-    -webkit-user-select: none;
   }
 }
 
