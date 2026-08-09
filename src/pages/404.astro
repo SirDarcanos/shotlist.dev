@@ -1,0 +1,50 @@
+---
+/**
+ * Not found.
+ *
+ * Cloudflare Pages serves `404.html` for a path that matches no file, with a 404 status.
+ * Without it, it falls back to `index.html` and answers 200, so every mistyped URL was a
+ * second copy of the homepage as far as a crawler could tell.
+ */
+import Base from '../layouts/Base.astro'
+
+const pages = [
+  { href: '/docs', label: 'Introduction' },
+  { href: '/docs/install', label: 'Install' },
+  { href: '/docs/config', label: 'Configuration' },
+  { href: '/docs/recipes', label: 'Recipes' },
+  { href: '/docs/queries', label: 'Queries' },
+  { href: '/docs/cli', label: 'CLI' },
+]
+---
+
+<Base title="Not found" description="There is no page at this address.">
+  <div class="mx-auto max-w-2xl px-6 py-24 sm:py-32">
+    <p class="font-mono text-xs tracking-wider text-(--muted) uppercase">404</p>
+    <h1 class="mt-4 text-4xl font-extrabold">There is no page here</h1>
+    <p class="mt-6 leading-relaxed text-(--muted)">
+      The address does not match anything on this site. It may have been a typo, or a link to a page
+      that has since been renamed.
+    </p>
+
+    <p class="mt-10 font-mono text-xs tracking-wider text-(--muted) uppercase">The documentation</p>
+    <ul class="mt-4">
+      {
+        pages.map((page) => (
+          <li>
+            <a
+              href={page.href}
+              class="block border-l-2 border-(--rule) py-1.5 pl-3 text-sm text-(--muted) transition-colors hover:border-(--rule-strong) hover:text-ink"
+            >
+              {page.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="mt-10 leading-relaxed text-(--muted)">
+      Or start at the <a class="text-mark underline underline-offset-2" href="/">front page</a>.
+    </p>
+  </div>
+</Base>
