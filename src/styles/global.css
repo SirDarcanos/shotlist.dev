@@ -1,6 +1,13 @@
 @import 'tailwindcss';
 
 /*
+ * Markdown is not a source of classes. Tailwind scans the whole project, so the gotcha
+ * in AGENTS.md — which names `text-[--muted]` in order to warn against it — was being
+ * read as a use of it, and the broken utility it compiles to shipped in the bundle.
+ */
+@source not "../../*.md";
+
+/*
  * Three colours. Everything else — borders, muted text, tints — is mixed from these
  * rather than introduced as a fourth hue, so the palette cannot drift. The neutrals are
  * warm on purpose: #DC2626 sits badly on a cool slate grey.
