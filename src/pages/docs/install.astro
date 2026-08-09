@@ -4,6 +4,9 @@ import RecipeCard from '../../components/RecipeCard.astro'
 
 const install = `npm i -D shotlist playwright`
 
+const others = `pnpm add -D shotlist playwright
+yarn add -D shotlist playwright`
+
 const scaffold = `npx shotlist --init`
 
 const first = `npx shotlist example`
@@ -21,10 +24,34 @@ const first = `npx shotlist example`
     <RecipeCard code={install} lang="bash" />
   </div>
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
-    Playwright is an optional peer dependency, and shotlist does not install it. Its postinstall
-    downloads browsers, and a project that only depends on shotlist should not pay for that on every
-    install. When it is missing, shotlist prints the command that fixes it.
+  <p class="mt-6 leading-relaxed text-(--muted)">pnpm and yarn work the same way.</p>
+  <div class="mt-6">
+    <RecipeCard code={others} lang="bash" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">When you need Playwright</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">Whenever shotlist writes an image.</span>
+    <code class="font-mono text-sm text-ink">npx shotlist &lt;name&gt;</code>,
+    <code class="font-mono text-sm text-ink">--all</code> and
+    <code class="font-mono text-sm text-ink">--check</code> all open a browser — including a
+    <code class="font-mono text-sm text-ink">source: file</code> recipe, which drives no site but still
+    draws its callouts in a page. In practice: install it alongside shotlist and stop thinking about it.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    What runs without it is everything that only reads or writes files:
+    <code class="font-mono text-sm text-ink">--init</code>,
+    <code class="font-mono text-sm text-ink">--help</code>,
+    <code class="font-mono text-sm text-ink">--version</code>, and
+    <code class="font-mono text-sm text-ink">npx shotlist</code> with no arguments, which lists the recipes
+    it found. A CI job that only checks a config parses needs no browser, and no browser is launched for
+    it.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    It is an optional peer dependency because its postinstall downloads browsers, and a project that
+    depends on shotlist should not pay for that on every install — a CI cache, or a machine that
+    only ever reads the recipes, gets nothing for it. When a run needs it and cannot find it, the
+    error is the command that fixes it.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">A first recipe</h2>
