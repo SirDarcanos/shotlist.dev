@@ -45,6 +45,19 @@ const fullTitle = bare ? title : `${title} — shotlist`
       canonical={canonical}
       twitter={{ card: 'summary', title: fullTitle, description }}
     />
+
+    {
+      /*
+      Fathom, in a production build only — a dev server reloading on every save would
+      otherwise report itself as traffic. `is:inline` keeps Astro from bundling the tag,
+      which is how it keeps the `data-site` the script reads its own site id from.
+    */
+    }
+    {
+      import.meta.env.PROD && (
+        <script src="https://cdn.usefathom.com/script.js" data-site="HKHUOFHQ" defer is:inline />
+      )
+    }
   </head>
 
   <body class="min-h-screen antialiased">

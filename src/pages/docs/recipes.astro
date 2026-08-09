@@ -126,6 +126,38 @@ retries: 2 # three attempts in all`
     <code class="font-mono text-sm text-ink">check.ignore</code>; one mark can carry as many
     callouts as you like.
   </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">A mark's value is a query</span> — the same vocabulary
+    <code class="font-mono text-sm text-ink">clip</code> takes, and there is nothing one can use that
+    the other cannot. A source picks the candidates (<code class="font-mono text-sm text-ink"
+      >css</code
+    >,
+    <code class="font-mono text-sm text-ink">role</code>+<code class="font-mono text-sm text-ink"
+      >name</code
+    >, <code class="font-mono text-sm text-ink">text</code>,
+    <code class="font-mono text-sm text-ink">heading</code>,
+    <code class="font-mono text-sm text-ink">label</code>,
+    <code class="font-mono text-sm text-ink">placeholder</code>,
+    <code class="font-mono text-sm text-ink">testid</code>,
+    <code class="font-mono text-sm text-ink">startsWith</code>), filters narrow them (<code
+      class="font-mono text-sm text-ink">contains</code
+    >,
+    <code class="font-mono text-sm text-ink">matching</code>, the size and child-count limits,
+    <code class="font-mono text-sm text-ink">within</code>), traversal moves from them (<code
+      class="font-mono text-sm text-ink">ancestor</code
+    >,
+    <code class="font-mono text-sm text-ink">parent</code>,
+    <code class="font-mono text-sm text-ink">child</code>,
+    <code class="font-mono text-sm text-ink">children</code>), and
+    <code class="font-mono text-sm text-ink">pick</code> or
+    <code class="font-mono text-sm text-ink">nth</code> chooses one.
+    <code class="font-mono text-sm text-ink">pad</code>,
+    <code class="font-mono text-sm text-ink">grow</code> and
+    <code class="font-mono text-sm text-ink">span</code> shape the box it comes to. Every key, with what
+    it matches, is on <a class="text-mark underline underline-offset-2" href="/docs/queries"
+      >Queries</a
+    >.
+  </p>
   <div class="mt-6">
     <RecipeCard code={marks} file="screenshots/recipes/order-row.yaml" />
   </div>
@@ -142,6 +174,11 @@ retries: 2 # three attempts in all`
       >recipe "order-row": marks.amount — no element matched</code
     >. That is the assertion a recipe makes: the shot is of what it says it is of, or there is no
     shot.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    The one recipe where a mark is not a query is
+    <code class="font-mono text-sm text-ink">source: file</code>: there is no page to search, so a
+    mark is a literal <code class="font-mono text-sm text-ink">rect</code>, measured off the image.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Annotating an existing image</h2>
