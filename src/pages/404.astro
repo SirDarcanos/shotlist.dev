@@ -20,21 +20,21 @@ const pages = [
 
 <Base title="Not found" description="There is no page at this address.">
   <div class="mx-auto max-w-2xl px-6 py-24 sm:py-32">
-    <p class="font-mono text-xs tracking-wider text-(--muted) uppercase">404</p>
+    <p class="font-mono text-xs tracking-wider text-muted uppercase">404</p>
     <h1 class="mt-4 text-4xl font-extrabold">There is no page here</h1>
-    <p class="mt-6 leading-relaxed text-(--muted)">
+    <p class="mt-6 leading-relaxed text-muted">
       The address does not match anything on this site. It may have been a typo, or a link to a page
       that has since been renamed.
     </p>
 
-    <p class="mt-10 font-mono text-xs tracking-wider text-(--muted) uppercase">The documentation</p>
+    <p class="mt-10 font-mono text-xs tracking-wider text-muted uppercase">The documentation</p>
     <ul class="mt-4">
       {
         pages.map((page) => (
           <li>
             <a
               href={page.href}
-              class="block border-l-2 border-(--rule) py-1.5 pl-3 text-sm text-(--muted) transition-colors hover:border-(--rule-strong) hover:text-ink"
+              class="block border-l-2 border-rule py-1.5 pl-3 text-sm text-muted transition-colors hover:border-rule-strong hover:text-ink"
             >
               {page.label}
             </a>
@@ -43,7 +43,7 @@ const pages = [
       }
     </ul>
 
-    <p class="mt-10 leading-relaxed text-(--muted)">
+    <p class="mt-10 leading-relaxed text-muted">
       Or start at the <a class="text-mark underline underline-offset-2" href="/">front page</a>.
     </p>
   </div>

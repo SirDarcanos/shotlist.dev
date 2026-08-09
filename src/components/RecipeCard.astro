@@ -21,16 +21,16 @@ const { code, file, lang = 'yaml', class: className = '' } = Astro.props
     //
     // `tone-light` because the card brings its own white ground. Dropped into a section
     // with a dark or red tone it would otherwise inherit that section's near-paper
-    // `--muted`, and the file path would vanish against the card's own fill.
-    'tone-light min-w-0 overflow-hidden rounded-lg border border-(--rule-strong) bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04),0_12px_32px_-12px_rgba(28,25,23,0.12)]',
+    // `--color-muted`, and the file path would vanish against the card's own fill.
+    'tone-light min-w-0 overflow-hidden rounded-lg border border-rule-strong bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04),0_12px_32px_-12px_rgba(28,25,23,0.12)]',
     className,
   ]}
 >
   {
     file && (
-      <div class="flex items-center gap-3 border-b border-(--rule) py-2.5 pr-4 pl-4">
+      <div class="flex items-center gap-3 border-b border-rule py-2.5 pr-4 pl-4">
         <Arrow class="w-4 shrink-0" />
-        <span class="font-mono text-xs text-(--muted)">{file}</span>
+        <span class="font-mono text-xs text-muted">{file}</span>
       </div>
     )
   }

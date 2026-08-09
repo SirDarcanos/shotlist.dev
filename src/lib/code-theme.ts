@@ -2,7 +2,7 @@
  * The syntax theme for every code block on the site.
  *
  * Shiki's `github-light`, with one change: a YAML key is the annotation red rather than
- * green. A recipe's keys are the vocabulary the docs are about, and the red is the colour
+ * green. A recipe's keys are the vocabulary the docs are about, and the red is the color
  * this site points with — the same red the package draws a mark in.
  *
  * `entity.name.tag` alone, not every rule painted green. The other three are regular

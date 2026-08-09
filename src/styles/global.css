@@ -8,14 +8,22 @@
 @source not "../../*.md";
 
 /*
- * Three colours. Everything else — borders, muted text, tints — is mixed from these
+ * Three colors. Everything else — borders, muted text, tints — is mixed from these
  * rather than introduced as a fourth hue, so the palette cannot drift. The neutrals are
- * warm on purpose: #DC2626 sits badly on a cool slate grey.
+ * warm on purpose: #DC2626 sits badly on a cool slate gray.
  */
 @theme {
   --color-mark: #dc2626;
   --color-ink: #1c1917;
   --color-paper: #faf8f5;
+
+  --color-muted: color-mix(in oklab, var(--color-ink) 55%, var(--color-paper));
+  --color-rule: color-mix(in oklab, var(--color-ink) 12%, var(--color-paper));
+  --color-rule-strong: color-mix(in oklab, var(--color-ink) 22%, var(--color-paper));
+  /* Ink, not mark: a red-tinted band reads as pink, and the red is for annotation. */
+  --color-wash: color-mix(in oklab, var(--color-ink) 5%, var(--color-paper));
+  --color-grid-line: color-mix(in oklab, var(--color-ink) 7%, transparent);
+  --color-red-deep: color-mix(in oklab, var(--color-mark) 74%, var(--color-ink));
 
   --font-display: 'Fraunces', ui-serif, Georgia, serif;
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
@@ -23,16 +31,6 @@
 }
 
 @layer base {
-  :root {
-    --muted: color-mix(in oklab, var(--color-ink) 55%, var(--color-paper));
-    --rule: color-mix(in oklab, var(--color-ink) 12%, var(--color-paper));
-    --rule-strong: color-mix(in oklab, var(--color-ink) 22%, var(--color-paper));
-    /* Ink, not mark: a red-tinted band reads as pink, and the red is for annotation. */
-    --wash: color-mix(in oklab, var(--color-ink) 5%, var(--color-paper));
-    --grid-line: color-mix(in oklab, var(--color-ink) 7%, transparent);
-    --red-deep: color-mix(in oklab, var(--color-mark) 74%, var(--color-ink));
-  }
-
   html {
     @apply scroll-smooth;
     -webkit-text-size-adjust: 100%;
@@ -58,8 +56,7 @@
     @apply text-pretty;
   }
 
-  /* Once, rather than three utility classes at all 272 mentions. Scoped to `p` and `li`
-     because a `code` elsewhere takes its size from the heading, the table or the syntax
+  /* Scoped to `p` and `li` because a `code` elsewhere takes its size from the heading, the table or the syntax
      theme it sits in. */
   .docs-page article :is(p, li) code {
     @apply font-mono text-sm text-ink;
@@ -86,8 +83,8 @@
     background: linear-gradient(
       to bottom,
       var(--color-paper) 0%,
-      var(--wash) 14%,
-      var(--wash) 86%,
+      var(--color-wash) 14%,
+      var(--color-wash) 86%,
       var(--color-paper) 100%
     );
   }
@@ -102,37 +99,37 @@
     background: linear-gradient(
       to bottom,
       var(--color-mark) 0%,
-      color-mix(in oklab, var(--color-mark) 45%, var(--red-deep)) 32%,
-      var(--red-deep) 100%
+      color-mix(in oklab, var(--color-mark) 45%, var(--color-red-deep)) 32%,
+      var(--color-red-deep) 100%
     );
   }
 
   /* Where the ramp lands. The footer takes this so the join is seamless. */
   .ground-red-deep {
-    background: var(--red-deep);
+    background: var(--color-red-deep);
   }
 
   /*
    * White on `mark` is 4.8:1 — the AA floor, with nothing left to dim a muted token with.
-   * `--red-deep` buys that headroom back.
+   * `--color-red-deep` buys that headroom back.
    */
   .tone-red {
     @apply text-white;
-    --muted: color-mix(in oklab, #fff 90%, var(--red-deep));
-    --rule: color-mix(in oklab, #fff 22%, var(--red-deep));
-    --rule-strong: color-mix(in oklab, #fff 40%, var(--red-deep));
-    --grid-line: color-mix(in oklab, #fff 11%, transparent);
+    --color-muted: color-mix(in oklab, #fff 90%, var(--color-red-deep));
+    --color-rule: color-mix(in oklab, #fff 22%, var(--color-red-deep));
+    --color-rule-strong: color-mix(in oklab, #fff 40%, var(--color-red-deep));
+    --color-grid-line: color-mix(in oklab, #fff 11%, transparent);
   }
 
   /*
    * For a card carrying its own white fill. Without it a card inside `.tone-dark` or
-   * `.tone-red` inherits a `--muted` chosen for that ground, and its file path goes
+   * `.tone-red` inherits a `--color-muted` chosen for that ground, and its file path goes
    * invisible against the white.
    */
   .tone-light {
-    --muted: color-mix(in oklab, var(--color-ink) 55%, var(--color-paper));
-    --rule: color-mix(in oklab, var(--color-ink) 12%, var(--color-paper));
-    --rule-strong: color-mix(in oklab, var(--color-ink) 22%, var(--color-paper));
+    --color-muted: color-mix(in oklab, var(--color-ink) 55%, var(--color-paper));
+    --color-rule: color-mix(in oklab, var(--color-ink) 12%, var(--color-paper));
+    --color-rule-strong: color-mix(in oklab, var(--color-ink) 22%, var(--color-paper));
   }
 
   /*
@@ -153,8 +150,8 @@
      stopping at an edge. */
   .paper-grid {
     background-image:
-      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+      linear-gradient(to right, var(--color-grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-grid-line) 1px, transparent 1px);
     background-size: 34px 34px;
     -webkit-mask-image: linear-gradient(to bottom, #000, transparent 72%);
     mask-image: linear-gradient(to bottom, #000, transparent 72%);
@@ -162,19 +159,19 @@
 
   /*
    * Every neutral is a property, so flipping the tone is a matter of redefining them here
-   * — anything inside that reads `--muted` or `--rule` follows without knowing it moved.
+   * — anything inside that reads `--color-muted` or `--color-rule` follows without knowing it moved.
    */
   .tone-dark {
     @apply bg-ink text-paper;
     /* 68%, not the 62% that mirrors the light tone: at 62% body copy lands at 6.3:1,
        which passes AA but is thin going on a dark ground. This clears 7:1. */
-    --muted: color-mix(in oklab, var(--color-paper) 68%, var(--color-ink));
-    --rule: color-mix(in oklab, var(--color-paper) 16%, var(--color-ink));
-    --rule-strong: color-mix(in oklab, var(--color-paper) 30%, var(--color-ink));
-    --grid-line: color-mix(in oklab, var(--color-paper) 9%, transparent);
+    --color-muted: color-mix(in oklab, var(--color-paper) 68%, var(--color-ink));
+    --color-rule: color-mix(in oklab, var(--color-paper) 16%, var(--color-ink));
+    --color-rule-strong: color-mix(in oklab, var(--color-paper) 30%, var(--color-ink));
+    --color-grid-line: color-mix(in oklab, var(--color-paper) 9%, transparent);
   }
 
-  /* Shiki writes the token colours inline from `src/lib/code-theme.ts`. */
+  /* Shiki writes the token colors inline from `src/lib/code-theme.ts`. */
   .astro-code {
     @apply overflow-x-auto font-mono;
     background: transparent !important;

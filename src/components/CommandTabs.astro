@@ -21,12 +21,12 @@ const id = `tabs-${Math.random().toString(36).slice(2, 9)}`
 
 <div
   class:list={[
-    'tone-light command-tabs min-w-0 overflow-hidden rounded-lg border border-(--rule-strong) bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04),0_12px_32px_-12px_rgba(28,25,23,0.12)]',
+    'tone-light command-tabs min-w-0 overflow-hidden rounded-lg border border-rule-strong bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04),0_12px_32px_-12px_rgba(28,25,23,0.12)]',
     className,
   ]}
   data-command-tabs
 >
-  <div class="flex border-b border-(--rule)" role="tablist" aria-label="Package manager">
+  <div class="flex border-b border-rule" role="tablist" aria-label="Package manager">
     {
       commands.map((command, i) => (
         <button
@@ -36,7 +36,7 @@ const id = `tabs-${Math.random().toString(36).slice(2, 9)}`
           aria-controls={`${id}-panel-${i}`}
           aria-selected={i === 0 ? 'true' : 'false'}
           tabindex={i === 0 ? 0 : -1}
-          class="-mb-px border-b-2 border-transparent px-4 py-2.5 font-mono text-xs text-(--muted) transition-colors hover:text-ink aria-selected:border-mark aria-selected:font-medium aria-selected:text-ink"
+          class="-mb-px border-b-2 border-transparent px-4 py-2.5 font-mono text-xs text-muted transition-colors hover:text-ink aria-selected:border-mark aria-selected:font-medium aria-selected:text-ink"
         >
           {command.label}
         </button>

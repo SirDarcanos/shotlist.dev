@@ -60,10 +60,10 @@ const sections = [
     <details
       id="docs-nav"
       open
-      class="sticky top-[65px] z-30 mb-10 -mx-6 border-b border-(--rule) bg-paper/95 px-6 py-3 backdrop-blur-sm md:top-24 md:z-auto md:mx-0 md:mb-0 md:self-start md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none"
+      class="sticky top-[65px] z-30 mb-10 -mx-6 border-b border-rule bg-paper/95 px-6 py-3 backdrop-blur-sm md:top-24 md:z-auto md:mx-0 md:mb-0 md:self-start md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none"
     >
       <summary
-        class="flex cursor-pointer list-none items-center justify-between font-mono text-xs tracking-wider text-(--muted) uppercase md:hidden [&::-webkit-details-marker]:hidden"
+        class="flex cursor-pointer list-none items-center justify-between font-mono text-xs tracking-wider text-muted uppercase md:hidden [&::-webkit-details-marker]:hidden"
       >
         Documentation
         <svg
@@ -87,7 +87,7 @@ const sections = [
         {
           sections.map((section) => (
             <div class="mb-7">
-              <p class="mb-3 font-mono text-[0.6875rem] tracking-wider text-(--muted) uppercase">
+              <p class="mb-3 font-mono text-[0.6875rem] tracking-wider text-muted uppercase">
                 {section.label}
               </p>
               <ul class="text-sm">
@@ -101,7 +101,7 @@ const sections = [
                           'block border-l-2 py-1.5 pl-3 transition-colors',
                           path === item.href
                             ? 'border-mark font-medium text-mark'
-                            : 'border-(--rule) text-(--muted) hover:border-(--rule-strong) hover:text-ink',
+                            : 'border-rule text-muted hover:border-rule-strong hover:text-ink',
                         ]}
                       >
                         {item.label}
@@ -109,7 +109,7 @@ const sections = [
                     </li>
                   ) : (
                     <li>
-                      <span class="block cursor-default border-l-2 border-(--rule) py-1.5 pl-3 text-(--muted) opacity-45">
+                      <span class="block cursor-default border-l-2 border-rule py-1.5 pl-3 text-muted opacity-45">
                         {item.label}
                       </span>
                     </li>
@@ -141,7 +141,7 @@ const sections = [
    * styling made a heading look like another page to go to.
    */
   :global(.page-toc) {
-    border-left: 2px solid var(--rule);
+    border-left: 2px solid var(--color-rule);
     padding-block: 0.125rem;
   }
 
@@ -150,7 +150,7 @@ const sections = [
     padding: 0.1875rem 0 0.1875rem 1.625rem;
     font-size: 0.75rem;
     line-height: 1.45;
-    color: var(--muted);
+    color: var(--color-muted);
     transition: color 0.15s;
   }
 
