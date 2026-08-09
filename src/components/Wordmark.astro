@@ -9,18 +9,35 @@
  * Everything is sized from `font-size`, so the lockup scales as one thing.
  */
 import Logo from './Logo.astro'
+import shotlist from '../../node_modules/shotlist/package.json'
 
 interface Props {
   size?: number
+  /**
+   * Show the version beside the name. The header wants it; the Open Graph card, which is
+   * a picture of the name, does not — a card outlives the release it was shot in.
+   */
+  version?: boolean
   class?: string
 }
 
-const { size = 26, class: className = '' } = Astro.props
+const { size = 26, version: showVersion = false, class: className = '' } = Astro.props
+
+/*
+ * The version of the package that is installed, not this site's own.
+ *
+ * Read straight from the file rather than through the package name: shotlist's `exports`
+ * do not include `./package.json`, so `import 'shotlist/package.json'` is refused. Vite
+ * resolves this path at build time, symlink and all, so nothing is read at run time and a
+ * missing dependency fails the build rather than shipping a blank.
+ */
+const version = (shotlist as { version: string }).version
 ---
 
 <span class:list={['wordmark', className]} style={`font-size:${size}px`}>
   <Logo decorative />
   <span>shotlist</span>
+  {showVersion && <span class="version">v{version}</span>}
 </span>
 
 <style>
@@ -39,6 +56,15 @@ const { size = 26, class: className = '' } = Astro.props
     letter-spacing: -0.02em;
     color: var(--color-ink);
     white-space: nowrap;
+  }
+
+  .version {
+    align-self: flex-end;
+    font-size: 0.48em;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--muted);
+    margin-bottom: 2px;
   }
 
   .wordmark :global(svg) {
