@@ -114,9 +114,12 @@ worst kind of broken, because the reader cannot tell it was ever right.
 
 **A tutorial is run, not read.** Both tutorials work against
 `examples/shotlist-example/`, a dependency-free app shipped as a download so a newcomer
-needs no application of their own. `scripts/build-example.mjs` zips the folder into
+needs no application of their own. `scripts/build-example.mjs` writes
 `public/shotlist-example.zip` on every `dev` and `build`, so the folder is the source of
-truth and the zip is never committed. Anything you change in a tutorial has to still work
+truth and the zip is never committed. It writes the archive itself, with `deflateRawSync`
+and `crc32`, because shelling out to `zip` built fine locally and failed the deploy — the
+build container has no `zip` on PATH. Its timestamps are fixed, so the same folder always
+produces the same bytes. Anything you change in a tutorial has to still work
 against that app — walking the steps is the only way to know, and it is worth the ten
 minutes. Two defects that shipped past review were found that way.
 
