@@ -10,19 +10,19 @@ import { minimalRecipe, configExample } from '../../lib/recipes'
 >
   <h1 class="text-4xl font-extrabold">Introduction</h1>
 
-  <p class="mt-6 text-lg leading-relaxed text-(--muted)">
+  <p class="text-lg">
     shotlist takes annotated UI screenshots. It drives a running site with Playwright, clips a
     region, draws callouts on it, and writes the image where the project asks.
   </p>
 
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     Each screenshot is a <a href="/docs/recipes">YAML recipe</a>. What the screenshots are for — a
     handbook, a landing page, a release post, a store listing — is not the tool's concern, and
     nothing in it assumes one of them.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">A recipe</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     A recipe names the region to capture, the regions inside it worth pointing at, and what to draw
     on those. Everything else has a default.
   </p>
@@ -31,9 +31,9 @@ import { minimalRecipe, configExample } from '../../lib/recipes'
   </div>
 
   <h2 class="mt-14 text-2xl font-bold">A project's config</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     One <code>shotlist.config.yaml</code> in the project root says where the site runs and where images
-    are installed. Every drawing constant — colour, stroke, radius, font — is configurable here too, with
+    are installed. Every drawing constant — color, stroke, radius, font — is configurable here too, with
     a neutral default.
   </p>
   <div class="mt-6">
@@ -41,7 +41,7 @@ import { minimalRecipe, configExample } from '../../lib/recipes'
   </div>
 
   <h2 class="mt-14 text-2xl font-bold">A recipe is data</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     Nothing in a recipe runs. There is no step that evaluates JavaScript, and there will not be one.
     That keeps a recipe readable by anyone, and a broken screenshot fixable by anyone.
   </p>

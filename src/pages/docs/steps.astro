@@ -17,7 +17,7 @@ const setup = `setup:
 >
   <h1 class="text-4xl font-extrabold">Steps</h1>
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     Steps live under <code>setup</code>, which runs before anything is measured — and under <code
       >steps</code
     > inside a
@@ -71,7 +71,7 @@ const setup = `setup:
     ]}
   />
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     Where a step takes <code>as:</code>, it is naming something the steps after it can read:
     <code>readValue: … as: total</code> puts what an input holds into
     <code>$total</code>, and
@@ -80,13 +80,13 @@ const setup = `setup:
     <a href="/docs/macros#writing-a-reference">writing a reference</a>.
   </p>
 
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     Any step also takes <code>comment:</code>, for a note to the next person reading the recipe. It
     rides alongside a verb rather than being one, so a comment on its own is not a step.
   </p>
 
-  <div class="mt-12 rounded-lg border border-(--rule-strong) bg-(--wash) p-6">
-    <p class="leading-relaxed text-(--muted)">
+  <div class="mt-12 rounded-lg border border-rule-strong bg-wash p-6">
+    <p>
       <span class="font-medium text-ink">There is no step that evaluates JavaScript.</span> If a screenshot
       cannot be described with these, that is a missing verb rather than a missing escape hatch — and
       it gets added, with the shot that needs it as the evidence.

@@ -37,7 +37,7 @@ const style = `style:
     size: 44
     fill: '#FFFFFF' # glyph fill
     stroke: '#DC2626' # outline around the glyphs; defaults to \`color\`
-    strokeWidth: 6 # centred on the outline, so half is under the fill
+    strokeWidth: 6 # centered on the outline, so half is under the fill
     gap: 40 # distance from the box
     fontUrl: # optional stylesheet to load before drawing
   number:
@@ -71,7 +71,7 @@ const font = `style:
 >
   <h1 class="text-4xl font-extrabold">Configuration</h1>
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     One <code>shotlist.config.yaml</code> in the project root. Every path in it resolves from its own
     directory, not from wherever the command was run.
   </p>
@@ -134,7 +134,7 @@ const font = `style:
       [
         '<code>style</code>',
         'see below',
-        'Every drawing constant: colour, box, arrow, label, number, mask',
+        'Every drawing constant: color, box, arrow, label, number, mask',
       ],
       [
         '<code>check.threshold</code>',
@@ -150,7 +150,7 @@ const font = `style:
   />
 
   <h2 class="mt-14 text-2xl font-bold">Starting the site</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     To have a run start the site itself, give
     <code>site.serve</code> the command that starts it. Without it, shotlist expects something to already
     be answering at
@@ -160,14 +160,14 @@ const font = `style:
     <RecipeCard code={serve} file="shotlist.config.yaml" />
   </div>
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink">A server already up is used as it is.</span> shotlist fetches
     <code>site.url</code> first and starts nothing when something answers, so this can stay in the config
     while you write recipes with the dev server open in another terminal. CI, where nothing is listening,
     is where it actually launches one.
   </p>
 
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     What a run starts, it stops — including on Ctrl-C. The command runs in its own process group,
     because <code>npm run dev</code> is npm, which spawns the server: signalling only the process shotlist
     launched would leave the one holding the port.
@@ -196,7 +196,7 @@ const font = `style:
     ]}
   />
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     <code>ready</code> is what proves the server is up, and defaults to fetching <code
       >site.url</code
     >. A URL is ready on any response at all, including a 404: that something answered is the
@@ -204,7 +204,7 @@ const font = `style:
     <code>{'{ log: … }'}</code> when the pattern matches the server's output.
   </p>
 
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink">There is no shell.</span> The command is run directly, so
     <code>&amp;&amp;</code>,
     <code>|</code>, <code> &gt;</code> and a <code>VAR=value</code> prefix are refused rather than half-understood
@@ -216,7 +216,7 @@ const font = `style:
   <h2 id="pages-that-need-signing-in" class="mt-14 text-2xl font-bold">
     Pages that need signing in
   </h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     To shoot a page behind an account, name a session under
     <code>site.sessions</code> and point a recipe at it with
     <code>session:</code>. A session is the state a signed-in browser carries — its cookies and
@@ -227,20 +227,20 @@ const font = `style:
   <div class="mt-6">
     <RecipeCard code={sessions} file="shotlist.config.yaml" />
   </div>
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink">You do not create the JSON file, and never edit it.</span> The
     path says where <code>shotlist --login admin</code> should write, and that command creates the directory
     as well. What it writes is what the browser had after you signed in — a JSON of cookies and per-origin
     local storage — which is Playwright's format and not something to hand-write. A recipe asking for
     a session that has not been written yet stops the run and names the command that writes it.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     A bare path is the whole of it; the mapping adds
     <code>verify</code>. They are named rather than singular because the same page is often worth
     shooting twice — once as an administrator, once as somebody with no rights at all — and the two
     shots differ only in which session opened them.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink">
       <code class="font-mono">verify</code> is a selector only a signed-in page has</span
     > — an avatar, an admin bar, a sign-out link. It is worth setting, because a session that has expired
@@ -248,7 +248,7 @@ const font = `style:
     the run is a picture of that form and <code>--install</code> commits them. With it, the run stops
     and names the command that signs in again.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink"
       >The file holds live cookies. Keep it out of version control</span
     > — anyone with it is signed in as whoever made it. What is <em>not</em> in it, or anywhere else shotlist
@@ -256,7 +256,7 @@ const font = `style:
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Image format</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     <code>png</code> keeps every pixel and is the default.
     <code>webp</code> is the one worth reaching for: a shot of this site's homepage is 87 KB as a PNG
     and 33 KB as a WebP.
@@ -266,7 +266,7 @@ const font = `style:
   <div class="mt-6">
     <RecipeCard code={imageFormat} file="shotlist.config.yaml" />
   </div>
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     A recipe may set its own <code>format</code> and
     <code>quality</code>.
     <code>quality</code> runs from
@@ -279,14 +279,14 @@ const font = `style:
     <code>jpeg</code> — and
     <code>--check</code> compares against a committed file of the same name.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink">There is no AVIF.</span> The only encoder here is the browser doing
     the drawing, and Chromium reads AVIF but will not write it — it answers a request for one with a PNG
     rather than an error, so every conversion checks what it got back.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Style</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     Every drawing constant is configurable, and a recipe may override any of them under its own
     <code>style:</code> key. This block is the reference for
     <code>style</code> — it is written out in full rather than tabulated, so the shape and the default
@@ -298,7 +298,7 @@ const font = `style:
   </div>
 
   <h2 class="mt-14 text-2xl font-bold">Fonts</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     Set the label typeface under <code>style.label.font</code>. It has to be resolvable by the
     browser doing the drawing, which by default means installed on the machine, and a family that is
     not installed <span class="font-medium text-ink">falls back silently</span> — every label renders
@@ -306,12 +306,12 @@ const font = `style:
     warns. It is a warning rather than an error: a fallback still produces an image, and which faces a
     machine has is not something a recipe can know.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     To use a font that is not installed, give <code>fontUrl</code> a stylesheet. A http(s) or <code
       >data:</code
     > URL is fetched when the callouts are drawn, so that one needs network access at shoot time.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink">Anything else is a path</span>, resolved from the config
     file's directory the way every other path is — for a font the project ships, including one that
     was never online. It is read from disk and inlined, along with the font files it points at,
@@ -319,7 +319,7 @@ const font = `style:
     no <code>file:</code> subresource. An absolute
     <code>file:</code> URL works too.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink">The path may be the font file itself</span> — a
     <code>.woff2</code>,
     <code>.woff</code>,
@@ -334,7 +334,7 @@ const font = `style:
   <div class="mt-6">
     <RecipeCard code={fontFile} file="shotlist.config.yaml" />
   </div>
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     A font that has to be fetched is waited for, and the wait is bounded by
     <code>site.timeout</code>. Past that the labels are drawn in whatever the browser had, and the
     run says so — the same warning as a family that was never there. A run is delayed by a slow font
@@ -346,8 +346,8 @@ const font = `style:
   <div class="mt-4">
     <RecipeCard code={localFont} file="shotlist.config.yaml" />
   </div>
-  <p class="mt-6 leading-relaxed text-(--muted)">
-    <code>strokeWidth</code> is centred on the glyph outline, so half of it is painted under the fill.
+  <p>
+    <code>strokeWidth</code> is centered on the glyph outline, so half of it is painted under the fill.
     A 6-pixel stroke reads as a 3-pixel outline; tools that draw the stroke entirely outside need roughly
     double the number here to match.
   </p>

@@ -32,7 +32,7 @@ const maskWays = `mask:
 >
   <h1 class="text-4xl font-extrabold">Callouts</h1>
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     A callout marks one region. shotlist works out the position, extends the canvas if the label
     needs room outside the image, and moves a label that would overlap one already drawn. The canvas
     also grows for a box or a numbered disc that would otherwise be cut by the edge of the shot.
@@ -64,7 +64,7 @@ const maskWays = `mask:
   />
 
   <h2 class="mt-14 text-2xl font-bold">Label position</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink"
       ><code>place</code> defaults to <code>auto</code>, which picks a side.</span
     > A label to the left or right grows the canvas by its <em>width</em>, one above or below by its
@@ -72,30 +72,30 @@ const maskWays = `mask:
     <code>auto</code> weighs that against how far the arrow would have to travel, and against whether
     its path would cross another mark or a masked region.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     It also decides whether the label goes <span class="font-medium text-ink">over the shot</span> or
     in a margin, by reading the pixels the label would cover and counting how many of them are far from
-    that region's own average colour. A flat panel scores as empty however dark it is, and so does a gradient;
+    that region's own average color. A flat panel scores as empty however dark it is, and so does a gradient;
     text or a chart over either does not. Over the shot costs no canvas and needs only a stub of an arrow,
     so it wins wherever the shot turns out to have nothing there. When the pixels cannot be read at all,
     the decision falls back to the geometry.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     What it cannot judge is what that detail is <em>for</em>. An arrow drawn across a paragraph is
     not something it knows to avoid, so name a side when the shot needs one — an explicit
     <code>place</code> is obeyed exactly, and so is an explicit
     <code>inside</code>.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     Left unsaid, a disc (<code>place: corner</code>) sits inside, on the box; a label on a named
     side sits outside, in a margin the canvas grows to make.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Numbered discs</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     <code>numbered: [a, b, c]</code> is shorthand for one numbered disc per mark, in the order given.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     Written as a mapping instead, <code>marks:</code> carries that list and every other key is applied
     to all of them:
     <code>box</code>,
@@ -114,7 +114,7 @@ const maskWays = `mask:
   </div>
 
   <h2 id="masking" class="mt-14 text-2xl font-bold">Masking a region</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     To keep a region out of the image, list a query for it under
     <code>mask</code>. It is painted over before the callouts are drawn. Use it for the part of a
     shot that differs on every re-shoot — a clock, a live total, a face — which would otherwise make
@@ -126,7 +126,7 @@ const maskWays = `mask:
     <RecipeCard code={masking} file="screenshots/recipes/dashboard.yaml" />
   </div>
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink"
       >Key a mask on something that survives the value changing.</span
     > A class, a test id, a position — never the content itself.
@@ -136,7 +136,7 @@ const maskWays = `mask:
     run — but it does mean a mask written against the content breaks the run rather than degrading.
   </p>
 
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     Any query works, so an element with no class and no test id is still reachable. A mask covers
     <span class="font-medium text-ink">every element its query matches</span>, not the first: a page
     has three avatars far more often than it has one. Naming
@@ -147,7 +147,7 @@ const maskWays = `mask:
     <RecipeCard code={maskWays} file="screenshots/recipes/dashboard.yaml" />
   </div>
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     The regions are painted before the callouts are drawn, so a callout may still point at, and
     outline, a masked box. Masking only helps if the rest of the shot holds still: a value that
     changes <em>width</em> reflows what is beside it, and no mask covers that — give the column a width,

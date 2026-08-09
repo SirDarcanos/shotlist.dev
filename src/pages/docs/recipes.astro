@@ -38,7 +38,7 @@ retries: 2 # three attempts in all`
 >
   <h1 class="text-4xl font-extrabold">Recipes</h1>
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     One <a href="https://yaml.org/" rel="noopener noreferrer" target="_blank" title="YAML"
       >YAML file</a
     > per screenshot, in <code>paths.recipes</code>. The filename is the recipe's name unless <code
@@ -65,7 +65,7 @@ retries: 2 # three attempts in all`
       ],
       ['<code>viewport</code>', "site's", 'Viewport for this recipe'],
       ['<code>scale</code>', "site's", 'Device pixel ratio for this recipe'],
-      ['<code>theme</code>', "site's", 'Colour scheme for this recipe'],
+      ['<code>theme</code>', "site's", 'Color scheme for this recipe'],
       ['<code>style</code>', '—', 'Style overrides for this recipe'],
       [
         '<code>format</code>',
@@ -109,7 +109,7 @@ retries: 2 # three attempts in all`
   />
 
   <h2 class="mt-14 text-2xl font-bold">What gets captured</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     <code>clip: viewport</code> is the browser window at
     <code>site.viewport</code>.
     <code>clip: full</code> is the whole document, however far it scrolls. Anything else is a <a
@@ -118,7 +118,7 @@ retries: 2 # three attempts in all`
     <code>pad</code> or
     <code>grow</code> if it needs room around it.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     A clip is held to the width of the viewport, because nothing widens a page the way scrolling
     lengthens it. Its <em>height</em> is not held to anything: a region reaching past the fold is captured
     by scrolling to it, so a long form or a full table comes out whole rather than cut at the bottom of
@@ -126,12 +126,12 @@ retries: 2 # three attempts in all`
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Marks</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     A mark is a name you choose for a region inside the shot. Callouts point at marks by name, and
     so do <code>numbered</code> and
     <code>check.ignore</code>; one mark can carry as many callouts as you like.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink">A mark's value is a query</span> — the same vocabulary
     <code>clip</code> takes, and there is nothing one can use that the other cannot. A source picks the
     candidates (<code>css</code>,
@@ -157,25 +157,25 @@ retries: 2 # three attempts in all`
   <div class="mt-6">
     <RecipeCard code={marks} file="screenshots/recipes/order-row.yaml" />
   </div>
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     Marks resolve after <code>setup</code> has run, in the order they are written. That order is usable:
     <code>within: clip</code> narrows a query to the region being captured, and <code
       >within: &lt;mark&gt;</code
     > narrows it to one already resolved above.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink">A mark that matches nothing stops the run</span>, naming the
     recipe and the mark — <code>recipe "order-row": marks.amount — no element matched</code>. That
     is the assertion a recipe makes: the shot is of what it says it is of, or there is no shot.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     The one recipe where a mark is not a query is
     <code>source: file</code>: there is no page to search, so a mark is a literal <code>rect</code>,
     measured off the image.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Annotating an existing image</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     To annotate an image that is already on disk, set
     <code>source: file</code> and give
     <code>file</code> its path. Callouts, style and install work the same way. It is the way to shoot
@@ -183,7 +183,7 @@ retries: 2 # three attempts in all`
     UI. The file may be a PNG, a JPEG or a WebP; what it is read as comes from its bytes rather than its
     name.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     There is no page to query, so marks are literal rectangles measured off the image:
     <code>[x, y, width, height]</code> in image pixels.
   </p>
@@ -192,7 +192,7 @@ retries: 2 # three attempts in all`
   </div>
 
   <h2 class="mt-14 text-2xl font-bold">When a shot fails</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     A run stops at the first recipe that fails, and says which recipe and which key in it could not
     be resolved. <code>--keep-going</code> shoots the rest instead, prints each failure as it happens,
     and names them all at the end.
@@ -200,14 +200,14 @@ retries: 2 # three attempts in all`
   <div class="mt-6">
     <RecipeCard code={failing} lang="bash" />
   </div>
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     Either way the exit code is non-zero, so CI still fails.
     <code>--keep-going</code> works the same way with
     <code>--check</code>, where a recipe that could not be shot is reported <code>FAILED</code> alongside
     the ones that diffed.
   </p>
 
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     <code>retries</code> shoots a recipe again when it fails, up to five times. It is for the failures
     that are gone a second later — an element that had not rendered, a request that had not landed — which
     a capture has because it drives a real application.
@@ -215,7 +215,7 @@ retries: 2 # three attempts in all`
   <div class="mt-6">
     <RecipeCard code={retries} file="screenshots/recipes/order-row.yaml" />
   </div>
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     Each attempt is a fresh browser context, and a failure is reported while the run is still going
     rather than after it. A <code>source: file</code> recipe never retries whatever this says — it has
     no page to be flaky about, so a second attempt could only reach the same answer.

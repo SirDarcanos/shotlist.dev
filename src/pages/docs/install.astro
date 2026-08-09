@@ -24,7 +24,7 @@ postinstall downloads browsers. Install it with:
 >
   <h1 class="text-4xl font-extrabold">Install</h1>
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     This is a <a
       href="https://nodejs.org/en/"
       title="Node.js website"
@@ -70,7 +70,7 @@ postinstall downloads browsers. Install it with:
   </div>
 
   <h2 class="mt-14 text-2xl font-bold">When you need Playwright</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink">Whenever shotlist writes an image.</span>
     <code>npx shotlist &lt;name&gt;</code>,
     <code>--all</code> and
@@ -78,7 +78,7 @@ postinstall downloads browsers. Install it with:
     <code>source: file</code> recipe, which drives no site but still draws its callouts in a page. In
     practice: install it alongside shotlist and stop thinking about it.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     What runs without it is everything that only reads or writes files:
     <code>--init</code>,
     <code>--help</code>,
@@ -86,12 +86,12 @@ postinstall downloads browsers. Install it with:
     <code>npx shotlist</code> with no arguments, which lists the recipes it found. A CI job that only
     checks a config parses needs no browser, and no browser is launched for it.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     It is an optional peer dependency because its postinstall downloads browsers, and a project that
     depends on shotlist should not pay for that on every install — a CI cache, or a machine that
     only ever reads the recipes, gets nothing for it.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     A run that needs a browser looks for
     <code>playwright</code>, then
     <code>playwright-core</code>, then the
@@ -102,13 +102,13 @@ postinstall downloads browsers. Install it with:
   <div class="mt-6">
     <RecipeCard code={missing} lang="bash" />
   </div>
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     The browser is the first thing a run reaches for, so this arrives before any of the work rather
     than part-way through it. Nothing is written, and nothing is left half-done.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">A first recipe</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     <code>--init</code> writes a commented
     <code>shotlist.config.yaml</code> and a first recipe to edit. Neither is overwritten, so it is safe
     to run in a project that already has some.
@@ -117,19 +117,17 @@ postinstall downloads browsers. Install it with:
     <RecipeCard code={scaffold} lang="bash" />
   </div>
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
-    Start the site the config points at, then shoot it:
-  </p>
+  <p>Start the site the config points at, then shoot it:</p>
   <div class="mt-6">
     <RecipeCard code={first} lang="bash" />
   </div>
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     The image lands in <code>screenshots/out/</code>, and
     <code>--install</code> copies it to the destination the recipe names.
   </p>
 
-  <p class="mt-10 leading-relaxed text-(--muted)">
+  <p class="mt-10">
     The recipe file carries a
     <code>yaml-language-server</code> line, so an editor completes and validates the keys from the JSON
     Schemas the package ships.

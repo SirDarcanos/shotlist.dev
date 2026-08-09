@@ -40,12 +40,12 @@ marks:
 >
   <h1 class="text-4xl font-extrabold">Queries</h1>
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     A query says which element to act on or measure. Keys combine: sources choose the candidates,
     filters narrow them, traversal moves from them, and selection picks one.
   </p>
 
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink">Key a query on what a person can see.</span>
     <code>text</code>,
     <code>heading</code>,
@@ -67,13 +67,13 @@ marks:
       ['<code>heading</code>', '<code>h1</code>–<code>h6</code> with this exact text'],
     ]}
   />
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     <code>text</code> and
     <code>startsWith</code> also narrow a source written alongside them. <code>exact: true</code> makes
     <code>role</code>+<code>name</code>, <code>label</code> and
     <code>placeholder</code> match the whole string, case-sensitively.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink">
       <code>role</code>, <code>label</code>,
       <code>placeholder</code> and <code>testid</code> cannot be used inside <code>span:</code> or
@@ -103,21 +103,21 @@ marks:
       ['<code>within</code>', 'sit inside an already-resolved mark'],
     ]}
   />
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     Sizes take pixels (<code>400</code>) or viewport units (<code>95vw</code>, <code>50vh</code>).
     <code>matching</code> is a regular expression run inside the page, so one that backtracks is bounded
     by
     <code>site.timeout</code> rather than hanging the run.
   </p>
 
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink"
       ><code>within</code> takes a name, or a query written out.</span
     > Two kinds of name resolve: <code>clip</code>, which is the region being captured, and any mark
     declared above this one — marks resolve in the order they are written, so an earlier one can
     narrow a later one. A name that has not resolved yet is an error rather than a miss.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     It belongs to <code>marks</code>,
     <code>mask</code> and
     <code>check.ignore</code>, which run after the clip is known. A step cannot use it: <code
@@ -135,7 +135,7 @@ marks:
       ['<code>children</code>', 'All children'],
     ]}
   />
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     <code>ancestor</code> climbs from the element's parent — an element is never its own ancestor, so
     a box that already fits the filters is not the answer. It takes <code>pick: nearest</code> (default)
     or
@@ -155,7 +155,7 @@ marks:
       ['<code>rect: [x, y, width, height]</code>', 'A literal box, for recipes with no page'],
     ]}
   />
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     <code>nth</code> and
     <code>child</code> count from the end when the number is negative, the way <code>Array.at</code> does:
     <code>-1</code> is the last,
@@ -167,7 +167,7 @@ marks:
   <h2 class="mt-14 text-2xl font-bold">
     <code class="font-mono">pick</code> and <code class="font-mono">ancestor</code>
   </h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink">
       <code>pick: smallest</code> is what makes "the row containing X" work.</span
     > Every ancestor of the row also contains the text, right up to the body — without it you clip the
@@ -177,7 +177,7 @@ marks:
     <RecipeCard code={row} file="screenshots/recipes/order-row.yaml" />
   </div>
 
-  <p class="mt-8 leading-relaxed text-(--muted)">
+  <p class="mt-8">
     <span class="font-medium text-ink">
       <code>ancestor</code> with <code>pick: outermost</code> reaches a card inside an overlay.</span
     > The width filter is doing real work: it is what separates the dialog's card from the full-screen
@@ -188,7 +188,7 @@ marks:
   </div>
 
   <h2 class="mt-14 text-2xl font-bold">Finders</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     To reuse a query across recipes, define it under
     <code>finders</code> in the config and call it by name.
     <code>$1</code> and

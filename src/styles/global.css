@@ -62,6 +62,22 @@
     @apply font-mono text-sm text-ink;
   }
 
+  .docs-page article p {
+    @apply mt-5 leading-relaxed text-muted;
+  }
+
+  .docs-page article :is(h1, div) + p {
+    @apply mt-6;
+  }
+
+  .docs-page article :is(h2, h3) + p {
+    @apply mt-4;
+  }
+
+  .docs-page article p:first-child {
+    @apply mt-0;
+  }
+
   .docs-page article a,
   .docs-page article :is(p, li) a code {
     @apply text-mark underline underline-offset-2;

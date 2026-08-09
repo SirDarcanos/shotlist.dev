@@ -35,7 +35,7 @@ const literal = `setup:
 >
   <h1 class="text-4xl font-extrabold">Macros and data</h1>
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     Setup shared between recipes goes in <code>paths.macros</code>, one file per macro. The filename
     is its name.
   </p>
@@ -48,7 +48,7 @@ const literal = `setup:
   </div>
 
   <h2 class="mt-14 text-2xl font-bold">Data files</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     Files in <code>paths.data</code> are in scope by filename:
     <code>screenshots/data/orders.yaml</code> is
     <code>$orders</code>, and
@@ -59,14 +59,14 @@ const literal = `setup:
     <RecipeCard code={data} file="screenshots/recipes/orders.yaml" />
   </div>
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     <code>each</code> also takes the list itself, for the handful of values not worth a file.
   </p>
   <div class="mt-6">
     <RecipeCard code={literal} file="screenshots/recipes/searches.yaml" />
   </div>
 
-  <p class="mt-6 leading-relaxed text-(--muted)">
+  <p>
     The filename becomes a <code>$name</code>, so keep it to letters, digits and underscores — a <code
       >$</code
     > reference stops at a hyphen, and <code>open-orders.yaml</code> cannot be reached. Group what would
@@ -76,7 +76,7 @@ const literal = `setup:
   </p>
 
   <h2 id="writing-a-reference" class="mt-14 text-2xl font-bold">Writing a reference</h2>
-  <p class="mt-4 leading-relaxed text-(--muted)">
+  <p>
     <code>$name</code> and
     <code>{'${name}'}</code> are the same thing, and
     <code>$a.b</code> reads a path into whatever
@@ -87,14 +87,14 @@ const literal = `setup:
       >{'Order ${order.name}.'}</code
     > does not.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink"
       >A reference that is the whole value keeps that value's type.</span
     >
     <code>each: $orders</code> gets the list, not a rendering of one. A reference sitting inside a longer
     string becomes text, because that is all a string can hold.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     Three things fill the same table: data files, by filename;
     <code>with:</code> on a
     <code>use:</code>, for the macro it calls; and
@@ -102,7 +102,7 @@ const literal = `setup:
     steps after it.
     <code>each: … as:</code> binds its name for its own steps only.
   </p>
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink">References are substituted in steps, and nowhere else.</span>
     <code>clip</code>,
     <code>marks</code> and
@@ -111,7 +111,7 @@ const literal = `setup:
     what it points at afterwards is fixed.
   </p>
 
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     <span class="font-medium text-ink">
       <code class="font-mono">{'${env.NAME}'}</code> is the operator's, not the config's.</span
     > It resolves only for the names a run was given with
@@ -122,7 +122,7 @@ const literal = `setup:
     <code>--untrusted</code> run resolves none of them.
   </p>
 
-  <p class="mt-5 leading-relaxed text-(--muted)">
+  <p>
     A reference reads what the data holds and nothing else. Keys that belong to the language —
     <code>__proto__</code>,
     <code>constructor</code>,
