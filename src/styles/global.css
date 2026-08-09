@@ -60,6 +60,12 @@
     text-wrap: pretty;
   }
 
+  .docs-page article a {
+    color: var(--color-mark);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
   ::selection {
     background: var(--color-mark);
     color: var(--color-paper);

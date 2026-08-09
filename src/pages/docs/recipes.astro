@@ -39,9 +39,10 @@ retries: 2 # three attempts in all`
   <h1 class="text-4xl font-extrabold">Recipes</h1>
 
   <p class="mt-6 leading-relaxed text-(--muted)">
-    One YAML file per screenshot, in <code class="font-mono text-sm text-ink">paths.recipes</code>.
-    The filename is the recipe's name unless <code class="font-mono text-sm text-ink">name:</code> says
-    otherwise.
+    One <a href="https://yaml.org/" rel="noopener noreferrer" target="_blank" title="YAML"
+      >YAML file</a
+    > per screenshot, in <code class="font-mono text-sm text-ink">paths.recipes</code>. The filename
+    is the recipe's name unless <code class="font-mono text-sm text-ink">name:</code> says otherwise.
   </p>
 
   <DocTable
@@ -106,9 +107,8 @@ retries: 2 # three attempts in all`
     <code class="font-mono text-sm text-ink">clip: viewport</code> is the browser window at
     <code class="font-mono text-sm text-ink">site.viewport</code>.
     <code class="font-mono text-sm text-ink">clip: full</code> is the whole document, however far it scrolls.
-    Anything else is a <a class="text-mark underline underline-offset-2" href="/docs/queries"
-      >query</a
-    >, and the shot is the box of the element it finds — with
+    Anything else is a <a href="/docs/queries">query</a>, and the shot is the box of the element it
+    finds — with
     <code class="font-mono text-sm text-ink">pad</code> or
     <code class="font-mono text-sm text-ink">grow</code> if it needs room around it.
   </p>
@@ -154,9 +154,7 @@ retries: 2 # three attempts in all`
     <code class="font-mono text-sm text-ink">pad</code>,
     <code class="font-mono text-sm text-ink">grow</code> and
     <code class="font-mono text-sm text-ink">span</code> shape the box it comes to. Every key, with what
-    it matches, is on <a class="text-mark underline underline-offset-2" href="/docs/queries"
-      >Queries</a
-    >.
+    it matches, is on <a href="/docs/queries">Queries</a>.
   </p>
   <div class="mt-6">
     <RecipeCard code={marks} file="screenshots/recipes/order-row.yaml" />
