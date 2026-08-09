@@ -50,48 +50,188 @@ const sections = [
 
 <Base title={title} description={description}>
   <div
-    class="mx-auto max-w-6xl gap-12 px-6 py-12 lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:py-16"
+    class="mx-auto max-w-6xl gap-12 px-6 py-12 md:grid md:grid-cols-[13rem_minmax(0,1fr)] md:py-16"
   >
-    <nav class="mb-12 lg:sticky lg:top-28 lg:mb-0 lg:self-start" aria-label="Documentation">
-      {
-        sections.map((section) => (
-          <div class="mb-7">
-            <p class="mb-3 font-mono text-[0.6875rem] tracking-wider text-(--muted) uppercase">
-              {section.label}
-            </p>
-            <ul class="space-y-2 text-sm">
-              {section.items.map((item) =>
-                item.ready ? (
-                  <li>
-                    <a
-                      href={item.href}
-                      aria-current={path === item.href ? 'page' : undefined}
-                      class:list={[
-                        'block border-l-2 py-0.5 pl-3 transition-colors',
-                        path === item.href
-                          ? 'border-mark font-medium text-mark'
-                          : 'border-(--rule) text-(--muted) hover:border-(--rule-strong) hover:text-ink',
-                      ]}
-                    >
-                      {item.label}
-                    </a>
-                  </li>
-                ) : (
-                  <li>
-                    <span class="block cursor-default border-l-2 border-(--rule) py-0.5 pl-3 text-(--muted) opacity-45">
-                      {item.label}
-                    </span>
-                  </li>
-                ),
-              )}
-            </ul>
-          </div>
-        ))
-      }
-    </nav>
+    <!--
+      Below `lg` this is a bar that stays with you rather than a list at the top of the
+      page: the reference is one document in eleven parts, and reaching part four used to
+      mean scrolling back through part three to find the way there.
+    -->
+    <details
+      id="docs-nav"
+      open
+      class="sticky top-[65px] z-30 mb-10 -mx-6 border-b border-(--rule) bg-paper/95 px-6 py-3 backdrop-blur-sm md:top-24 md:z-auto md:mx-0 md:mb-0 md:self-start md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none"
+    >
+      <summary
+        class="flex cursor-pointer list-none items-center justify-between font-mono text-xs tracking-wider text-(--muted) uppercase md:hidden [&::-webkit-details-marker]:hidden"
+      >
+        Documentation
+        <svg
+          class="chevron size-4 transition-transform"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m6 9 6 6 6-6"></path>
+        </svg>
+      </summary>
+
+      <nav
+        class="max-h-[70vh] overflow-y-auto pt-5 md:max-h-[calc(100vh-8rem)] md:pt-0"
+        aria-label="Documentation"
+      >
+        {
+          sections.map((section) => (
+            <div class="mb-7">
+              <p class="mb-3 font-mono text-[0.6875rem] tracking-wider text-(--muted) uppercase">
+                {section.label}
+              </p>
+              <ul class="space-y-2 text-sm">
+                {section.items.map((item) =>
+                  item.ready ? (
+                    <li>
+                      <a
+                        href={item.href}
+                        aria-current={path === item.href ? 'page' : undefined}
+                        class:list={[
+                          'block border-l-2 py-0.5 pl-3 transition-colors',
+                          path === item.href
+                            ? 'border-mark font-medium text-mark'
+                            : 'border-(--rule) text-(--muted) hover:border-(--rule-strong) hover:text-ink',
+                        ]}
+                      >
+                        {item.label}
+                      </a>
+                    </li>
+                  ) : (
+                    <li>
+                      <span class="block cursor-default border-l-2 border-(--rule) py-0.5 pl-3 text-(--muted) opacity-45">
+                        {item.label}
+                      </span>
+                    </li>
+                  ),
+                )}
+              </ul>
+            </div>
+          ))
+        }
+      </nav>
+    </details>
 
     <article class="min-w-0 max-w-2xl">
       <slot />
     </article>
   </div>
 </Base>
+
+<style>
+  details[open] .chevron {
+    transform: rotate(180deg);
+  }
+
+  /*
+   * The page's own headings, under the entry for the page they are on.
+   *
+   * Set apart from the page links rather than matching them: a step down in size, a rule
+   * half the weight, and indented past the border those links carry. Sharing their
+   * styling made a heading look like another page to go to.
+   */
+  :global(.page-toc) {
+    margin: 0.5rem 0 0.75rem 0.875rem;
+    padding-left: 0.875rem;
+    border-left: 1px solid var(--rule);
+  }
+
+  :global(.page-toc a) {
+    display: block;
+    padding-block: 0.1875rem;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: var(--muted);
+    transition: color 0.15s;
+  }
+
+  :global(.page-toc a:hover) {
+    color: var(--color-ink);
+  }
+
+  :global(.page-toc a[data-here]) {
+    color: var(--color-mark);
+    font-weight: 500;
+  }
+</style>
+
+<script>
+  // The disclosure ships open, so a reader with no JavaScript gets the list rather than a
+  // control that cannot be worked. Closing it here runs during parse, before first paint,
+  // so nothing is seen to collapse.
+  const nav = document.getElementById('docs-nav') as HTMLDetailsElement | null
+  const wide = window.matchMedia('(width >= 48rem)')
+  const fit = () => {
+    if (nav) nav.open = wide.matches
+  }
+  fit()
+  wide.addEventListener('change', fit)
+
+  // Following a link inside it has done its job, so get it out of the way.
+  nav?.querySelector('nav')?.addEventListener('click', (event) => {
+    if (!wide.matches && (event.target as HTMLElement).closest('a')) nav.open = false
+  })
+
+  /**
+   * The current page's headings, under the current page's entry.
+   *
+   * Built here rather than at build time because these pages are hand-written `.astro`,
+   * with no frontmatter to read a heading list out of. Ids are assigned where a heading
+   * does not carry one, so an anchor has something to land on.
+   */
+  const here = nav?.querySelector('a[aria-current="page"]')
+  const headings = [...document.querySelectorAll<HTMLHeadingElement>('main h2')]
+
+  if (here && headings.length > 1) {
+    const slug = (text: string) =>
+      text
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+
+    const list = document.createElement('ul')
+    list.className = 'page-toc'
+    const links = new Map<Element, HTMLAnchorElement>()
+
+    for (const heading of headings) {
+      if (!heading.id) heading.id = slug(heading.textContent ?? '')
+      const item = document.createElement('li')
+      const link = document.createElement('a')
+      link.href = `#${heading.id}`
+      link.textContent = heading.textContent
+      item.append(link)
+      list.append(item)
+      links.set(heading, link)
+    }
+    here.after(list)
+
+    // Which section you are in is a question about where the page is, so it is asked that
+    // way: the last heading above the reading line. Reading it off the scroll position
+    // answers at any position, including the one a page is opened at.
+    const mark = () => {
+      const bottom = window.scrollY + window.innerHeight >= document.body.scrollHeight - 2
+      const current = bottom
+        ? headings[headings.length - 1]
+        : (headings.filter((heading) => heading.getBoundingClientRect().top < 120).pop() ??
+          headings[0])
+      for (const [heading, link] of links) {
+        if (heading === current) link.setAttribute('data-here', '')
+        else link.removeAttribute('data-here')
+      }
+    }
+    mark()
+    window.addEventListener('scroll', mark, { passive: true })
+    window.addEventListener('resize', mark)
+  }
+</script>

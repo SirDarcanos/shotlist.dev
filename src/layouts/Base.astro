@@ -2,6 +2,7 @@
 import { SEO } from 'astro-seo'
 import Nav from '../components/Nav.astro'
 import Footer from '../components/Footer.astro'
+import BackToTop from '../components/BackToTop.astro'
 import '../styles/global.css'
 
 interface Props {
@@ -60,7 +61,7 @@ const fullTitle = bare ? title : `${title} — shotlist`
     }
   </head>
 
-  <body class="min-h-screen antialiased">
+  <body id="top" class="min-h-screen antialiased">
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"
@@ -70,5 +71,6 @@ const fullTitle = bare ? title : `${title} — shotlist`
     <Nav />
     <main id="main"><slot /></main>
     <Footer />
+    <BackToTop />
   </body>
 </html>

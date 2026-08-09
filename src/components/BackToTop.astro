@@ -1,0 +1,55 @@
+---
+/**
+ * A way back to the top of a long page.
+ *
+ * An anchor rather than a button, so it works with no JavaScript and can be opened in a
+ * new tab or focused like any other link. The script only decides when to show it and
+ * moves focus afterwards, which a bare `#top` jump does not do.
+ */
+---
+
+<a
+  id="back-to-top"
+  href="#top"
+  class="invisible fixed right-5 bottom-5 z-40 grid size-11 place-items-center rounded-full border border-(--rule-strong) bg-paper text-ink opacity-0 shadow-lg transition-[opacity,visibility] duration-200 hover:border-mark hover:text-mark focus-visible:border-mark data-[shown]:visible data-[shown]:opacity-100"
+  aria-label="Back to top"
+  title="Back to top"
+>
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 19V5M5 12l7-7 7 7"></path>
+  </svg>
+</a>
+
+<script>
+  const link = document.getElementById('back-to-top')
+  if (link) {
+    // Shown once there is enough behind you to be worth going back over.
+    const show = () => {
+      if (window.scrollY > window.innerHeight * 0.75) link.setAttribute('data-shown', '')
+      else link.removeAttribute('data-shown')
+    }
+    show()
+    window.addEventListener('scroll', show, { passive: true })
+
+    link.addEventListener('click', (event) => {
+      event.preventDefault()
+      const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      window.scrollTo({ top: 0, behavior: still ? 'auto' : 'smooth' })
+      // The jump moves the viewport; without this the next Tab carries on from the
+      // button, near the bottom of a page the reader has just left.
+      const first = document.querySelector<HTMLElement>('main h1')
+      first?.setAttribute('tabindex', '-1')
+      first?.focus({ preventScroll: true })
+    })
+  }
+</script>
