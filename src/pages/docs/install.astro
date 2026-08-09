@@ -1,15 +1,21 @@
 ---
 import Docs from '../../layouts/Docs.astro'
 import RecipeCard from '../../components/RecipeCard.astro'
+import CommandTabs from '../../components/CommandTabs.astro'
 
-const install = `npm i -D shotlist playwright`
-
-const others = `pnpm add -D shotlist playwright
-yarn add -D shotlist playwright`
+const install = [
+  { label: 'npm', code: 'npm i -D shotlist playwright' },
+  { label: 'pnpm', code: 'pnpm add -D shotlist playwright' },
+  { label: 'yarn', code: 'yarn add -D shotlist playwright' },
+]
 
 const scaffold = `npx shotlist --init`
 
 const first = `npx shotlist example`
+
+const missing = `Playwright is not installed. shotlist does not install it, because its
+postinstall downloads browsers. Install it with:
+  npm i -D playwright`
 ---
 
 <Docs
@@ -21,12 +27,7 @@ const first = `npx shotlist example`
   <p class="mt-6 leading-relaxed text-(--muted)">Node 20 or newer.</p>
 
   <div class="mt-6">
-    <RecipeCard code={install} lang="bash" />
-  </div>
-
-  <p class="mt-6 leading-relaxed text-(--muted)">pnpm and yarn work the same way.</p>
-  <div class="mt-6">
-    <RecipeCard code={others} lang="bash" />
+    <CommandTabs commands={install} />
   </div>
 
   <h2 class="mt-14 text-2xl font-bold">When you need Playwright</h2>
@@ -50,8 +51,22 @@ const first = `npx shotlist example`
   <p class="mt-5 leading-relaxed text-(--muted)">
     It is an optional peer dependency because its postinstall downloads browsers, and a project that
     depends on shotlist should not pay for that on every install — a CI cache, or a machine that
-    only ever reads the recipes, gets nothing for it. When a run needs it and cannot find it, the
-    error is the command that fixes it.
+    only ever reads the recipes, gets nothing for it.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    A run that needs a browser looks for
+    <code class="font-mono text-sm text-ink">playwright</code>, then
+    <code class="font-mono text-sm text-ink">playwright-core</code>, then the
+    <code class="font-mono text-sm text-ink">npx</code> cache — which is what lets
+    <code class="font-mono text-sm text-ink">npx shotlist</code> work in a project that has installed
+    neither. Finding none of them it stops, before opening anything, with the command that fixes it:
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={missing} lang="bash" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    The browser is the first thing a run reaches for, so this arrives before any of the work rather
+    than part-way through it. Nothing is written, and nothing is left half-done.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">A first recipe</h2>

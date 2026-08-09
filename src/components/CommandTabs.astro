@@ -1,0 +1,88 @@
+---
+import { Code } from 'astro:components'
+import { codeTheme } from '../lib/code-theme'
+
+/**
+ * The same command, in each package manager.
+ *
+ * Every panel is rendered and all but one hidden, so the command is in the page whether
+ * or not the script runs — a reader with no JavaScript sees npm's, which is the one most
+ * of them wanted. The script only swaps which panel is shown.
+ */
+interface Props {
+  commands: { label: string; code: string }[]
+  class?: string
+}
+
+const { commands, class: className = '' } = Astro.props
+// Unique per instance, so two on a page do not answer to each other's buttons.
+const id = `tabs-${Math.random().toString(36).slice(2, 9)}`
+---
+
+<div
+  class:list={[
+    'tone-light command-tabs min-w-0 overflow-hidden rounded-lg border border-(--rule-strong) bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04),0_12px_32px_-12px_rgba(28,25,23,0.12)]',
+    className,
+  ]}
+  data-command-tabs
+>
+  <div class="flex border-b border-(--rule)" role="tablist" aria-label="Package manager">
+    {
+      commands.map((command, i) => (
+        <button
+          type="button"
+          role="tab"
+          id={`${id}-tab-${i}`}
+          aria-controls={`${id}-panel-${i}`}
+          aria-selected={i === 0 ? 'true' : 'false'}
+          tabindex={i === 0 ? 0 : -1}
+          class="-mb-px border-b-2 border-transparent px-4 py-2.5 font-mono text-xs text-(--muted) transition-colors hover:text-ink aria-selected:border-mark aria-selected:font-medium aria-selected:text-ink"
+        >
+          {command.label}
+        </button>
+      ))
+    }
+  </div>
+  {
+    commands.map((command, i) => (
+      <div
+        role="tabpanel"
+        id={`${id}-panel-${i}`}
+        aria-labelledby={`${id}-tab-${i}`}
+        hidden={i !== 0}
+        class="p-5 sm:p-6"
+      >
+        <Code code={command.code.trimEnd()} lang="bash" theme={codeTheme as never} />
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  for (const group of document.querySelectorAll<HTMLElement>('[data-command-tabs]')) {
+    const tabs = [...group.querySelectorAll<HTMLButtonElement>('[role="tab"]')]
+    const panels = [...group.querySelectorAll<HTMLElement>('[role="tabpanel"]')]
+
+    const select = (index: number, focus = true) => {
+      tabs.forEach((tab, i) => {
+        tab.setAttribute('aria-selected', String(i === index))
+        tab.tabIndex = i === index ? 0 : -1
+      })
+      panels.forEach((panel, i) => {
+        panel.hidden = i !== index
+      })
+      if (focus) tabs[index]?.focus()
+    }
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(i, false))
+      // A tablist is one stop in the tab order; the arrows move within it.
+      tab.addEventListener('keydown', (event) => {
+        const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0
+        if (!step) return
+        event.preventDefault()
+        select((i + step + tabs.length) % tabs.length)
+      })
+    })
+  }
+</script>
