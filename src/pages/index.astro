@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro'
 import RecipeCard from '../components/RecipeCard.astro'
+import CommandTabs from '../components/CommandTabs.astro'
 import { heroRecipe, minimalRecipe, configExample } from '../lib/recipes'
 
 /**
@@ -9,6 +10,13 @@ import { heroRecipe, minimalRecipe, configExample } from '../lib/recipes'
  * The page's job is to say what is here and hand over; anything that needs a second
  * sentence needs the docs page it links to instead.
  */
+/** The one command someone reading this page is here to copy. */
+const install = [
+  { label: 'npm', code: 'npm i -D shotlist playwright' },
+  { label: 'pnpm', code: 'pnpm add -D shotlist playwright' },
+  { label: 'yarn', code: 'yarn add -D shotlist playwright' },
+]
+
 const rest = [
   {
     key: 'site.serve',
@@ -109,19 +117,16 @@ const anatomy = [
           YAML file. There is no per-screenshot code.
         </p>
 
-        <div class="mt-9 flex flex-wrap items-center gap-3">
+        <div class="mt-9">
           <a
             href="/docs"
-            class="rounded-lg bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-mark"
+            class="inline-block rounded-lg bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-mark"
           >
             Read the docs
           </a>
-          <code
-            class="rounded-lg border border-(--rule-strong) bg-white px-4 py-3 font-mono text-sm text-ink"
-          >
-            npm i -D shotlist playwright
-          </code>
         </div>
+
+        <CommandTabs commands={install} class="mt-6 max-w-md" />
       </div>
 
       <figure class="min-w-0 lg:-mr-4">
