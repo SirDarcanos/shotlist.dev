@@ -6,8 +6,8 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "astro dev",
-    "build": "node scripts/check-examples.mjs && astro build && node scripts/compress-html.mjs && node scripts/check-spacing.mjs",
+    "dev": "node scripts/build-example.mjs && astro dev",
+    "build": "node scripts/check-examples.mjs && node scripts/build-example.mjs && astro build && node scripts/compress-html.mjs && node scripts/check-spacing.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "format": "prettier --write .",

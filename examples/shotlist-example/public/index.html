@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Orders — Ledger</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        Ledger
+      </div>
+      <nav class="topnav">
+        <a href="/" aria-current="page">Orders</a>
+        <a href="/docs.html">Documentation</a>
+      </nav>
+      <div class="avatar" title="Sam Okonkwo" aria-label="Sam Okonkwo">SO</div>
+    </header>
+
+    <main>
+      <div class="panel">
+        <div class="panel-head">
+          <h1>Orders</h1>
+          <p class="muted">Invoices raised in the last 30 days.</p>
+        </div>
+
+        <form class="search" onsubmit="return false">
+          <label for="q">Search orders</label>
+          <input id="q" name="q" type="search" placeholder="Customer or reference" />
+          <button type="submit">Search</button>
+        </form>
+
+        <ul class="orders">
+          <li class="order-row">
+            <span class="customer">Acme Corp</span>
+            <span class="reference">INV-1042</span>
+            <span class="amount">$42.00</span>
+            <span class="status status-open">Open</span>
+          </li>
+          <li class="order-row">
+            <span class="customer">Globex</span>
+            <span class="reference">INV-1043</span>
+            <span class="amount">$18.50</span>
+            <span class="status status-paid">Paid</span>
+          </li>
+          <li class="order-row">
+            <span class="customer">Initech</span>
+            <span class="reference">INV-1044</span>
+            <span class="amount">$7.25</span>
+            <span class="status status-overdue">Overdue</span>
+          </li>
+          <li class="order-row" hidden>
+            <span class="customer">Umbrella Health</span>
+            <span class="reference">INV-1045</span>
+            <span class="amount">$310.00</span>
+            <span class="status status-open">Open</span>
+          </li>
+          <li class="order-row" hidden>
+            <span class="customer">Soylent Foods</span>
+            <span class="reference">INV-1046</span>
+            <span class="amount">$96.40</span>
+            <span class="status status-paid">Paid</span>
+          </li>
+        </ul>
+
+        <button id="more" type="button" class="more">Load more</button>
+
+        <section class="activity">
+          <h2>Cash collected this week</h2>
+          <div
+            class="bars"
+            id="bars"
+            role="img"
+            aria-label="Daily collections for the last seven days"
+          ></div>
+        </section>
+
+        <p class="updated">Last updated <span id="clock">—</span></p>
+      </div>
+    </main>
+
+    <script>
+      // Two rows arrive only after a click, so a recipe has something to drive.
+      document.getElementById('more').addEventListener('click', (event) => {
+        for (const row of document.querySelectorAll('.order-row[hidden]')) row.hidden = false
+        event.target.hidden = true
+      })
+
+      // A value that is different on every capture, standing in for live data.
+      const clock = document.getElementById('clock')
+      const tick = () => (clock.textContent = new Date().toLocaleTimeString())
+      tick()
+      setInterval(tick, 1000)
+
+      // Live figures, redrawn on every load. This is what makes a screenshot of the panel
+      // impossible to keep stable: the bars are solid fills, so a redraw moves thousands
+      // of pixels, where the clock above moves a few hundred and slips under the default
+      // comparison threshold.
+      document.getElementById('bars').innerHTML = Array.from({ length: 7 }, () => {
+        const height = 18 + Math.floor(Math.random() * 80)
+        return `<span style="height:${height}px"></span>`
+      }).join('')
+    </script>
+  </body>
+</html>

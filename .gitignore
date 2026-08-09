@@ -2,6 +2,10 @@
 dist/
 # what a shoot writes before `--install` copies it where it belongs
 screenshots/out/
+# packaged from examples/shotlist-example/ by the build, so the folder stays the source of truth
+public/shotlist-example.zip
+# what a reader's own run of the example writes
+examples/shotlist-example/public/images/
 # generated types
 .astro/
 

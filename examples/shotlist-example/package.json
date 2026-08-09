@@ -1,0 +1,10 @@
+{
+  "name": "shotlist-example",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A small application to practise shotlist against.",
+  "scripts": {
+    "dev": "node server.mjs"
+  }
+}

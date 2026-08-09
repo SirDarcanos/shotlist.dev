@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reading an order — Ledger documentation</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        Ledger
+      </div>
+      <nav class="topnav">
+        <a href="/">Orders</a>
+        <a href="/docs.html" aria-current="page">Documentation</a>
+      </nav>
+      <div class="avatar" title="Sam Okonkwo" aria-label="Sam Okonkwo">SO</div>
+    </header>
+
+    <main class="doc">
+      <h1>Reading an order</h1>
+
+      <p>
+        Every invoice raised in the last thirty days appears on the Orders screen, one row per
+        invoice. A row tells you who owes the money and where the invoice has got to.
+      </p>
+
+      <figure>
+        <img
+          src="/images/order-row.png"
+          alt="An order row, with the amount owed and the status labelled"
+          onerror="
+            this.replaceWith(
+              Object.assign(document.createElement('div'), {
+                className: 'placeholder',
+                textContent:
+                  'No screenshot here yet. Run shotlist with --install and reload this page.',
+              }),
+            )
+          "
+        />
+        <figcaption>An order for Acme Corp, still open.</figcaption>
+      </figure>
+
+      <p>
+        The amount is what the customer owes on that invoice, before any credit note. The status is
+        one of <strong>Open</strong>, <strong>Paid</strong> or <strong>Overdue</strong>; an invoice
+        becomes overdue thirty days after it was raised.
+      </p>
+
+      <p>
+        This page exists so that the screenshot has somewhere to be installed. It is the
+        documentation the recipe is written for.
+      </p>
+    </main>
+  </body>
+</html>

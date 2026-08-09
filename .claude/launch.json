@@ -6,6 +6,13 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 4321
+    },
+    {
+      "name": "example",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["examples/shotlist-example/server.mjs"],
+      "port": 3000,
+      "autoPort": true
     }
   ]
 }
