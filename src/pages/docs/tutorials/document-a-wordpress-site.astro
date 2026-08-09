@@ -34,6 +34,42 @@ const signIn = `steps:
 const login = `export WP_ADMIN_PASSWORD='the password Studio shows you'
 npx shotlist --login editor --using sign-in`
 
+const menu = `name: add-post-menu
+install: handbook
+session: editor
+url: http://localhost:8883/wp-admin/edit.php
+
+clip: viewport
+
+marks:
+  posts: { css: '#menu-posts .wp-menu-name' }
+  add: { css: '#adminmenu a', text: Add Post }
+
+numbered: [posts, add]`
+
+const search = `name: block-search
+install: handbook
+session: editor
+url: http://localhost:8883/wp-admin/post-new.php
+
+setup:
+  - optional:
+      - click: { role: button, name: Close }
+  - click: { role: button, name: Block Inserter }
+  - fill: { placeholder: Search }
+    value: image
+  - wait: 800
+    comment: the list filters on a debounce, and Image is in the unfiltered list too
+  - wait: { role: option, name: Image, exact: true }
+
+clip: viewport
+
+marks:
+  search: { css: '.block-editor-inserter__menu .components-input-control__container' }
+  image: { role: option, name: Image, exact: true }
+
+numbered: [search, image]`
+
 const newPost = `name: new-post
 install: handbook
 session: editor
@@ -63,27 +99,38 @@ setup:
   - optional:
       - click: { role: button, name: Close }
   - click: { role: button, name: Block Inserter }
-  - wait: { role: option, name: Image, exact: true }
+  - fill: { placeholder: Search }
+    value: image
+  - wait: 800
+    comment: the list filters on a debounce, and Image is in the unfiltered list too
   - click: { role: option, name: Image, exact: true }
   - wait:
       frame: { css: 'iframe[name="editor-canvas"]' }
       text: Media Library
-    comment: the block appears before its placeholder paints, so wait for the button itself
   - wait: 1500
     comment: the editor rebuilds the canvas after the first insert; let it settle
 
-clip:
-  frame: { css: 'iframe[name="editor-canvas"]' }
-  css: '.wp-block-image'
-  grow: { top: 72, right: 32, bottom: 32, left: 32 }
+clip: viewport
 
 marks:
+  upload:
+    frame: { css: 'iframe[name="editor-canvas"]' }
+    text: Upload
   library:
     frame: { css: 'iframe[name="editor-canvas"]' }
     text: Media Library
 
 callouts:
-  - { mark: library, text: Or choose one already uploaded, place: bottom }`
+  - mark: upload
+    text: Upload from your computer
+    place: bottom
+    inside: true
+    dy: 100
+  - mark: library
+    text: Or choose one already uploaded
+    place: bottom
+    inside: true
+    dy: 100`
 
 const shoot = `npx shotlist --all --install`
 
@@ -226,9 +273,31 @@ const expired = `recipe "new-post": session "editor" is signed out — run: shot
     <code>.shotlist/</code> to <code>.gitignore</code> before committing anything.
   </p>
 
-  <h2 class="mt-14 text-2xl font-bold">Step 5: photograph the editor's controls</h2>
+  <h2 class="mt-14 text-2xl font-bold">Step 5: show the way in</h2>
 
-  <p>Create <code>screenshots/recipes/new-post.yaml</code>:</p>
+  <p>
+    A handbook starts where the reader is. Create
+    <code>screenshots/recipes/add-post-menu.yaml</code>:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={menu} file="screenshots/recipes/add-post-menu.yaml" />
+  </div>
+
+  <p>
+    <code>numbered</code> puts a disc on each mark in the order you listed them, which is what a numbered
+    list in the prose beside it needs.
+  </p>
+
+  <p>
+    The <code>url</code> is the Posts screen rather than the dashboard, and that is deliberate. On the
+    dashboard the Posts submenu is a flyout that appears on hover, and WordPress parks a closed flyout
+    at <code>top: -13000px</code> rather than hiding it — so a mark still resolves, the canvas grows thirteen
+    thousand pixels to reach it, and the screenshot is mostly empty. On the Posts screen the submenu is
+    simply open.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 6: the editor's controls</h2>
 
   <div class="mt-6">
     <RecipeCard code={newPost} file="screenshots/recipes/new-post.yaml" />
@@ -250,12 +319,25 @@ const expired = `recipe "new-post": session "editor" is signed out — run: shot
     </li>
   </ul>
 
-  <h2 class="mt-14 text-2xl font-bold">Step 6: add an image block, and photograph it</h2>
+  <h2 class="mt-14 text-2xl font-bold">Step 7: choosing the Image block</h2>
+
+  <div class="mt-6">
+    <RecipeCard code={search} file="screenshots/recipes/block-search.yaml" />
+  </div>
 
   <p>
-    Now the screenshot the handbook is really for. This one drives the editor — opens the inserter,
-    chooses the Image block — and then photographs the block that appears in the post:
+    The <code>wait: 800</code> is doing something a query cannot. The list filters on a debounce, and
+    <code>Image</code> is in the unfiltered list too — so waiting for the Image option succeeds immediately
+    and photographs every block in WordPress. Waiting for a state that both versions satisfy is not waiting.
   </p>
+
+  <p>
+    The search field is marked by its container rather than the <code>input</code>. The input stops
+    short of the magnifier and the clear button, and a box around two thirds of a control looks like
+    a mistake.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 8: the block in the post</h2>
 
   <div class="mt-6">
     <RecipeCard code={imageBlock} file="screenshots/recipes/image-block.yaml" />
@@ -265,12 +347,8 @@ const expired = `recipe "new-post": session "editor" is signed out — run: shot
     <code>frame:</code> is the new part. The post being edited is not in the page shotlist opened — the
     editor renders it inside an iframe, and a query cannot cross into one on its own.
     <code>frame:</code> names that iframe with a query of its own, and everything beside it resolves in
-    the document inside.
-  </p>
-
-  <p>
-    Both the <code>clip</code> and the mark use it, and so does the <code>wait</code>. A step takes
-    a query like any other key, so nothing new is needed to wait for something inside a frame.
+    the document inside. The <code>wait</code> uses it too, since a step takes a query like any other
+    key.
   </p>
 
   <p>
@@ -279,7 +357,14 @@ const expired = `recipe "new-post": session "editor" is signed out — run: shot
     moment and the block is in the page, the callout lands in the right place, and the picture is empty.
   </p>
 
-  <h2 class="mt-14 text-2xl font-bold">Step 7: take both, and install them</h2>
+  <p>
+    <code>inside: true</code> keeps the labels over the screenshot rather than in a margin the canvas
+    grows to make, and <code>dy</code> pushes them clear of the block, so the image stays exactly the
+    viewport size. Both callouts ask for the same place; shotlist moves the second one aside rather than
+    drawing it over the first.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Step 9: take them all, and install them</h2>
 
   <div class="mt-6">
     <RecipeCard code={shoot} lang="bash" />
