@@ -112,6 +112,17 @@ const literal = `setup:
   </p>
 
   <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">
+      <code class="font-mono">{'${env.NAME}'}</code> is the operator's, not the config's.</span
+    > It resolves only for the names a run was given with
+    <code>--allow-env</code> or <code>SHOTLIST_ENV</code>, which is how a <a
+      href="/docs/running-shotlist#signing-in">sign-in macro</a
+    > gets a password without one being written down. A name that was not allowed does not resolve however
+    it is set, and an
+    <code>--untrusted</code> run resolves none of them.
+  </p>
+
+  <p class="mt-5 leading-relaxed text-(--muted)">
     A reference reads what the data holds and nothing else. Keys that belong to the language —
     <code>__proto__</code>,
     <code>constructor</code>,

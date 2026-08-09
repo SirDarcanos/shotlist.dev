@@ -215,6 +215,13 @@ const sections = [
     }
     here.after(list)
 
+    // A link from another page arrives before these ids exist, so the browser has already
+    // given up on the hash by now. Do the jump it could not.
+    const wanted = decodeURIComponent(location.hash.slice(1))
+    if (wanted && document.getElementById(wanted)) {
+      document.getElementById(wanted)!.scrollIntoView()
+    }
+
     // Which section you are in is a question about where the page is, so it is asked that
     // way: the last heading above the reading line. Reading it off the scroll position
     // answers at any position, including the one a page is opened at.

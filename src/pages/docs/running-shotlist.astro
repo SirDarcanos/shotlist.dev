@@ -12,6 +12,9 @@ npx shotlist --check              # compare against committed images
 npx shotlist --check <name>       # …just these ones
 npx shotlist --check --diff       # …and write a before/after/changed image
 npx shotlist --check --json       # …and report it as JSON on stdout
+npx shotlist --login <name>       # sign in by hand, and save the session
+npx shotlist --login <name> --using <macro>
+                                  # …signing in with a macro instead
 npx shotlist --config <file>      # use a specific config
 npx shotlist --help               # the same list, from the tool
 npx shotlist --version            # print the version`
@@ -19,7 +22,21 @@ npx shotlist --version            # print the version`
 const trust = `npx shotlist --check --untrusted        # the config is not yours
 npx shotlist --allow docs.example.com  # …and this host too; repeatable
 npx shotlist --allow-path /srv/shared  # …and this directory too; repeatable
-npx shotlist --deny fixtures           # never touch this name; repeatable`
+npx shotlist --deny fixtures           # never touch this name; repeatable
+npx shotlist --allow-env ADMIN_PASSWORD # a recipe may read \${env.ADMIN_PASSWORD}`
+
+const login = `npx shotlist --login admin`
+
+const scripted = `npx shotlist --login admin --using sign-in`
+
+const signInMacro = `defaults:
+  who: admin@example.com
+steps:
+  - fill: { label: Email }
+    value: $who
+  - fill: { label: Password }
+    value: \${env.ADMIN_PASSWORD}
+  - click: { role: button, name: Sign in }`
 
 const api = `import { check, loadConfig, loadLibrary, shoot, withNumbering } from 'shotlist'
 
@@ -60,6 +77,52 @@ cp -R node_modules/shotlist/skills/shotlist .claude/skills/`
   <div class="mt-6">
     <RecipeCard code={trust} lang="bash" />
   </div>
+
+  <h2 id="signing-in" class="mt-14 text-2xl font-bold">Signing in</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    To shoot a page that needs an account, save a session once and name it from a recipe.
+    <code>--login</code> opens a browser at
+    <code>site.url</code>, waits while you sign in, and writes what the browser has to show for it
+    into the file
+    <a href="/docs/config#pages-that-need-signing-in"><code>site.sessions</code></a> names.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={login} lang="bash" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    Nothing about the password reaches shotlist. You type it into a real browser; what is saved is
+    the cookies it came back with. A recipe then says
+    <code>session: admin</code>, and it is that browser the shot is taken in.
+  </p>
+
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">With nobody at the keyboard, sign in with a macro.</span>
+    <code>--using</code> runs one instead of waiting, in a headless browser — ordinary steps, so anything
+    the sign-in form needs is already in the vocabulary. Without a terminal to wait in and without <code
+      >--using</code
+    >, the run says so rather than hanging.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={scripted} lang="bash" />
+  </div>
+  <div class="mt-4">
+    <RecipeCard code={signInMacro} file="screenshots/macros/sign-in.yaml" />
+  </div>
+
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink"
+      >A recipe reads no variable the command line did not name.</span
+    >
+    <code>{'${env.NAME}'}</code> resolves only for the names given to
+    <code>--allow-env</code>, which is repeatable, or listed in
+    <code>SHOTLIST_ENV</code> for CI that sets its secrets there anyway. The two add up. An allowed name
+    that is empty stays unresolved and the run says which one it was, rather than typing nothing into
+    a password field and reporting a sign-in that failed for no visible reason.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    An <code>--untrusted</code> run loads no session and reads no variable at all — see
+    <a href="/docs/security">what a config can do</a>.
+  </p>
 
   <h2 class="mt-14 text-2xl font-bold">Using it from code</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">

@@ -15,6 +15,13 @@ const serveLong = `site:
     env: { PORT: '3000' }
     timeout: 30000`
 
+const sessions = `site:
+  sessions:
+    admin: .shotlist/admin.json
+    reader:
+      path: .shotlist/reader.json
+      verify: '[data-signed-in]'`
+
 const imageFormat = `image:
   format: webp
   quality: 90`
@@ -98,6 +105,11 @@ const font = `style:
         'Extra milliseconds to wait after <code>ready</code>',
       ],
       ['<code>site.timeout</code>', '<code>15000</code>', 'How long a step or a query may take'],
+      [
+        '<code>site.sessions</code>',
+        '<code>{}</code>',
+        'Signed-in browser states by name, written by <code>--login</code>',
+      ],
       ['<code>paths.recipes</code>', '<code>screenshots/recipes</code>', 'Where recipes live'],
       ['<code>paths.macros</code>', '<code>screenshots/macros</code>', 'Where macros live'],
       ['<code>paths.data</code>', '<code>screenshots/data</code>', 'Where data files live'],
@@ -199,6 +211,41 @@ const font = `style:
     — environment goes under <code>env:</code>, and anything needing a shell goes in a script you
     run instead. A run of only
     <code>source: file</code> recipes never opens the site, and does not start one.
+  </p>
+
+  <h2 id="pages-that-need-signing-in" class="mt-14 text-2xl font-bold">
+    Pages that need signing in
+  </h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    To shoot a page behind an account, name a session under
+    <code>site.sessions</code> and point a recipe at it with
+    <code>session:</code>. A session is the state a signed-in browser carries — its cookies and
+    local storage — written by
+    <a href="/docs/running-shotlist#signing-in"><code>shotlist --login</code></a> and read back before
+    the shot.
+  </p>
+  <div class="mt-6">
+    <RecipeCard code={sessions} file="shotlist.config.yaml" />
+  </div>
+  <p class="mt-6 leading-relaxed text-(--muted)">
+    A bare path is the whole of it; the mapping adds
+    <code>verify</code>. They are named rather than singular because the same page is often worth
+    shooting twice — once as an administrator, once as somebody with no rights at all — and the two
+    shots differ only in which session opened them.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink">
+      <code class="font-mono">verify</code> is a selector only a signed-in page has</span
+    > — an avatar, an admin bar, a sign-out link. It is worth setting, because a session that has expired
+    does not fail: it redirects to the sign-in form, and without something to check for, every shot of
+    the run is a picture of that form and <code>--install</code> commits them. With it, the run stops
+    and names the command that signs in again.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    <span class="font-medium text-ink"
+      >The file holds live cookies. Keep it out of version control</span
+    > — anyone with it is signed in as whoever made it. What is <em>not</em> in it, or anywhere else shotlist
+    reads, is the password: that was typed into a browser, or came from a variable the operator allowed.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Image format</h2>

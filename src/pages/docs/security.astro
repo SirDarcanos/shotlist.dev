@@ -128,6 +128,8 @@ const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path â€
       ],
       ['reads or writes outside the project', 'yes', '<strong>refused</strong>'],
       ['<code>site.allow</code> widens the scope', 'yes', '<strong>ignored</strong>'],
+      ['loads a session from <code>site.sessions</code>', 'yes', '<strong>refused</strong>'],
+      ['reads <code>${env.NAME}</code>', 'named ones', '<strong>none</strong>'],
     ]}
   />
 
@@ -141,6 +143,26 @@ const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path â€
   <p class="mt-6 leading-relaxed text-(--muted)">
     Both are repeatable. Neither can be set from the config, because
     <span class="font-medium text-ink">a control the config can switch off is not a control.</span>
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Credentials, and what never holds one</h2>
+  <p class="mt-4 leading-relaxed text-(--muted)">
+    A <a href="/docs/running-shotlist#signing-in">session</a> is a credential: the browser carrying it
+    is signed in as whoever made it. So an
+    <code>--untrusted</code> run loads none, and does not get to choose which one or where it is read
+    from. A config nobody vouched for asking to be somebody is the whole of what the flag exists to stop.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    The password that made the session is in neither the config nor the recipe. It was typed into a
+    browser, or it came from a variable named on the command line â€”
+    <code>--allow-env</code>, or <code>SHOTLIST_ENV</code>, never from the config. Untrusted, that
+    list is emptied rather than narrowed: there is no name worth handing to a config nobody vouched
+    for, and a partial grant reads like a safe one.
+  </p>
+  <p class="mt-5 leading-relaxed text-(--muted)">
+    The session file itself goes through the same path check as everything else, so it cannot be
+    read from outside the project or from a name this project forbids. Keep it out of version
+    control: it is live cookies.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">True in every mode</h2>
