@@ -47,11 +47,9 @@ marks:
 
   <p class="mt-5 leading-relaxed text-(--muted)">
     <span class="font-medium text-ink">Key a query on what a person can see.</span>
-    <code class="font-mono text-sm text-ink">text</code>,
-    <code class="font-mono text-sm text-ink">heading</code>,
-    <code class="font-mono text-sm text-ink">role</code>+<code class="font-mono text-sm text-ink"
-      >name</code
-    > and <code class="font-mono text-sm text-ink">label</code> survive a restyle. A generated class name
+    <code>text</code>,
+    <code>heading</code>,
+    <code>role</code>+<code>name</code> and <code>label</code> survive a restyle. A generated class name
     does not survive the next build.
   </p>
 
@@ -70,26 +68,21 @@ marks:
     ]}
   />
   <p class="mt-6 leading-relaxed text-(--muted)">
-    <code class="font-mono text-sm text-ink">text</code> and
-    <code class="font-mono text-sm text-ink">startsWith</code> also narrow a source written alongside
-    them. <code class="font-mono text-sm text-ink">exact: true</code> makes
-    <code class="font-mono text-sm text-ink">role</code>+<code class="font-mono text-sm text-ink"
-      >name</code
-    >, <code class="font-mono text-sm text-ink">label</code> and
-    <code class="font-mono text-sm text-ink">placeholder</code> match the whole string, case-sensitively.
+    <code>text</code> and
+    <code>startsWith</code> also narrow a source written alongside them. <code>exact: true</code> makes
+    <code>role</code>+<code>name</code>, <code>label</code> and
+    <code>placeholder</code> match the whole string, case-sensitively.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     <span class="font-medium text-ink">
-      <code class="font-mono text-sm">role</code>, <code class="font-mono text-sm">label</code>,
-      <code class="font-mono text-sm">placeholder</code> and <code class="font-mono text-sm"
-        >testid</code
-      > cannot be used inside <code class="font-mono text-sm">span:</code> or
-      <code class="font-mono text-sm">within:</code>.</span
+      <code>role</code>, <code>label</code>,
+      <code>placeholder</code> and <code>testid</code> cannot be used inside <code>span:</code> or
+      <code>within:</code>.</span
     > The browser resolves them before the page is searched, so there is nothing for a nested one to narrow.
-    Use <code class="font-mono text-sm text-ink">css</code>,
-    <code class="font-mono text-sm text-ink">text</code>,
-    <code class="font-mono text-sm text-ink">startsWith</code> or
-    <code class="font-mono text-sm text-ink">contains</code> there.
+    Use <code>css</code>,
+    <code>text</code>,
+    <code>startsWith</code> or
+    <code>contains</code> there.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Filters</h2>
@@ -111,28 +104,25 @@ marks:
     ]}
   />
   <p class="mt-6 leading-relaxed text-(--muted)">
-    Sizes take pixels (<code class="font-mono text-sm text-ink">400</code>) or viewport units (<code
-      class="font-mono text-sm text-ink">95vw</code
-    >, <code class="font-mono text-sm text-ink">50vh</code>).
-    <code class="font-mono text-sm text-ink">matching</code> is a regular expression run inside the page,
-    so one that backtracks is bounded by
-    <code class="font-mono text-sm text-ink">site.timeout</code> rather than hanging the run.
+    Sizes take pixels (<code>400</code>) or viewport units (<code>95vw</code>, <code>50vh</code>).
+    <code>matching</code> is a regular expression run inside the page, so one that backtracks is bounded
+    by
+    <code>site.timeout</code> rather than hanging the run.
   </p>
 
   <p class="mt-5 leading-relaxed text-(--muted)">
     <span class="font-medium text-ink"
-      ><code class="font-mono text-sm">within</code> takes a name, or a query written out.</span
-    > Two kinds of name resolve: <code class="font-mono text-sm text-ink">clip</code>, which is the
-    region being captured, and any mark declared above this one — marks resolve in the order they
-    are written, so an earlier one can narrow a later one. A name that has not resolved yet is an
-    error rather than a miss.
+      ><code>within</code> takes a name, or a query written out.</span
+    > Two kinds of name resolve: <code>clip</code>, which is the region being captured, and any mark
+    declared above this one — marks resolve in the order they are written, so an earlier one can
+    narrow a later one. A name that has not resolved yet is an error rather than a miss.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
-    It belongs to <code class="font-mono text-sm text-ink">marks</code>,
-    <code class="font-mono text-sm text-ink">mask</code> and
-    <code class="font-mono text-sm text-ink">check.ignore</code>, which run after the clip is known.
-    A step cannot use it: <code class="font-mono text-sm text-ink">setup</code> runs before anything has
-    been measured.
+    It belongs to <code>marks</code>,
+    <code>mask</code> and
+    <code>check.ignore</code>, which run after the clip is known. A step cannot use it: <code
+      >setup</code
+    > runs before anything has been measured.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Traversal</h2>
@@ -146,13 +136,11 @@ marks:
     ]}
   />
   <p class="mt-6 leading-relaxed text-(--muted)">
-    <code class="font-mono text-sm text-ink">ancestor</code> climbs from the element's parent — an element
-    is never its own ancestor, so a box that already fits the filters is not the answer. It takes <code
-      class="font-mono text-sm text-ink">pick: nearest</code
-    > (default) or
-    <code class="font-mono text-sm text-ink">pick: outermost</code>; outermost keeps climbing while
-    the parent also matches, which is how you reach a modal's card rather than stopping at the
-    heading inside it.
+    <code>ancestor</code> climbs from the element's parent — an element is never its own ancestor, so
+    a box that already fits the filters is not the answer. It takes <code>pick: nearest</code> (default)
+    or
+    <code>pick: outermost</code>; outermost keeps climbing while the parent also matches, which is
+    how you reach a modal's card rather than stopping at the heading inside it.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Selection and shape</h2>
@@ -168,13 +156,12 @@ marks:
     ]}
   />
   <p class="mt-6 leading-relaxed text-(--muted)">
-    <code class="font-mono text-sm text-ink">nth</code> and
-    <code class="font-mono text-sm text-ink">child</code> count from the end when the number is negative,
-    the way <code class="font-mono text-sm text-ink">Array.at</code> does:
-    <code class="font-mono text-sm text-ink">-1</code> is the last,
-    <code class="font-mono text-sm text-ink">-2</code> the one before it.
-    <code class="font-mono text-sm text-ink">pad</code> and
-    <code class="font-mono text-sm text-ink">grow</code> add room around a box and cannot be negative.
+    <code>nth</code> and
+    <code>child</code> count from the end when the number is negative, the way <code>Array.at</code> does:
+    <code>-1</code> is the last,
+    <code>-2</code> the one before it.
+    <code>pad</code> and
+    <code>grow</code> add room around a box and cannot be negative.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">
@@ -182,7 +169,7 @@ marks:
   </h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     <span class="font-medium text-ink">
-      <code class="font-mono text-sm">pick: smallest</code> is what makes "the row containing X" work.</span
+      <code>pick: smallest</code> is what makes "the row containing X" work.</span
     > Every ancestor of the row also contains the text, right up to the body — without it you clip the
     whole page.
   </p>
@@ -192,9 +179,7 @@ marks:
 
   <p class="mt-8 leading-relaxed text-(--muted)">
     <span class="font-medium text-ink">
-      <code class="font-mono text-sm">ancestor</code> with <code class="font-mono text-sm"
-        >pick: outermost</code
-      > reaches a card inside an overlay.</span
+      <code>ancestor</code> with <code>pick: outermost</code> reaches a card inside an overlay.</span
     > The width filter is doing real work: it is what separates the dialog's card from the full-screen
     backdrop behind it, which also contains the heading.
   </p>
@@ -205,11 +190,10 @@ marks:
   <h2 class="mt-14 text-2xl font-bold">Finders</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     To reuse a query across recipes, define it under
-    <code class="font-mono text-sm text-ink">finders</code> in the config and call it by name.
-    <code class="font-mono text-sm text-ink">$1</code> and
-    <code class="font-mono text-sm text-ink">$2</code> stand for the arguments it is called with. It is
-    worth doing the moment the same shape appears in a third recipe — a project's recipes should read
-    like the product, not like CSS.
+    <code>finders</code> in the config and call it by name.
+    <code>$1</code> and
+    <code>$2</code> stand for the arguments it is called with. It is worth doing the moment the same shape
+    appears in a third recipe — a project's recipes should read like the product, not like CSS.
   </p>
   <div class="mt-6">
     <RecipeCard code={finders} file="shotlist.config.yaml" />

@@ -25,22 +25,20 @@ const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path �
   <h1 class="text-4xl font-extrabold">What a config can do to the machine that runs it</h1>
 
   <p class="mt-6 leading-relaxed text-(--muted)">
-    A <code class="font-mono text-sm text-ink">shotlist.config.yaml</code> is a file in a repository,
-    and whether that is fine depends on <span class="font-medium text-ink">whose repository</span>.
-    Some limits hold in every mode and cannot be turned off; the rest are what
-    <code class="font-mono text-sm text-ink">--untrusted</code> takes away.
+    A <code>shotlist.config.yaml</code> is a file in a repository, and whether that is fine depends on
+    <span class="font-medium text-ink">whose repository</span>. Some limits hold in every mode and
+    cannot be turned off; the rest are what
+    <code>--untrusted</code> takes away.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">A run stays on its own site</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    <code class="font-mono text-sm text-ink">site.url</code> decides what a run may open: that host and
-    everything under it. With
-    <code class="font-mono text-sm text-ink">site.url: https://example.com/</code>, a recipe may
-    shoot <code class="font-mono text-sm text-ink">example.com/docs</code> and
-    <code class="font-mono text-sm text-ink">api.example.com</code>, and is refused
-    <code class="font-mono text-sm text-ink">google.com</code>. A
-    <code class="font-mono text-sm text-ink">www.</code> host covers its apex too. There is no flag to
-    set — wandering off the site is a mistake far more often than an intention.
+    <code>site.url</code> decides what a run may open: that host and everything under it. With
+    <code>site.url: https://example.com/</code>, a recipe may shoot <code>example.com/docs</code> and
+    <code>api.example.com</code>, and is refused
+    <code>google.com</code>. A
+    <code>www.</code> host covers its apex too. There is no flag to set — wandering off the site is a
+    mistake far more often than an intention.
   </p>
   <div class="mt-6">
     <RecipeCard code={allow} file="shotlist.config.yaml" />
@@ -71,15 +69,14 @@ const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path �
   />
   <p class="mt-6 leading-relaxed text-(--muted)">
     This is not about trust: a config you wrote has no reason to read your keys either, and a typo
-    in an <code class="font-mono text-sm text-ink">install</code> destination should not be able to write
-    into <code class="font-mono text-sm text-ink">.git</code>. There is no flag to turn it off.
+    in an <code>install</code> destination should not be able to write into <code>.git</code>. There
+    is no flag to turn it off.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Putting a path out of bounds</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     To put a file or folder out of bounds for the whole project, list it under
-    <code class="font-mono text-sm text-ink">deny</code> in the config. shotlist will not read, write
-    or open a path that goes through it.
+    <code>deny</code> in the config. shotlist will not read, write or open a path that goes through it.
   </p>
   <div class="mt-6">
     <RecipeCard code={deny} file="shotlist.config.yaml" />
@@ -92,29 +89,28 @@ const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path �
   </div>
   <p class="mt-6 leading-relaxed text-(--muted)">
     Each entry matches <span class="font-medium text-ink">one segment of a path</span>, with
-    <code class="font-mono text-sm text-ink">*</code> standing for any run of characters — so a folder
-    name stops everything under it, and
-    <code class="font-mono text-sm text-ink">*.sqlite</code> stops a file wherever it sits. It is checked
-    against filesystem paths and URL paths alike.
+    <code>*</code> standing for any run of characters — so a folder name stops everything under it, and
+    <code>*.sqlite</code> stops a file wherever it sits. It is checked against filesystem paths and URL
+    paths alike.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     <span class="font-medium text-ink">Three places can set it, and they are not equivalent.</span>
-    <code class="font-mono text-sm text-ink">deny:</code> in the config is the project's own declaration
-    — visible to everyone, and editable by anyone who can edit the config.
-    <code class="font-mono text-sm text-ink">--deny</code> belongs to whoever runs the command.
-    <code class="font-mono text-sm text-ink">SHOTLIST_DENY</code> — a list separated by commas or colons
-    — belongs to whoever set the machine or the CI image up, and is the one a recipe author cannot edit
-    their way out of. All three add up, and none of them can subtract.
+    <code>deny:</code> in the config is the project's own declaration — visible to everyone, and editable
+    by anyone who can edit the config.
+    <code>--deny</code> belongs to whoever runs the command.
+    <code>SHOTLIST_DENY</code> — a list separated by commas or colons — belongs to whoever set the machine
+    or the CI image up, and is the one a recipe author cannot edit their way out of. All three add up,
+    and none of them can subtract.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">
     <code class="font-mono">--untrusted</code>, for a config you did not write
   </h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    Run with <code class="font-mono text-sm text-ink">--untrusted</code> when the config did not come
-    from someone you trust. In automation it often has not: a pull request from a fork can edit the config,
-    and the runner it lands on has your credentials, your network and other people's work on it. A hosted
-    service that shoots what its users submit has the same problem.
+    Run with <code>--untrusted</code> when the config did not come from someone you trust. In automation
+    it often has not: a pull request from a fork can edit the config, and the runner it lands on has your
+    credentials, your network and other people's work on it. A hosted service that shoots what its users
+    submit has the same problem.
   </p>
   <div class="mt-6">
     <RecipeCard code={untrusted} lang="bash" />
@@ -136,10 +132,8 @@ const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path �
   />
 
   <p class="mt-6 leading-relaxed text-(--muted)">
-    That last row is the point of the flag: <code class="font-mono text-sm text-ink"
-      >site.allow</code
-    > is a claim by the thing you are distrusting. What the operator typed still counts, and outlives
-    it.
+    That last row is the point of the flag: <code>site.allow</code> is a claim by the thing you are distrusting.
+    What the operator typed still counts, and outlives it.
   </p>
   <div class="mt-6">
     <RecipeCard code={granted} lang="bash" />
@@ -151,14 +145,14 @@ const refusal = `recipe "reports": \`url\`: "fake-secret" is a forbidden path �
 
   <h2 class="mt-14 text-2xl font-bold">True in every mode</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    A config cannot run code. There is no <code class="font-mono text-sm text-ink">eval:</code> step and
-    no way to reach one; queries travel into the page as data, never as source, so a malformed selector
-    is a <code class="font-mono text-sm text-ink">SyntaxError</code> rather than an execution.
-    <code class="font-mono text-sm text-ink">site.serve</code> runs a program directly with no shell.
-    And a run cannot be made to hang: <code class="font-mono text-sm text-ink">site.timeout</code> bounds
-    how long a query may take, viewport and scale are held to what a browser can paint, and
-    <code class="font-mono text-sm text-ink">retries</code> and
-    <code class="font-mono text-sm text-ink">repeat</code> are capped.
+    A config cannot run code. There is no <code>eval:</code> step and no way to reach one; queries travel
+    into the page as data, never as source, so a malformed selector is a <code>SyntaxError</code> rather
+    than an execution.
+    <code>site.serve</code> runs a program directly with no shell. And a run cannot be made to hang: <code
+      >site.timeout</code
+    > bounds how long a query may take, viewport and scale are held to what a browser can paint, and
+    <code>retries</code> and
+    <code>repeat</code> are capped.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">What this does not cover</h2>

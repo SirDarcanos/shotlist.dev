@@ -66,13 +66,11 @@ const maskWays = `mask:
   <h2 class="mt-14 text-2xl font-bold">Label position</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     <span class="font-medium text-ink"
-      ><code class="font-mono text-sm">place</code> defaults to <code class="font-mono text-sm"
-        >auto</code
-      >, which picks a side.</span
+      ><code>place</code> defaults to <code>auto</code>, which picks a side.</span
     > A label to the left or right grows the canvas by its <em>width</em>, one above or below by its
     <em>height</em> — on a wide shot that is a difference of hundreds of pixels.
-    <code class="font-mono text-sm text-ink">auto</code> weighs that against how far the arrow would have
-    to travel, and against whether its path would cross another mark or a masked region.
+    <code>auto</code> weighs that against how far the arrow would have to travel, and against whether
+    its path would cross another mark or a masked region.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     It also decides whether the label goes <span class="font-medium text-ink">over the shot</span> or
@@ -85,32 +83,31 @@ const maskWays = `mask:
   <p class="mt-5 leading-relaxed text-(--muted)">
     What it cannot judge is what that detail is <em>for</em>. An arrow drawn across a paragraph is
     not something it knows to avoid, so name a side when the shot needs one — an explicit
-    <code class="font-mono text-sm text-ink">place</code> is obeyed exactly, and so is an explicit
-    <code class="font-mono text-sm text-ink">inside</code>.
+    <code>place</code> is obeyed exactly, and so is an explicit
+    <code>inside</code>.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
-    Left unsaid, a disc (<code class="font-mono text-sm text-ink">place: corner</code>) sits inside,
-    on the box; a label on a named side sits outside, in a margin the canvas grows to make.
+    Left unsaid, a disc (<code>place: corner</code>) sits inside, on the box; a label on a named
+    side sits outside, in a margin the canvas grows to make.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Numbered discs</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    <code class="font-mono text-sm text-ink">numbered: [a, b, c]</code> is shorthand for one numbered
-    disc per mark, in the order given.
+    <code>numbered: [a, b, c]</code> is shorthand for one numbered disc per mark, in the order given.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
-    Written as a mapping instead, <code class="font-mono text-sm text-ink">marks:</code> carries that
-    list and every other key is applied to all of them:
-    <code class="font-mono text-sm text-ink">box</code>,
-    <code class="font-mono text-sm text-ink">badge</code>,
-    <code class="font-mono text-sm text-ink">inside</code>,
-    <code class="font-mono text-sm text-ink">dx</code>,
-    <code class="font-mono text-sm text-ink">dy</code> and
-    <code class="font-mono text-sm text-ink">pad</code>. There is no
-    <code class="font-mono text-sm text-ink">place</code> among them — a numbered disc is always
-    <code class="font-mono text-sm text-ink">corner</code>, and
-    <code class="font-mono text-sm text-ink">badge</code> is which corner. Discs sit inside the box unless
-    <code class="font-mono text-sm text-ink">inside: false</code> pushes them clear.
+    Written as a mapping instead, <code>marks:</code> carries that list and every other key is applied
+    to all of them:
+    <code>box</code>,
+    <code>badge</code>,
+    <code>inside</code>,
+    <code>dx</code>,
+    <code>dy</code> and
+    <code>pad</code>. There is no
+    <code>place</code> among them — a numbered disc is always
+    <code>corner</code>, and
+    <code>badge</code> is which corner. Discs sit inside the box unless
+    <code>inside: false</code> pushes them clear.
   </p>
   <div class="mt-6">
     <RecipeCard code={numbered} file="screenshots/recipes/statblock.yaml" />
@@ -119,12 +116,11 @@ const maskWays = `mask:
   <h2 id="masking" class="mt-14 text-2xl font-bold">Masking a region</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     To keep a region out of the image, list a query for it under
-    <code class="font-mono text-sm text-ink">mask</code>. It is painted over before the callouts are
-    drawn. Use it for the part of a shot that differs on every re-shoot — a clock, a live total, a
-    face — which would otherwise make
-    <code class="font-mono text-sm text-ink">--check</code> report a change every time.
-    <code class="font-mono text-sm text-ink">check: false</code> is the blunt version: it turns the check
-    off for the whole image, where a mask leaves the rest of it checkable.
+    <code>mask</code>. It is painted over before the callouts are drawn. Use it for the part of a
+    shot that differs on every re-shoot — a clock, a live total, a face — which would otherwise make
+    <code>--check</code> report a change every time.
+    <code>check: false</code> is the blunt version: it turns the check off for the whole image, where
+    a mask leaves the rest of it checkable.
   </p>
   <div class="mt-6">
     <RecipeCard code={masking} file="screenshots/recipes/dashboard.yaml" />
@@ -134,20 +130,18 @@ const maskWays = `mask:
     <span class="font-medium text-ink"
       >Key a mask on something that survives the value changing.</span
     > A class, a test id, a position — never the content itself.
-    <code class="font-mono text-sm text-ink">{'{ text: $42.00 }'}</code> matches the figure you are hiding
-    today and nothing at all tomorrow, when it reads
-    <code class="font-mono text-sm text-ink">$51.00</code>. That failure is loud rather than silent
-    — a mask matching nothing stops the run — but it does mean a mask written against the content
-    breaks the run rather than degrading.
+    <code>{'{ text: $42.00 }'}</code> matches the figure you are hiding today and nothing at all tomorrow,
+    when it reads
+    <code>$51.00</code>. That failure is loud rather than silent — a mask matching nothing stops the
+    run — but it does mean a mask written against the content breaks the run rather than degrading.
   </p>
 
   <p class="mt-5 leading-relaxed text-(--muted)">
     Any query works, so an element with no class and no test id is still reachable. A mask covers
     <span class="font-medium text-ink">every element its query matches</span>, not the first: a page
     has three avatars far more often than it has one. Naming
-    <code class="font-mono text-sm text-ink">pick</code> or
-    <code class="font-mono text-sm text-ink">nth</code> says you mean a single element and still gets
-    one.
+    <code>pick</code> or
+    <code>nth</code> says you mean a single element and still gets one.
   </p>
   <div class="mt-6">
     <RecipeCard code={maskWays} file="screenshots/recipes/dashboard.yaml" />
@@ -157,8 +151,7 @@ const maskWays = `mask:
     The regions are painted before the callouts are drawn, so a callout may still point at, and
     outline, a masked box. Masking only helps if the rest of the shot holds still: a value that
     changes <em>width</em> reflows what is beside it, and no mask covers that — give the column a width,
-    or mask the row. With <code class="font-mono text-sm text-ink">source: file</code> there is no page
-    to query, so a mask is a literal
-    <code class="font-mono text-sm text-ink">rect</code>, the same as a mark.
+    or mask the row. With <code>source: file</code> there is no page to query, so a mask is a literal
+    <code>rect</code>, the same as a mark.
   </p>
 </Docs>

@@ -56,10 +56,10 @@ check:
   <h2 class="mt-14 text-2xl font-bold">Writing a diff image</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     To see what changed rather than how much, add
-    <code class="font-mono text-sm text-ink">--diff</code>. For every shot that moved it writes a
-    three-up into <code class="font-mono text-sm text-ink">&lt;paths.out&gt;/diff/</code>: the
-    committed image, the re-shot one, and the re-shot one again with every changed pixel tinted. A
-    percentage alone does not tell you whether to bless it or fix it.
+    <code>--diff</code>. For every shot that moved it writes a three-up into <code
+      >&lt;paths.out&gt;/diff/</code
+    >: the committed image, the re-shot one, and the re-shot one again with every changed pixel
+    tinted. A percentage alone does not tell you whether to bless it or fix it.
   </p>
   <div class="mt-6">
     <RecipeCard code={diff} lang="bash" />
@@ -71,35 +71,35 @@ check:
 
   <h2 class="mt-14 text-2xl font-bold">Reporting the run as JSON</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    <code class="font-mono text-sm text-ink">--json</code> puts the report on stdout and moves everything
-    written for a person to stderr, which is what makes
-    <code class="font-mono text-sm text-ink">--check --json &gt; report.json</code> leave a usable file.
+    <code>--json</code> puts the report on stdout and moves everything written for a person to stderr,
+    which is what makes
+    <code>--check --json &gt; report.json</code> leave a usable file.
   </p>
   <div class="mt-6">
     <RecipeCard code={json} lang="ts" file="report.json" />
   </div>
   <p class="mt-6 leading-relaxed text-(--muted)">
-    <code class="font-mono text-sm text-ink">status</code> is one of
-    <code class="font-mono text-sm text-ink">same</code>,
-    <code class="font-mono text-sm text-ink">changed</code>,
-    <code class="font-mono text-sm text-ink">new</code>,
-    <code class="font-mono text-sm text-ink">skipped</code> or
-    <code class="font-mono text-sm text-ink">failed</code>, and
-    <code class="font-mono text-sm text-ink">drift</code> is what the machine-mismatch warning would have
-    said — so a job can tell a re-render apart from a regression without parsing prose.
+    <code>status</code> is one of
+    <code>same</code>,
+    <code>changed</code>,
+    <code>new</code>,
+    <code>skipped</code> or
+    <code>failed</code>, and
+    <code>drift</code> is what the machine-mismatch warning would have said — so a job can tell a re-render
+    apart from a regression without parsing prose.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">The machine the images were taken on</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    <code class="font-mono text-sm text-ink">--install</code> writes
-    <code class="font-mono text-sm text-ink">shotlist.baseline.json</code> beside the config, recording
-    the shotlist, Playwright and Chromium versions and the platform. Commit it with the images.
+    <code>--install</code> writes
+    <code>shotlist.baseline.json</code> beside the config, recording the shotlist, Playwright and Chromium
+    versions and the platform. Commit it with the images.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     A different Chromium rasterises text differently, and a different platform has different faces
     to rasterise — either moves pixels without the site moving at all. When
-    <code class="font-mono text-sm text-ink">--check</code> runs somewhere else, it says so before the
-    results, so a difference is not read as a regression that was never there.
+    <code>--check</code> runs somewhere else, it says so before the results, so a difference is not read
+    as a regression that was never there.
   </p>
   <div class="mt-6">
     <RecipeCard code={machine} lang="bash" />
@@ -108,7 +108,7 @@ check:
   <h2 class="mt-14 text-2xl font-bold">Leaving a region out of the comparison</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     To keep a region in the image but out of the comparison, list a query for it under
-    <code class="font-mono text-sm text-ink">check.ignore</code>.
+    <code>check.ignore</code>.
     <a href="/docs/callouts#masking">Masking</a> covers a region over; this leaves it visible and excuses
     only its contents. Use it for the figure the screenshot is about — a result, a live total — which
     has to stay in the shot and will not be the same twice.
@@ -122,12 +122,11 @@ check:
     size, what it used to cover is still compared, and the difference is reported. A shot whose
     widget renders nothing at all fails outright, because the query matches nothing. That is the
     assertion
-    <code class="font-mono text-sm text-ink">check: false</code> gives up: it says the shot still works,
-    without saying anything about what is inside.
+    <code>check: false</code> gives up: it says the shot still works, without saying anything about what
+    is inside.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
-    A result that skipped something says so — <code class="font-mono text-sm text-ink"
-      >same order-row (1 region not compared)</code
-    > — so a pass is not read as covering the whole image.
+    A result that skipped something says so — <code>same order-row (1 region not compared)</code> — so
+    a pass is not read as covering the whole image.
   </p>
 </Docs>

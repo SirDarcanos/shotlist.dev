@@ -36,8 +36,8 @@ const literal = `setup:
   <h1 class="text-4xl font-extrabold">Macros and data</h1>
 
   <p class="mt-6 leading-relaxed text-(--muted)">
-    Setup shared between recipes goes in <code class="font-mono text-sm text-ink">paths.macros</code
-    >, one file per macro. The filename is its name.
+    Setup shared between recipes goes in <code>paths.macros</code>, one file per macro. The filename
+    is its name.
   </p>
 
   <div class="mt-6">
@@ -49,10 +49,10 @@ const literal = `setup:
 
   <h2 class="mt-14 text-2xl font-bold">Data files</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    Files in <code class="font-mono text-sm text-ink">paths.data</code> are in scope by filename:
-    <code class="font-mono text-sm text-ink">screenshots/data/orders.yaml</code> is
-    <code class="font-mono text-sm text-ink">$orders</code>, and
-    <code class="font-mono text-sm text-ink">each: $orders</code> iterates it.
+    Files in <code>paths.data</code> are in scope by filename:
+    <code>screenshots/data/orders.yaml</code> is
+    <code>$orders</code>, and
+    <code>each: $orders</code> iterates it.
   </p>
 
   <div class="mt-6">
@@ -60,64 +60,63 @@ const literal = `setup:
   </div>
 
   <p class="mt-6 leading-relaxed text-(--muted)">
-    <code class="font-mono text-sm text-ink">each</code> also takes the list itself, for the handful of
-    values not worth a file.
+    <code>each</code> also takes the list itself, for the handful of values not worth a file.
   </p>
   <div class="mt-6">
     <RecipeCard code={literal} file="screenshots/recipes/searches.yaml" />
   </div>
 
   <p class="mt-6 leading-relaxed text-(--muted)">
-    The filename becomes a <code class="font-mono text-sm text-ink">$name</code>, so keep it to
-    letters, digits and underscores — a <code class="font-mono text-sm text-ink">$</code> reference stops
-    at a hyphen, and <code class="font-mono text-sm text-ink">open-orders.yaml</code> cannot be reached.
-    Group what would have been several hyphenated files into one and read them by path:
-    <code class="font-mono text-sm text-ink">$orders.open</code>,
-    <code class="font-mono text-sm text-ink">$orders.shipped</code>.
+    The filename becomes a <code>$name</code>, so keep it to letters, digits and underscores — a <code
+      >$</code
+    > reference stops at a hyphen, and <code>open-orders.yaml</code> cannot be reached. Group what would
+    have been several hyphenated files into one and read them by path:
+    <code>$orders.open</code>,
+    <code>$orders.shipped</code>.
   </p>
 
   <h2 id="writing-a-reference" class="mt-14 text-2xl font-bold">Writing a reference</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    <code class="font-mono text-sm text-ink">$name</code> and
-    <code class="font-mono text-sm text-ink">{'${name}'}</code> are the same thing, and
-    <code class="font-mono text-sm text-ink">$a.b</code> reads a path into whatever
-    <code class="font-mono text-sm text-ink">$a</code> holds. The braces matter in one place: where the
-    reference runs into text that would otherwise be read as part of the name. A name runs on through
-    letters, digits, underscores and dots, so
-    <code class="font-mono text-sm text-ink">Order $order.name.</code> looks for a path ending in a dot
-    and <code class="font-mono text-sm text-ink">{'Order ${order.name}.'}</code> does not.
+    <code>$name</code> and
+    <code>{'${name}'}</code> are the same thing, and
+    <code>$a.b</code> reads a path into whatever
+    <code>$a</code> holds. The braces matter in one place: where the reference runs into text that would
+    otherwise be read as part of the name. A name runs on through letters, digits, underscores and dots,
+    so
+    <code>Order $order.name.</code> looks for a path ending in a dot and <code
+      >{'Order ${order.name}.'}</code
+    > does not.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     <span class="font-medium text-ink"
       >A reference that is the whole value keeps that value's type.</span
     >
-    <code class="font-mono text-sm text-ink">each: $orders</code> gets the list, not a rendering of one.
-    A reference sitting inside a longer string becomes text, because that is all a string can hold.
+    <code>each: $orders</code> gets the list, not a rendering of one. A reference sitting inside a longer
+    string becomes text, because that is all a string can hold.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     Three things fill the same table: data files, by filename;
-    <code class="font-mono text-sm text-ink">with:</code> on a
-    <code class="font-mono text-sm text-ink">use:</code>, for the macro it calls; and
-    <code class="font-mono text-sm text-ink">readValue: … as: total</code>, which puts what an input
-    holds into <code class="font-mono text-sm text-ink">$total</code> for the steps after it.
-    <code class="font-mono text-sm text-ink">each: … as:</code> binds its name for its own steps only.
+    <code>with:</code> on a
+    <code>use:</code>, for the macro it calls; and
+    <code>readValue: … as: total</code>, which puts what an input holds into <code>$total</code> for the
+    steps after it.
+    <code>each: … as:</code> binds its name for its own steps only.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     <span class="font-medium text-ink">References are substituted in steps, and nowhere else.</span>
-    <code class="font-mono text-sm text-ink">clip</code>,
-    <code class="font-mono text-sm text-ink">marks</code> and
-    <code class="font-mono text-sm text-ink">callouts</code> are read as written, so
-    <code class="font-mono text-sm text-ink">text: $total</code> on a callout draws those six characters.
-    Steps are where a recipe varies; what it points at afterwards is fixed.
+    <code>clip</code>,
+    <code>marks</code> and
+    <code>callouts</code> are read as written, so
+    <code>text: $total</code> on a callout draws those six characters. Steps are where a recipe varies;
+    what it points at afterwards is fixed.
   </p>
 
   <p class="mt-5 leading-relaxed text-(--muted)">
     A reference reads what the data holds and nothing else. Keys that belong to the language —
-    <code class="font-mono text-sm text-ink">__proto__</code>,
-    <code class="font-mono text-sm text-ink">constructor</code>,
-    <code class="font-mono text-sm text-ink">prototype</code> — resolve to nothing, and a reference that
-    matches nothing is an error rather than an empty string. A literal
-    <code class="font-mono text-sm text-ink">$</code> inside a longer string is left alone, so a shot
-    of "costs $5" survives.
+    <code>__proto__</code>,
+    <code>constructor</code>,
+    <code>prototype</code> — resolve to nothing, and a reference that matches nothing is an error rather
+    than an empty string. A literal
+    <code>$</code> inside a longer string is left alone, so a shot of "costs $5" survives.
   </p>
 </Docs>

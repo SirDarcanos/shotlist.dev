@@ -41,8 +41,9 @@ retries: 2 # three attempts in all`
   <p class="mt-6 leading-relaxed text-(--muted)">
     One <a href="https://yaml.org/" rel="noopener noreferrer" target="_blank" title="YAML"
       >YAML file</a
-    > per screenshot, in <code class="font-mono text-sm text-ink">paths.recipes</code>. The filename
-    is the recipe's name unless <code class="font-mono text-sm text-ink">name:</code> says otherwise.
+    > per screenshot, in <code>paths.recipes</code>. The filename is the recipe's name unless <code
+      >name:</code
+    > says otherwise.
   </p>
 
   <DocTable
@@ -104,13 +105,13 @@ retries: 2 # three attempts in all`
 
   <h2 class="mt-14 text-2xl font-bold">What gets captured</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    <code class="font-mono text-sm text-ink">clip: viewport</code> is the browser window at
-    <code class="font-mono text-sm text-ink">site.viewport</code>.
-    <code class="font-mono text-sm text-ink">clip: full</code> is the whole document, however far it scrolls.
-    Anything else is a <a href="/docs/queries">query</a>, and the shot is the box of the element it
-    finds — with
-    <code class="font-mono text-sm text-ink">pad</code> or
-    <code class="font-mono text-sm text-ink">grow</code> if it needs room around it.
+    <code>clip: viewport</code> is the browser window at
+    <code>site.viewport</code>.
+    <code>clip: full</code> is the whole document, however far it scrolls. Anything else is a <a
+      href="/docs/queries">query</a
+    >, and the shot is the box of the element it finds — with
+    <code>pad</code> or
+    <code>grow</code> if it needs room around it.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     A clip is held to the width of the viewport, because nothing widens a page the way scrolling
@@ -122,75 +123,64 @@ retries: 2 # three attempts in all`
   <h2 class="mt-14 text-2xl font-bold">Marks</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     A mark is a name you choose for a region inside the shot. Callouts point at marks by name, and
-    so do <code class="font-mono text-sm text-ink">numbered</code> and
-    <code class="font-mono text-sm text-ink">check.ignore</code>; one mark can carry as many
-    callouts as you like.
+    so do <code>numbered</code> and
+    <code>check.ignore</code>; one mark can carry as many callouts as you like.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     <span class="font-medium text-ink">A mark's value is a query</span> — the same vocabulary
-    <code class="font-mono text-sm text-ink">clip</code> takes, and there is nothing one can use that
-    the other cannot. A source picks the candidates (<code class="font-mono text-sm text-ink"
-      >css</code
-    >,
-    <code class="font-mono text-sm text-ink">role</code>+<code class="font-mono text-sm text-ink"
-      >name</code
-    >, <code class="font-mono text-sm text-ink">text</code>,
-    <code class="font-mono text-sm text-ink">heading</code>,
-    <code class="font-mono text-sm text-ink">label</code>,
-    <code class="font-mono text-sm text-ink">placeholder</code>,
-    <code class="font-mono text-sm text-ink">testid</code>,
-    <code class="font-mono text-sm text-ink">startsWith</code>), filters narrow them (<code
-      class="font-mono text-sm text-ink">contains</code
-    >,
-    <code class="font-mono text-sm text-ink">matching</code>, the size and child-count limits,
-    <code class="font-mono text-sm text-ink">within</code>), traversal moves from them (<code
-      class="font-mono text-sm text-ink">ancestor</code
-    >,
-    <code class="font-mono text-sm text-ink">parent</code>,
-    <code class="font-mono text-sm text-ink">child</code>,
-    <code class="font-mono text-sm text-ink">children</code>), and
-    <code class="font-mono text-sm text-ink">pick</code> or
-    <code class="font-mono text-sm text-ink">nth</code> chooses one.
-    <code class="font-mono text-sm text-ink">pad</code>,
-    <code class="font-mono text-sm text-ink">grow</code> and
-    <code class="font-mono text-sm text-ink">span</code> shape the box it comes to. Every key, with what
-    it matches, is on <a href="/docs/queries">Queries</a>.
+    <code>clip</code> takes, and there is nothing one can use that the other cannot. A source picks the
+    candidates (<code>css</code>,
+    <code>role</code>+<code>name</code>, <code>text</code>,
+    <code>heading</code>,
+    <code>label</code>,
+    <code>placeholder</code>,
+    <code>testid</code>,
+    <code>startsWith</code>), filters narrow them (<code>contains</code>,
+    <code>matching</code>, the size and child-count limits,
+    <code>within</code>), traversal moves from them (<code>ancestor</code>,
+    <code>parent</code>,
+    <code>child</code>,
+    <code>children</code>), and
+    <code>pick</code> or
+    <code>nth</code> chooses one.
+    <code>pad</code>,
+    <code>grow</code> and
+    <code>span</code> shape the box it comes to. Every key, with what it matches, is on <a
+      href="/docs/queries">Queries</a
+    >.
   </p>
   <div class="mt-6">
     <RecipeCard code={marks} file="screenshots/recipes/order-row.yaml" />
   </div>
   <p class="mt-6 leading-relaxed text-(--muted)">
-    Marks resolve after <code class="font-mono text-sm text-ink">setup</code> has run, in the order they
-    are written. That order is usable:
-    <code class="font-mono text-sm text-ink">within: clip</code> narrows a query to the region being captured,
-    and <code class="font-mono text-sm text-ink">within: &lt;mark&gt;</code> narrows it to one already
-    resolved above.
+    Marks resolve after <code>setup</code> has run, in the order they are written. That order is usable:
+    <code>within: clip</code> narrows a query to the region being captured, and <code
+      >within: &lt;mark&gt;</code
+    > narrows it to one already resolved above.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     <span class="font-medium text-ink">A mark that matches nothing stops the run</span>, naming the
-    recipe and the mark — <code class="font-mono text-sm text-ink"
-      >recipe "order-row": marks.amount — no element matched</code
-    >. That is the assertion a recipe makes: the shot is of what it says it is of, or there is no
-    shot.
+    recipe and the mark — <code>recipe "order-row": marks.amount — no element matched</code>. That
+    is the assertion a recipe makes: the shot is of what it says it is of, or there is no shot.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     The one recipe where a mark is not a query is
-    <code class="font-mono text-sm text-ink">source: file</code>: there is no page to search, so a
-    mark is a literal <code class="font-mono text-sm text-ink">rect</code>, measured off the image.
+    <code>source: file</code>: there is no page to search, so a mark is a literal <code>rect</code>,
+    measured off the image.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Annotating an existing image</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     To annotate an image that is already on disk, set
-    <code class="font-mono text-sm text-ink">source: file</code> and give
-    <code class="font-mono text-sm text-ink">file</code> its path. Callouts, style and install work the
-    same way. It is the way to shoot a screen no script can reach — anything behind a sign-in you cannot
-    automate, or a browser extension's UI. The file may be a PNG, a JPEG or a WebP; what it is read as
-    comes from its bytes rather than its name.
+    <code>source: file</code> and give
+    <code>file</code> its path. Callouts, style and install work the same way. It is the way to shoot
+    a screen no script can reach — anything behind a sign-in you cannot automate, or a browser extension's
+    UI. The file may be a PNG, a JPEG or a WebP; what it is read as comes from its bytes rather than its
+    name.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     There is no page to query, so marks are literal rectangles measured off the image:
-    <code class="font-mono text-sm text-ink">[x, y, width, height]</code> in image pixels.
+    <code>[x, y, width, height]</code> in image pixels.
   </p>
   <div class="mt-6">
     <RecipeCard code={annotated} file="screenshots/recipes/billing-settings.yaml" />
@@ -199,31 +189,30 @@ retries: 2 # three attempts in all`
   <h2 class="mt-14 text-2xl font-bold">When a shot fails</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     A run stops at the first recipe that fails, and says which recipe and which key in it could not
-    be resolved. <code class="font-mono text-sm text-ink">--keep-going</code> shoots the rest instead,
-    prints each failure as it happens, and names them all at the end.
+    be resolved. <code>--keep-going</code> shoots the rest instead, prints each failure as it happens,
+    and names them all at the end.
   </p>
   <div class="mt-6">
     <RecipeCard code={failing} lang="bash" />
   </div>
   <p class="mt-6 leading-relaxed text-(--muted)">
     Either way the exit code is non-zero, so CI still fails.
-    <code class="font-mono text-sm text-ink">--keep-going</code> works the same way with
-    <code class="font-mono text-sm text-ink">--check</code>, where a recipe that could not be shot
-    is reported <code class="font-mono text-sm text-ink">FAILED</code> alongside the ones that diffed.
+    <code>--keep-going</code> works the same way with
+    <code>--check</code>, where a recipe that could not be shot is reported <code>FAILED</code> alongside
+    the ones that diffed.
   </p>
 
   <p class="mt-5 leading-relaxed text-(--muted)">
-    <code class="font-mono text-sm text-ink">retries</code> shoots a recipe again when it fails, up to
-    five times. It is for the failures that are gone a second later — an element that had not rendered,
-    a request that had not landed — which a capture has because it drives a real application.
+    <code>retries</code> shoots a recipe again when it fails, up to five times. It is for the failures
+    that are gone a second later — an element that had not rendered, a request that had not landed — which
+    a capture has because it drives a real application.
   </p>
   <div class="mt-6">
     <RecipeCard code={retries} file="screenshots/recipes/order-row.yaml" />
   </div>
   <p class="mt-6 leading-relaxed text-(--muted)">
     Each attempt is a fresh browser context, and a failure is reported while the run is still going
-    rather than after it. A <code class="font-mono text-sm text-ink">source: file</code> recipe never
-    retries whatever this says — it has no page to be flaky about, so a second attempt could only reach
-    the same answer.
+    rather than after it. A <code>source: file</code> recipe never retries whatever this says — it has
+    no page to be flaky about, so a second attempt could only reach the same answer.
   </p>
 </Docs>

@@ -19,15 +19,12 @@
 
 @layer base {
   :root {
-    /* Derived, not new: each is a mix of the three above. */
     --muted: color-mix(in oklab, var(--color-ink) 55%, var(--color-paper));
     --rule: color-mix(in oklab, var(--color-ink) 12%, var(--color-paper));
     --rule-strong: color-mix(in oklab, var(--color-ink) 22%, var(--color-paper));
     /* Ink, not mark: a red-tinted band reads as pink, and the red is for annotation. */
     --wash: color-mix(in oklab, var(--color-ink) 5%, var(--color-paper));
     --grid-line: color-mix(in oklab, var(--color-ink) 7%, transparent);
-    /* Still derived, not a fourth hue: the annotation red taken down with ink. Deep
-       enough that white sits comfortably on it rather than scraping the AA floor. */
     --red-deep: color-mix(in oklab, var(--color-mark) 74%, var(--color-ink));
   }
 
@@ -59,11 +56,13 @@
   p {
     text-wrap: pretty;
   }
+  
+  .docs-page article :is(p, li) code {
+    @apply font-mono text-sm text-ink;
+  }
 
   .docs-page article a {
-    color: var(--color-mark);
-    text-decoration: underline;
-    text-underline-offset: 2px;
+    @apply text-mark underline underline-offset-2;
   }
 
   ::selection {

@@ -72,20 +72,19 @@ postinstall downloads browsers. Install it with:
   <h2 class="mt-14 text-2xl font-bold">When you need Playwright</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
     <span class="font-medium text-ink">Whenever shotlist writes an image.</span>
-    <code class="font-mono text-sm text-ink">npx shotlist &lt;name&gt;</code>,
-    <code class="font-mono text-sm text-ink">--all</code> and
-    <code class="font-mono text-sm text-ink">--check</code> all open a browser — including a
-    <code class="font-mono text-sm text-ink">source: file</code> recipe, which drives no site but still
-    draws its callouts in a page. In practice: install it alongside shotlist and stop thinking about it.
+    <code>npx shotlist &lt;name&gt;</code>,
+    <code>--all</code> and
+    <code>--check</code> all open a browser — including a
+    <code>source: file</code> recipe, which drives no site but still draws its callouts in a page. In
+    practice: install it alongside shotlist and stop thinking about it.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     What runs without it is everything that only reads or writes files:
-    <code class="font-mono text-sm text-ink">--init</code>,
-    <code class="font-mono text-sm text-ink">--help</code>,
-    <code class="font-mono text-sm text-ink">--version</code>, and
-    <code class="font-mono text-sm text-ink">npx shotlist</code> with no arguments, which lists the recipes
-    it found. A CI job that only checks a config parses needs no browser, and no browser is launched for
-    it.
+    <code>--init</code>,
+    <code>--help</code>,
+    <code>--version</code>, and
+    <code>npx shotlist</code> with no arguments, which lists the recipes it found. A CI job that only
+    checks a config parses needs no browser, and no browser is launched for it.
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     It is an optional peer dependency because its postinstall downloads browsers, and a project that
@@ -94,11 +93,11 @@ postinstall downloads browsers. Install it with:
   </p>
   <p class="mt-5 leading-relaxed text-(--muted)">
     A run that needs a browser looks for
-    <code class="font-mono text-sm text-ink">playwright</code>, then
-    <code class="font-mono text-sm text-ink">playwright-core</code>, then the
-    <code class="font-mono text-sm text-ink">npx</code> cache — which is what lets
-    <code class="font-mono text-sm text-ink">npx shotlist</code> work in a project that has installed
-    neither. Finding none of them it stops, before opening anything, with the command that fixes it:
+    <code>playwright</code>, then
+    <code>playwright-core</code>, then the
+    <code>npx</code> cache — which is what lets
+    <code>npx shotlist</code> work in a project that has installed neither. Finding none of them it stops,
+    before opening anything, with the command that fixes it:
   </p>
   <div class="mt-6">
     <RecipeCard code={missing} lang="bash" />
@@ -110,9 +109,9 @@ postinstall downloads browsers. Install it with:
 
   <h2 class="mt-14 text-2xl font-bold">A first recipe</h2>
   <p class="mt-4 leading-relaxed text-(--muted)">
-    <code class="font-mono text-sm text-ink">--init</code> writes a commented
-    <code class="font-mono text-sm text-ink">shotlist.config.yaml</code> and a first recipe to edit. Neither
-    is overwritten, so it is safe to run in a project that already has some.
+    <code>--init</code> writes a commented
+    <code>shotlist.config.yaml</code> and a first recipe to edit. Neither is overwritten, so it is safe
+    to run in a project that already has some.
   </p>
   <div class="mt-6">
     <RecipeCard code={scaffold} lang="bash" />
@@ -126,14 +125,13 @@ postinstall downloads browsers. Install it with:
   </div>
 
   <p class="mt-6 leading-relaxed text-(--muted)">
-    The image lands in <code class="font-mono text-sm text-ink">screenshots/out/</code>, and
-    <code class="font-mono text-sm text-ink">--install</code> copies it to the destination the recipe
-    names.
+    The image lands in <code>screenshots/out/</code>, and
+    <code>--install</code> copies it to the destination the recipe names.
   </p>
 
   <p class="mt-10 leading-relaxed text-(--muted)">
     The recipe file carries a
-    <code class="font-mono text-sm text-ink">yaml-language-server</code> line, so an editor completes
-    and validates the keys from the JSON Schemas the package ships.
+    <code>yaml-language-server</code> line, so an editor completes and validates the keys from the JSON
+    Schemas the package ships.
   </p>
 </Docs>
