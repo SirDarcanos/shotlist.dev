@@ -152,6 +152,16 @@ import DocTable from '../../../components/DocTable.astro'
     exists.
   </p>
 
+  <h3>What protects the file itself</h3>
+
+  <p>
+    shotlist writes a session <code>0600</code> rather than at the default umask, which would leave it
+    <code>0644</code> and readable by every other account on the machine. A mode only protects the file
+    where it sits, and the cookies inside outlive the password if that is rotated — so a copy in a backup,
+    on a shared volume or in a commit is signed in as that account until they expire.
+    <code>.gitignore</code> is what covers the last of those.
+  </p>
+
   <h2 class="mt-14 text-2xl font-bold">Three places can forbid a path</h2>
 
   <p>They are deliberately not equivalent:</p>

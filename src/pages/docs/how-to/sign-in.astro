@@ -199,8 +199,9 @@ const ignore = `.shotlist/`
   <h2 class="mt-14 text-2xl font-bold">Keep the session file out of version control</h2>
 
   <p>
-    The file holds live cookies. Anyone who has it is signed in as whoever created it. Add the
-    folder to your <code>.gitignore</code>:
+    The file holds live cookies. Anyone who has it is signed in as whoever created it. shotlist
+    writes it <code>0600</code>, so no other account on the machine can read it — version control is
+    the gap that leaves. Add the folder to your <code>.gitignore</code>:
   </p>
 
   <div class="mt-6">
