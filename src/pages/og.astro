@@ -62,4 +62,10 @@ import '../styles/global.css'
     height: 630px;
     overflow: hidden;
   }
+
+  /* The shot is taken against `npm run dev` and clips the viewport, so the dev toolbar —
+     fixed to the bottom of that viewport — lands in the card. */
+  :global(astro-dev-toolbar) {
+    display: none;
+  }
 </style>
