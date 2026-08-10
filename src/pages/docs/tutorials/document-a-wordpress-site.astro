@@ -31,7 +31,9 @@ const signIn = `steps:
   - wait: { css: '#wpadminbar' }
     comment: the admin bar only exists once the sign-in has gone through`
 
-const login = `export WP_ADMIN_PASSWORD='the password Studio shows you'
+const envFile = `WP_ADMIN_PASSWORD='the password Studio shows you'`
+
+const login = `set -a; . ./.env; set +a
 npx shotlist --login editor --using sign-in`
 
 const menu = `name: add-post-menu
@@ -252,8 +254,18 @@ const expired = `recipe "new-post": session "editor" is signed out — run: shot
   </p>
 
   <p>
-    Put the password in the environment and run the sign-in. The
-    <code>allowEnv</code> line in your configuration is what lets the macro read it:
+    Put the password in a file rather than in an <code>export</code>, which your shell writes to its
+    history in plaintext and keeps there. Create <code>.env</code> beside the configuration:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={envFile} lang="bash" file=".env" />
+  </div>
+
+  <p>
+    Then load it and run the sign-in. <code>set -a</code> exports every name defined while it is on, so
+    the file arrives as ordinary environment; the <code>allowEnv</code> line in your configuration is
+    what lets the macro read it:
   </p>
 
   <div class="mt-6">
@@ -268,14 +280,16 @@ const expired = `recipe "new-post": session "editor" is signed out — run: shot
   </p>
 
   <p>
-    Keeping it in a <code>.env</code> works too, as long as something loads that file first — shotlist
-    refuses to open one. See
-    <a href="/docs/how-to/sign-in">Capture a page behind a sign-in</a>.
+    Loading the file is the shell's job because shotlist never opens a <code>.env</code> — that name is
+    on the list of paths it refuses in every mode, so a configuration cannot aim anything at one either.
+    <a href="/docs/how-to/sign-in">Capture a page behind a sign-in</a> has the
+    <code>node --env-file</code> form, for a shell without <code>set -a</code>.
   </p>
 
   <p>
-    The session file is a credential — anyone holding it is signed in as that administrator. Add
-    <code>.shotlist/</code> to <code>.gitignore</code> before committing anything.
+    Both files are credentials: the <code>.env</code> holds the password, and anyone holding the session
+    file is signed in as that administrator without needing it. Add <code>.shotlist/</code> and
+    <code>.env</code> to <code>.gitignore</code> before committing anything.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Step 5: show the way in</h2>
