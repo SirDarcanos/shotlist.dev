@@ -1,0 +1,56 @@
+# shotlist
+
+> shotlist takes annotated UI screenshots from YAML recipes. It drives your site in a real browser, clips a region and draws the callouts, so a screenshot is a file reviewed in a pull request rather than a picture redrawn by hand.
+
+A recipe names a URL, the steps that reach the state worth showing, the region to clip and the marks to draw on it. Marks are found by querying the live page — a role, a label, a heading, the text inside a cell — rather than by coordinates, so a redesign moves a box instead of breaking it. A recipe is data: nothing in one evaluates.
+
+The documentation follows Diátaxis, and the quadrant a page sits in says what it answers. A tutorial teaches by being run, a how-to solves one problem, reference lists every key without arguing for it, and explanation carries the reasoning. Every page listed here is HTML; there are no markdown versions of them.
+
+## Tutorials
+
+- [Your first screenshot](https://shotlist.dev/docs/tutorials/first-screenshot/): installs shotlist into a small example application, shipped as a download, and produces an annotated screenshot of one of its pages.
+- [Keeping a screenshot current](https://shotlist.dev/docs/tutorials/keeping-a-screenshot-current/): publishes a screenshot into a documentation page, then detects and reviews the change when the application moves underneath it.
+- [Document a client's WordPress site](https://shotlist.dev/docs/tutorials/document-a-wordpress-site/): runs WordPress locally with Studio, signs in once, and reaches inside the block editor's canvas.
+
+## How-to guides
+
+- [Add shotlist to a project](https://shotlist.dev/docs/how-to/install/): install shotlist and Playwright in an existing project, scaffold a configuration, and set up editor and agent support.
+- [Start the site automatically](https://shotlist.dev/docs/how-to/start-the-site/): launch the development server before the screenshots are taken, and stop it afterwards.
+- [Check files without a browser](https://shotlist.dev/docs/how-to/lint/): parse every config, recipe, macro and data file with `shotlist --lint`, and report everything wrong before a run opens a browser.
+- [Capture a page after interaction](https://shotlist.dev/docs/how-to/drive-a-page/): setup steps that click, type and wait, so a screenshot shows the state you want rather than the page as it first loads.
+- [Capture inside an iframe](https://shotlist.dev/docs/how-to/iframes/): point a clip, a mark or a step at something inside an iframe with the `frame` key, cross-origin frames included.
+- [Share setup between recipes](https://shotlist.dev/docs/how-to/share-setup/): extract repeated setup steps into a macro, and drive a recipe from a list held in a data file.
+- [Capture a page behind a sign-in](https://shotlist.dev/docs/how-to/sign-in/): save a signed-in browser session once and reuse it, including signing in with nobody at the keyboard.
+- [Annotate an existing image](https://shotlist.dev/docs/how-to/annotate-an-image/): draw callouts on a screenshot you already have, for screens no script can reach.
+- [Hide data that changes](https://shotlist.dev/docs/how-to/hide-changing-data/): stop clocks, live totals and avatars from reporting a difference on every run, with masks, ignored regions, or by turning the check off.
+- [Use a custom label font](https://shotlist.dev/docs/how-to/label-font/): draw callout labels in your product's typeface, whether it is installed on the machine, shipped in the repository, or hosted.
+- [Run shotlist in CI](https://shotlist.dev/docs/how-to/run-in-ci/): fail a pull request when its screenshots no longer match the application, and publish the diffs as build artifacts.
+
+## Reference
+
+- [Command line](https://shotlist.dev/docs/reference/cli/): every command, option, exit code and environment variable, and the shape of the JSON report.
+- [Configuration file](https://shotlist.dev/docs/reference/configuration/): every key in `shotlist.config.yaml`, with its default and its effect.
+- [Recipe file](https://shotlist.dev/docs/reference/recipe/): every field of a recipe file, with its default and its effect.
+- [Steps](https://shotlist.dev/docs/reference/steps/): every step verb, the keys it takes, and where steps may appear.
+- [Queries](https://shotlist.dev/docs/reference/queries/): every key of the element query language — sources, filters, traversal, selection and shape.
+- [Callouts and masks](https://shotlist.dev/docs/reference/callouts/): every field of a callout, the numbered shorthand, and how masked regions are declared.
+- [Macros and data files](https://shotlist.dev/docs/reference/macros-and-data/): the macro file format, how data files enter scope, and the rules for variable references.
+
+## Explanation
+
+- [Why recipes cannot run code](https://shotlist.dev/docs/explanation/no-code/): the reasoning behind making a recipe pure data, with no step that evaluates JavaScript.
+- [Why Playwright is a peer dependency](https://shotlist.dev/docs/explanation/playwright/): why shotlist installs no browser for you, which commands need one, and how it is located at run time.
+- [Queries that survive a redesign](https://shotlist.dev/docs/explanation/durable-queries/): why the query language is shaped the way it is, and how to choose keys that keep working when the markup changes.
+- [How labels are placed](https://shotlist.dev/docs/explanation/placement/): what shotlist weighs when `place` is `auto`, why it reads the pixels under a label, and when to override the decision.
+- [What a configuration can do](https://shotlist.dev/docs/explanation/security-model/): the threat model behind the limits — what holds in every mode, what `--untrusted` takes away, and what none of it covers.
+- [Why screenshots drift](https://shotlist.dev/docs/explanation/image-drift/): why the same page produces different pixels on a different machine, and what shotlist does about it instead of trying to prevent it.
+
+## Project
+
+- [Documentation index](https://shotlist.dev/docs/): every page above, grouped by quadrant, with the three places to start.
+- [Source on GitHub](https://github.com/SirDarcanos/shotlist): the package itself — issues, the changelog, and the skill it ships for agents writing recipes.
+- [Package on npm](https://www.npmjs.com/package/shotlist): `npm i -D shotlist`. Playwright is a peer dependency and is installed separately.
+
+## Optional
+
+- [Homepage](https://shotlist.dev/): the pitch, with a worked recipe printed beside the image that recipe produced.
