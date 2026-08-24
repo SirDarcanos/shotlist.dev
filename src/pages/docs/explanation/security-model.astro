@@ -152,6 +152,48 @@ import DocTable from '../../../components/DocTable.astro'
     exists.
   </p>
 
+  <h3 id="sessions">What a session file holds</h3>
+
+  <p>
+    The cookies and local storage of <code>site.url</code> and everything under it, plus
+    <code>site.allow</code>, and nothing else. A sign-in that goes through an identity provider
+    collects that provider's session on the way — one round trip through Google leaves cookies for
+    <code>google.com</code>, <code>accounts.google.com</code> and <code>youtube.com</code> in the browser
+    — and none of it is written. Those cookies are the person's account rather than a shot list's credential:
+    they outlive the password if it is rotated, and no shot ever sends them anywhere.
+  </p>
+
+  <p>
+    <code>--login</code> names what it left out, and when it left anything out it loads what remains into
+    a fresh browser and checks the session's <code>verify</code> selector against it before writing. An
+    application whose session lives on a host that was dropped fails that check, which turns a run of
+    screenshots of the sign-in form into one error naming the host. A file written by an earlier version
+    is narrowed as it is loaded, so cookies collected before this never reach a browser again.
+  </p>
+
+  <h3>What <code class="font-mono">keep</code> costs</h3>
+
+  <p>
+    For the application that genuinely needs a provider's cookies, a session may name the hosts to
+    hold on to. The file then signs in as whoever those hosts know you as, and
+    <code>--login</code> says so every time it writes one. Two things follow, and they are why it is not
+    the default.
+  </p>
+
+  <p>
+    A session's cookies travel to every host <code>site.allow</code> names. A recipe's
+    <code>url</code> is checked against the hosts the run may open, and the session is loaded into that
+    same browser — so a configuration holding both <code>site.allow</code> for a provider and a session
+    that kept its cookies can photograph a page of that account, and <code>--install</code>
+    writes the image into the project. Without <code>keep</code> there are no such cookies to carry, which
+    is why the default does more work here than any check.
+  </p>
+
+  <p>
+    It is the configuration widening its own reach, so it goes the way <code>site.allow</code> goes: an
+    <code>--untrusted</code> run is refused a session before <code>keep</code> is read at all.
+  </p>
+
   <h3>What protects the file itself</h3>
 
   <p>
@@ -192,6 +234,15 @@ import DocTable from '../../../components/DocTable.astro'
   </p>
 
   <p>
+    Two of those three are the configuration's own, and they compose.
+    <code>allowEnv</code> names a variable, <code>site.allow</code> names a host the run may open, and
+    a reference in a step is substituted before the URL is checked — so a
+    <code>goto</code> carrying <code>${'{'}env.TOKEN{'}'}</code> in its query string leaves with the value
+    on it, and nobody typed a flag. Neither key is the hole; having both is. That is what
+    <code>--untrusted</code> empties the list and drops <code>site.allow</code> together for.
+  </p>
+
+  <p>
     It is a fence rather than a boundary, and worth being precise about why. It stops
     <code>--allow-env AWS_SECRET_KEY</code>. It does nothing about
     <code>echo $AWS_SECRET_KEY</code> on the same machine, because the shell of whoever runs a command
@@ -220,6 +271,41 @@ import DocTable from '../../../components/DocTable.astro'
     If you take screenshots of what strangers submit, put the runner where it cannot reach anything
     it should not, and rate-limit it. A run is one browser and amplifies nothing, but an open one is
     still traffic you are sending.
+  </p>
+
+  <p>
+    Everything above runs outward — a configuration reaching a site, a runner reaching a target. One
+    direction runs the other way, and no flag closes it.
+  </p>
+
+  <h3 id="login-trust">
+    Running <code class="font-mono">--login</code> on a configuration you did not write
+  </h3>
+
+  <p>
+    <code>--untrusted</code> answers a configuration that is not yours everywhere except here: it refuses
+    sessions, and <code>--login</code> is the command that makes one. There is no mode in which signing
+    in against a configuration you have not read is safe, and it is the command most likely to be run
+    on a repository cloned five minutes ago, because it is what a project's README tells a new contributor
+    to run first.
+  </p>
+
+  <p>
+    Two things a configuration decides on your behalf. <code>site.url</code> is the host the browser opens,
+    and the scope of hosts a run may reach is derived from it, so the check that a URL is "this site"
+    can never refuse it — a host resembling yours gets a browser opened at it, with you at the keyboard.
+    And <code>allowEnv</code> grants variables to <code>${'{'}env.NAME{'}'}</code>
+    without <code>--allow-env</code> being typed by anyone, which a <code>--using</code> macro then fills
+    into whatever <code>site.url</code> named.
+  </p>
+
+  <p>
+    Both are made visible rather than prevented, because a shot list has to be able to say where its
+    own site is. Signing in by hand prints the URL before it waits for you. Signing in with a macro
+    prints the host and the variable names before the browser starts, since that run is headless and
+    there is nothing else to look at. Read <code>site.url</code>, <code>site.allow</code>,
+    <code>allowEnv</code> and the sign-in macro before running <code>--login</code> on somebody else's
+    configuration — four short keys, and the whole of what the command does with your credentials.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Related</h2>

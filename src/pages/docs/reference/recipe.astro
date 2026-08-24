@@ -31,6 +31,17 @@ marks:
 callouts:
   - { mark: plan, text: The current plan }`
 
+const teardownKey = `name: new-order
+setup:
+  - click: { role: button, name: New order }
+  - fill: { label: Customer }
+    value: Acme Corp
+  - click: { role: button, name: Save }
+clip: { css: '.order-row' }
+teardown:
+  - dialog: accept
+  - click: { role: button, name: Delete }`
+
 const checkKey = `name: roll-form
 check:
   threshold: 0.01
@@ -106,6 +117,11 @@ retries: 2`
         'Style overrides, same shape as <code>style</code> in the configuration',
       ],
       ['<code>setup</code>', '<code>[]</code>', 'Steps run before anything is measured'],
+      [
+        '<code>teardown</code>',
+        '<code>[]</code>',
+        'Steps run after the shot, and after a shot that failed',
+      ],
       ['<code>clip</code>', '<code>viewport</code>', 'Region to capture'],
       [
         '<code>marks</code>',
@@ -156,13 +172,36 @@ retries: 2`
   <h2 id="source" class="mt-14 text-2xl font-bold">source: file</h2>
 
   <p>
-    Annotates an image on disk. No page is opened, so <code>setup</code>, <code>clip</code>,
-    <code>url</code> and <code>session</code> do not apply, marks and masks are literal rectangles, and
+    Annotates an image on disk. No page is opened, so <code>clip</code>, <code>url</code> and
+    <code>session</code> do not apply, marks and masks are literal rectangles, and
     <code>retries</code> has no effect.
+  </p>
+
+  <p>
+    <code>setup</code> and <code>teardown</code> are refused rather than ignored: there is no page for
+    them to run against. A recipe carrying either drops them, or drops
+    <code>source: file</code>.
   </p>
 
   <div class="mt-6">
     <RecipeCard code={fileSource} file="screenshots/recipes/billing-settings.yaml" />
+  </div>
+
+  <h2 id="teardown" class="mt-14 text-2xl font-bold">teardown</h2>
+
+  <p>
+    Steps run once the shot has been taken, in the same browser as <code>setup</code>. They run
+    after a shot that failed as well. A recipe with <code>retries</code> tears down after each attempt.
+  </p>
+
+  <p>
+    A failure in <code>teardown</code> is reported only when the shot itself succeeded. When both failed,
+    the error names the shot. See
+    <a href="/docs/how-to/undo-what-a-shot-changed">Undo what a shot changed</a>.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={teardownKey} file="screenshots/recipes/new-order.yaml" />
   </div>
 
   <h2 id="check" class="mt-14 text-2xl font-bold">check</h2>

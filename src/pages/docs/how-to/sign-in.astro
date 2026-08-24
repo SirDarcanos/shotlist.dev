@@ -39,6 +39,13 @@ session: admin
 
 clip: { css: '.panel' }`
 
+const keep = `site:
+  sessions:
+    admin:
+      path: .shotlist/admin.json
+      verify: '[data-signed-in]'
+      keep: [accounts.google.com]`
+
 const ignore = `.shotlist/`
 ---
 
@@ -88,6 +95,20 @@ const ignore = `.shotlist/`
     This opens a browser at <code>site.url</code> and waits while you sign in by hand. When you are done,
     it writes the cookies the browser came back with to the path you declared, creating the folder if
     needed. Your password never reaches shotlist.
+  </p>
+
+  <p>
+    What it writes is this site's cookies and local storage, and nothing else. Signing in through
+    Google, Discord or any other provider leaves that provider's session in the browser too, and
+    none of it is saved — those cookies are your account rather than a screenshot credential.
+    <code>--login</code> names what it left out.
+  </p>
+
+  <p>
+    Before writing, it loads what remains into a fresh browser and checks the session's
+    <code>verify</code> selector against it. A session that no longer signs in is refused with the hosts
+    it dropped, and nothing is written — see
+    <a href="#provider">when the sign-in needs a provider's cookies</a>.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Step 3: point a recipe at the session</h2>
@@ -194,6 +215,25 @@ const ignore = `.shotlist/`
   <p>
     Without a terminal to wait in and without <code>--using</code>, the run reports that it cannot
     sign in rather than hanging.
+  </p>
+
+  <h2 id="provider" class="mt-14 text-2xl font-bold">
+    When the sign-in needs a provider's cookies
+  </h2>
+
+  <p>
+    Almost no application does: its own session is a cookie or a token under its own origin, and
+    that is what gets kept. Where one genuinely needs the provider's, name the host on the session:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={keep} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    The file then signs in as that Google account as well as yours, and <code>--login</code> says so every
+    time it writes one. Treat it as the credential it is: what is on disk is no longer only a screenshot
+    session.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Keep the session file out of version control</h2>

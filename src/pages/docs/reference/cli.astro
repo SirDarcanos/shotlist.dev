@@ -5,6 +5,11 @@ import RecipeCard from '../../../components/RecipeCard.astro'
 
 const usage = `shotlist [<name>…] [options]`
 
+const loginOutput = `$ npx shotlist --login admin --using sign-in --allow-env ADMIN_PASSWORD
+Signing in at https://app.example.com with \`sign-in\`, which may type ADMIN_PASSWORD into it.
+  ✓ wrote .shotlist/admin.json
+    left out 23 cookies and 1 origin for google.com, accounts.google.com, youtube.com`
+
 const report = `{
   "changed": 1,
   "total": 2,
@@ -91,6 +96,47 @@ const schema = `# yaml-language-server: $schema=../../node_modules/shotlist/dist
       ['<code>--version</code>', 'Print the version'],
     ]}
   />
+
+  <h2 id="login" class="mt-14 text-2xl font-bold">--login</h2>
+
+  <p>
+    Opens a browser at <code>site.url</code>, waits while you sign in, and writes the session named
+    on the command line. With <code>--using</code> the browser is headless and a macro signs in instead,
+    so the run names the host and the variables the macro may read before it starts.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={loginOutput} lang="bash" file="Signing in" />
+  </div>
+
+  <DocTable
+    head={['Line', 'When']}
+    rows={[
+      [
+        '<code>Signing in at &lt;url&gt; with `&lt;macro&gt;`</code>',
+        'Before the browser starts, with <code>--using</code>',
+      ],
+      [
+        '<code>A browser is open at &lt;url&gt;</code>',
+        'Signing in by hand, before it waits for you',
+      ],
+      ['<code>left out N cookies …</code>', 'Something was dropped as not this site'],
+      [
+        '<code>! `site.sessions.&lt;name&gt;.keep` names …</code>',
+        'The session declares <code>keep</code>',
+      ],
+      [
+        '<code>! this session has no `verify` selector …</code>',
+        'Something was dropped and nothing could check what remains',
+      ],
+    ]}
+  />
+
+  <p>
+    Nothing is written when the sign-in did not take, or when what is left after narrowing no longer
+    satisfies <code>verify</code>. An <code>--untrusted</code> run is refused a session, so
+    <code>--login</code> has no untrusted mode.
+  </p>
 
   <h2 class="mt-14 text-2xl font-bold">Exit codes</h2>
 

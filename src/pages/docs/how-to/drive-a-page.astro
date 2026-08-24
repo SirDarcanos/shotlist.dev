@@ -17,6 +17,12 @@ const optional = `setup:
       - click: { role: button, name: Accept cookies }
   - click: { role: link, name: Orders }`
 
+const dialogs = `setup:
+  - dialog: accept
+  - click: { role: button, name: Delete }
+  - wait: { text: Order deleted }
+  - dialog: dismiss`
+
 const repeat = `setup:
   - click: { role: link, name: Orders }
   - repeat: 3
@@ -93,6 +99,31 @@ const comment = `setup:
   <div class="mt-6">
     <RecipeCard code={optional} file="screenshots/recipes/order-detail.yaml" />
   </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Get past a confirm the browser draws</h2>
+
+  <p>
+    <code>alert</code>, <code>confirm</code> and <code>prompt</code> are drawn by the browser rather than
+    by the page, so no query reaches one and no click closes one. Left alone they are dismissed, which
+    means a click on a control guarded by <code>confirm()</code> quietly takes the cancel branch and the
+    shot is of the page that never changed. Say what to do with them before the step that raises one:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={dialogs} file="screenshots/recipes/order-detail.yaml" />
+  </div>
+
+  <p>
+    The setting holds until another <code>dialog</code> step replaces it, so a recipe that accepts one
+    dialog and dismisses the next writes both. <code>dialog: accept</code> takes a
+    <code>value</code>, which is what a <code>prompt()</code> is answered with.
+  </p>
+
+  <p>
+    This is the failure that looks like a working recipe: nothing errors, and the screenshot is of
+    the wrong state. A shot that comes back as though the click did nothing is the first place to
+    check.
+  </p>
 
   <h2 class="mt-14 text-2xl font-bold">Repeat a step</h2>
 

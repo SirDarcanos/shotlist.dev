@@ -1,0 +1,145 @@
+---
+import Docs from '../../../layouts/Docs.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+
+const teardown = `name: new-order
+install: guide
+
+setup:
+  - click: { role: button, name: New order }
+  - fill: { label: Customer }
+    value: Acme Corp
+  - click: { role: button, name: Save }
+
+clip: { css: '.order-row' }
+
+teardown:
+  - dialog: accept
+  - click: { role: button, name: Delete }`
+
+const shared = `steps:
+  - dialog: accept
+  - click: { role: button, name: Delete }
+  - wait: { text: No orders yet }`
+
+const useMacro = `name: new-order
+install: guide
+
+setup:
+  - use: create-order
+clip: { css: '.order-row' }
+teardown:
+  - use: delete-order`
+
+const fixture = `name: new-order
+install: guide
+
+url: http://localhost:3000/?seed=order-row
+clip: { css: '.order-row' }`
+---
+
+<Docs
+  title="How to undo what a shot changed"
+  description="Delete the record a recipe had to create, so the next run does not find two of them, using teardown."
+>
+  <h1 class="text-4xl font-extrabold">Undo what a shot changed</h1>
+
+  <p class="text-lg">
+    A recipe that clicks <strong>New order</strong> to photograph one has created an order. It is still
+    there on the next run, where the query now matches two rows and clips the wrong one. This guide gives
+    you three ways to stop that.
+  </p>
+
+  <p>
+    Closing the browser is not one of them. Every shot already gets its own browser, so cookies and
+    local storage never carry from one recipe to the next — and none of that was the problem. What
+    the application was asked to do outlives the browser that asked.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Option 1: undo it in the recipe</h2>
+
+  <p>
+    <code>teardown</code> is steps run after the shot has been taken. Put the reverse of your
+    <code>setup</code> in it:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={teardown} file="screenshots/recipes/new-order.yaml" />
+  </div>
+
+  <p>
+    The steps are the same vocabulary as <code>setup</code>, against the same page. A delete guarded
+    by a browser <code>confirm()</code> needs <code>dialog: accept</code> before the click, because an
+    unanswered dialog is dismissed and the delete never happens.
+  </p>
+
+  <h3>It also runs after a shot that failed</h3>
+
+  <p>
+    Which is when there is most left behind: the order was created, and then the clip matched
+    nothing. A teardown that only ran on success would leave exactly the runs that need it.
+  </p>
+
+  <p>
+    When the teardown itself fails, the error names it — but only if the shot succeeded. When both
+    failed, the error names the shot, because the reason there is no screenshot is worth more than
+    the trouble tidying up after it had.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">Option 2: share the undo between recipes</h2>
+
+  <p>
+    Three recipes that each create an order write the same teardown three times. Move it into a
+    macro, and both halves become one line:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={shared} file="screenshots/macros/delete-order.yaml" />
+  </div>
+
+  <div class="mt-6">
+    <RecipeCard code={useMacro} file="screenshots/recipes/new-order.yaml" />
+  </div>
+
+  <h2 class="mt-14 text-2xl font-bold">Option 3: do not create anything</h2>
+
+  <p>
+    The most reliable teardown is the one with nothing to undo. Where your application can be
+    started with the record already present — a seeded fixture, a demo account, a query parameter —
+    the recipe navigates to it and writes nothing:
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={fixture} file="screenshots/recipes/new-order.yaml" />
+  </div>
+
+  <p>
+    This is worth the setup for a shot list that runs in CI, where a failed teardown leaves the next
+    run to start from a state nobody planned.
+  </p>
+
+  <h2 class="mt-14 text-2xl font-bold">What teardown does not do</h2>
+
+  <ul>
+    <li>
+      It does not run for <code>source: file</code>, which opens no page. A recipe with both is
+      refused rather than ignored.
+    </li>
+    <li>
+      A recipe with <code>retries</code> tears down after every attempt, since every attempt ran the setup
+      again.
+    </li>
+    <li>
+      It cannot undo what the application sent elsewhere. An email or a webhook fired during
+      <code>setup</code> has already gone.
+    </li>
+  </ul>
+
+  <h2 class="mt-14 text-2xl font-bold">Related</h2>
+
+  <ul>
+    <li><a href="/docs/reference/recipe#teardown">Recipe reference: <code>teardown</code></a></li>
+    <li><a href="/docs/reference/steps#dialogs">Steps reference: dialogs</a></li>
+    <li><a href="/docs/how-to/share-setup">Share setup between recipes</a></li>
+  </ul>
+</Docs>

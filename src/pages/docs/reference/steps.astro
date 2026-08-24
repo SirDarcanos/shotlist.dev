@@ -21,6 +21,13 @@ const blocks = `setup:
         value: $customer
   - optional:
       - click: { role: button, name: Dismiss }`
+
+const dialogs = `name: order-deleted
+setup:
+  - dialog: accept
+  - click: { role: button, name: Delete }
+  - wait: { text: Order deleted }
+clip: { css: '.notice' }`
 ---
 
 <Docs
@@ -110,6 +117,31 @@ const blocks = `setup:
       ],
     ]}
   />
+
+  <h2 id="dialogs" class="mt-14 text-2xl font-bold">Dialogs</h2>
+
+  <DocTable
+    head={['Step', 'Extra keys', 'Effect']}
+    rows={[
+      [
+        '<code>dialog: accept</code>',
+        '<code>value</code>',
+        'Accept every dialog from here on. <code>value</code> answers a <code>prompt()</code>',
+      ],
+      ['<code>dialog: dismiss</code>', '—', 'Dismiss every dialog from here on'],
+    ]}
+  />
+
+  <p>
+    Covers <code>alert</code>, <code>confirm</code>, <code>prompt</code> and
+    <code>beforeunload</code>. The setting holds until another <code>dialog</code> step replaces it, and
+    applies to a page opened after it. Unset, dialogs are dismissed — see
+    <a href="/docs/how-to/drive-a-page">Capture a page after interaction</a>.
+  </p>
+
+  <div class="mt-6">
+    <RecipeCard code={dialogs} file="screenshots/recipes/order-deleted.yaml" />
+  </div>
 
   <h2 class="mt-14 text-2xl font-bold">Blocks</h2>
 
