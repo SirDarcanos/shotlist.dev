@@ -26,16 +26,15 @@ const report = `{
   ]
 }`
 
-const api = `import { check, loadConfig, loadLibrary, shoot, withNumbering } from 'shotlist'
+const api = `import { check, lint, openRun, shoot } from 'shotlist'
 
-const loaded = loadConfig()
-const { paths, finders } = loaded.config
-const library = loadLibrary({ ...paths, finders })
+const authority = { untrusted: false }
+const run = openRun(authority, 'shotlist.config.yaml')
+const recipe = run.project.library.recipes.get('order-row')!
 
-const recipe = withNumbering(library.recipes.get('order-row')!)
-await shoot(recipe, library, loaded, { install: true })
-
-const results = await check([recipe], library, loaded)`
+await shoot(run, recipe, { install: true })
+const results = await check(run, [recipe])
+const problems = lint(authority, 'shotlist.config.yaml')`
 
 const schema = `# yaml-language-server: $schema=../../node_modules/shotlist/dist/recipe.schema.json`
 ---
@@ -225,7 +224,11 @@ const schema = `# yaml-language-server: $schema=../../node_modules/shotlist/dist
 
   <h2 class="mt-14 text-2xl font-bold">Node.js API</h2>
 
-  <p>The command line is a wrapper over exported functions.</p>
+  <p>
+    Open one <code>Run</code> with Operator authority, then pass that Run and its own Recipes to every
+    effectful function. Lint takes authority directly because it reports malformed Projects that cannot
+    open a complete Run.
+  </p>
 
   <div class="mt-6">
     <RecipeCard code={api} lang="ts" />
@@ -234,14 +237,19 @@ const schema = `# yaml-language-server: $schema=../../node_modules/shotlist/dist
   <DocTable
     head={['Export', 'Purpose']}
     rows={[
-      ['<code>loadConfig()</code>', 'Read and validate <code>shotlist.config.yaml</code>'],
-      ['<code>loadLibrary()</code>', 'Read recipes, macros and data files'],
-      ['<code>shoot()</code>', 'Take one recipe; pass <code>browser</code> to reuse one'],
-      ['<code>check()</code>', 'Compare recipes against installed images'],
-      ['<code>withNumbering()</code>', 'Expand <code>numbered</code> into callouts'],
+      ['<code>openRun()</code>', 'Open a Project and its Library under Operator authority'],
       [
-        '<code>parseConfig()</code>, <code>parseRecipe()</code>, <code>parseQuery()</code>',
-        'Validate a parsed YAML document',
+        '<code>shoot()</code>',
+        "Take one of the Run's Recipes; pass <code>browser</code> to reuse one",
+      ],
+      ['<code>check()</code>', "Compare the Run's Recipes against installed images"],
+      [
+        '<code>lint()</code>',
+        'Report malformed or unauthorized Project documents under explicit authority',
+      ],
+      [
+        '<code>parseConfig()</code>, <code>parseRecipe()</code>, <code>parseMacro()</code>, <code>parseLibrary()</code>, <code>parseQuery()</code>',
+        'Validate values already in memory without opening a Run',
       ],
       ['<code>Macro</code>', 'The macro schema'],
     ]}
