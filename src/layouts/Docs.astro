@@ -1,5 +1,6 @@
 ---
 import Base from './Base.astro'
+import { prepareDocsContent } from '../lib/docs-navigation'
 
 interface Props {
   title: string
@@ -7,7 +8,8 @@ interface Props {
 }
 
 const { title, description } = Astro.props
-const path = Astro.url.pathname
+const path = Astro.url.pathname === '/' ? '/' : `${Astro.url.pathname.replace(/\/$/, '')}/`
+const { content, headings } = prepareDocsContent(await Astro.slots.render('default'))
 
 /**
  * The documentation, grouped by what the reader is doing.
@@ -111,30 +113,33 @@ const sections = [
       page: the reference is one document in eleven parts, and reaching part four used to
       mean scrolling back through part three to find the way there.
     -->
-    <details
+    <div
       id="docs-nav"
-      open
       class="sticky top-[65px] z-30 mb-10 -mx-6 border-b border-rule bg-paper/95 px-6 py-3 backdrop-blur-sm md:top-24 md:z-auto md:mx-0 md:mb-0 md:self-start md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none"
     >
-      <summary
-        class="flex cursor-pointer list-none items-center justify-between font-mono text-xs tracking-wider text-muted uppercase md:hidden [&::-webkit-details-marker]:hidden"
-      >
-        Documentation
-        <svg
-          class="chevron size-4 transition-transform"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
+      <details id="docs-nav-disclosure" class="md:hidden">
+        <summary
+          aria-controls="documentation-links"
+          class="flex cursor-pointer list-none items-center justify-between font-mono text-xs tracking-wider text-muted uppercase [&::-webkit-details-marker]:hidden"
         >
-          <path d="m6 9 6 6 6-6"></path>
-        </svg>
-      </summary>
+          Documentation
+          <svg
+            class="chevron size-4 transition-transform"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m6 9 6 6 6-6"></path>
+          </svg>
+        </summary>
+      </details>
 
       <nav
+        id="documentation-links"
         class="max-h-[70vh] overflow-y-auto pt-5 md:max-h-[calc(100vh-8rem)] md:pt-0"
         aria-label="Documentation"
       >
@@ -160,6 +165,15 @@ const sections = [
                       >
                         {item.label}
                       </a>
+                      {path === item.href && headings.length > 1 && (
+                        <ul class="page-toc">
+                          {headings.map((heading) => (
+                            <li>
+                              <a href={`#${heading.id}`}>{heading.label}</a>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </li>
                   ) : (
                     <li>
@@ -174,17 +188,26 @@ const sections = [
           ))
         }
       </nav>
-    </details>
+    </div>
 
-    <article class="min-w-0 max-w-2xl">
-      <slot />
-    </article>
+    <article class="min-w-0 max-w-2xl" set:html={content} />
   </div>
 </Base>
 
 <style>
   details[open] .chevron {
     transform: rotate(180deg);
+  }
+
+  /* The native open state controls the adjacent list, so desktop does not need an open disclosure. */
+  details:not([open]) + nav {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    #docs-nav > nav {
+      display: block;
+    }
   }
 
   /*
@@ -194,6 +217,10 @@ const sections = [
    * half the weight, and indented past the border those links carry. Sharing their
    * styling made a heading look like another page to go to.
    */
+  :global(.docs-page article h2[id]) {
+    scroll-margin-top: 8rem;
+  }
+
   :global(.page-toc) {
     border-left: 2px solid var(--color-rule);
     padding-block: 0.125rem;
@@ -219,66 +246,16 @@ const sections = [
 </style>
 
 <script>
-  // The disclosure ships open, so a reader with no JavaScript gets the list rather than a
-  // control that cannot be worked. Closing it here runs during parse, before first paint,
-  // so nothing is seen to collapse.
-  const nav = document.getElementById('docs-nav') as HTMLDetailsElement | null
-  const wide = window.matchMedia('(width >= 48rem)')
-  const fit = () => {
-    if (nav) nav.open = wide.matches
-  }
-  fit()
-  wide.addEventListener('change', fit)
-
-  // Following a link inside it has done its job, so get it out of the way.
-  nav?.querySelector('nav')?.addEventListener('click', (event) => {
-    if (!wide.matches && (event.target as HTMLElement).closest('a')) nav.open = false
-  })
-
-  /**
-   * The current page's headings, under the current page's entry.
-   *
-   * Built here rather than at build time because these pages are hand-written `.astro`,
-   * with no frontmatter to read a heading list out of. Ids are assigned where a heading
-   * does not carry one, so an anchor has something to land on.
-   */
-  const here = nav?.querySelector('a[aria-current="page"]')
   const headings = [...document.querySelectorAll<HTMLHeadingElement>('main h2')]
+  const links = new Map(
+    headings.map((heading) => [
+      heading,
+      document.querySelector<HTMLAnchorElement>(`.page-toc a[href="#${heading.id}"]`),
+    ]),
+  )
 
-  if (here && headings.length > 1) {
-    const slug = (text: string) =>
-      text
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, '')
-        .trim()
-        .replace(/\s+/g, '-')
-
-    const list = document.createElement('ul')
-    list.className = 'page-toc'
-    const links = new Map<Element, HTMLAnchorElement>()
-
-    for (const heading of headings) {
-      if (!heading.id) heading.id = slug(heading.textContent ?? '')
-      const item = document.createElement('li')
-      const link = document.createElement('a')
-      link.href = `#${heading.id}`
-      link.textContent = heading.textContent
-      item.append(link)
-      list.append(item)
-      links.set(heading, link)
-    }
-    here.after(list)
-
-    // A link from another page arrives before these ids exist, so the browser has already
-    // given up on the hash by now. Do the jump it could not.
-    const wanted = decodeURIComponent(location.hash.slice(1))
-    if (wanted && document.getElementById(wanted)) {
-      document.getElementById(wanted)!.scrollIntoView()
-    }
-
-    // Which section you are in is a question about where the page is, so it is asked that
-    // way: the last heading above the reading line. Reading it off the scroll position
-    // answers at any position, including the one a page is opened at.
+  if (headings.length > 1) {
+    // The active section is the last heading above the reading line, including after a direct fragment arrival.
     const mark = () => {
       const bottom = window.scrollY + window.innerHeight >= document.body.scrollHeight - 2
       const current = bottom
@@ -286,8 +263,8 @@ const sections = [
         : (headings.filter((heading) => heading.getBoundingClientRect().top < 120).pop() ??
           headings[0])
       for (const [heading, link] of links) {
-        if (heading === current) link.setAttribute('data-here', '')
-        else link.removeAttribute('data-here')
+        if (heading === current) link?.setAttribute('data-here', '')
+        else link?.removeAttribute('data-here')
       }
     }
     mark()

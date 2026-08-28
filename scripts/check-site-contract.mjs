@@ -54,6 +54,7 @@ function linkHrefs(html, rel) {
 const expectedRoutes = new Set(canonicalRoutes)
 const htmlFiles = (await filesBelow(dist)).filter((filename) => filename.endsWith('.html'))
 const actualRoutes = new Set()
+const documents = new Map()
 let saw404 = false
 
 for (const filename of htmlFiles) {
@@ -81,6 +82,7 @@ for (const filename of htmlFiles) {
   }
 
   actualRoutes.add(route)
+  documents.set(route, html)
   const expectedCanonical = `${siteOrigin}${route}`
   if (canonicals.length !== 1 || canonicals[0] !== expectedCanonical) {
     fail(`${route} must have one canonical link to ${expectedCanonical}`)
@@ -96,6 +98,47 @@ for (const filename of htmlFiles) {
       continue
     }
     if (!expectedRoutes.has(linkedPath)) fail(`${route} links to missing internal path ${href}`)
+  }
+
+  if (route.startsWith('/docs/')) {
+    const currentLinks = html.match(/<a\b[^>]*\baria-current=["']page["'][^>]*>/gi) ?? []
+    if (currentLinks.length !== 1) {
+      fail(`${route} must expose exactly one current documentation link`)
+    } else {
+      const currentHref = currentLinks[0].match(/\bhref=["']([^"']+)["']/i)?.[1]
+      if (currentHref !== route) fail(`${route} marks ${currentHref ?? 'no link'} as current`)
+    }
+
+    const headingIds = (html.match(/<h2\b[^>]*\bid=["'][^"']+["'][^>]*>/gi) ?? []).map(
+      (heading) => heading.match(/\bid=["']([^"']+)["']/i)?.[1],
+    )
+    const headingCount = html.match(/<h2\b[^>]*>/gi)?.length ?? 0
+    if (headingIds.length !== headingCount) fail(`${route} has an h2 without a stable fragment id`)
+    if (new Set(headingIds).size !== headingIds.length)
+      fail(`${route} has duplicate h2 fragment ids`)
+
+    const toc = html.match(/<ul\b[^>]*\bclass=["'][^"']*\bpage-toc\b[^"']*["'][^>]*>(.*?)<\/ul>/i)
+    const tocHrefs = toc ? valuesFor(toc[1], 'a', 'href') : []
+    if (headingCount > 1 && tocHrefs.length !== headingCount) {
+      fail(`${route} must link to every h2 from its section navigation`)
+    }
+    if (tocHrefs.some((href) => !href.startsWith('#') || !headingIds.includes(href.slice(1)))) {
+      fail(`${route} section navigation contains a broken fragment`)
+    }
+  }
+}
+
+for (const [route, html] of documents) {
+  for (const href of valuesFor(html, 'a', 'href')) {
+    const url = new URL(href, `${siteOrigin}${route}`)
+    if (url.origin !== siteOrigin || !url.hash) continue
+    const target = documents.get(url.pathname)
+    if (!target) continue
+    const id = decodeURIComponent(url.hash.slice(1))
+    const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    if (!new RegExp(`\\bid=["']${escaped}["']`, 'i').test(target)) {
+      fail(`${route} links to missing fragment ${href}`)
+    }
   }
 }
 

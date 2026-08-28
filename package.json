@@ -15,16 +15,19 @@
     "check:spacing": "node scripts/check-spacing.mjs",
     "check:examples": "node scripts/check-examples.mjs",
     "shots": "shotlist --all --install",
-    "check:site": "node scripts/check-site-contract.mjs"
+    "check:site": "node scripts/check-site-contract.mjs",
+    "check:browser": "node scripts/check-docs-browser.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.2.0",
     "astro-seo": "^1.1.0",
+    "parse5": "^7.3.0",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "playwright": "^1.62.1",
     "prettier": "^3.9.6",
     "prettier-plugin-astro": "^0.14.1",
     "shotlist": "^0.6.0"
