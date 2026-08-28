@@ -1,0 +1,21 @@
+# Released documentation URLs redirect directly to their trailing-slash canonical routes.
+/docs/install /docs/how-to/install/ 301
+/docs/install/ /docs/how-to/install/ 301
+/docs/config /docs/reference/configuration/ 301
+/docs/config/ /docs/reference/configuration/ 301
+/docs/recipes /docs/reference/recipe/ 301
+/docs/recipes/ /docs/reference/recipe/ 301
+/docs/steps /docs/reference/steps/ 301
+/docs/steps/ /docs/reference/steps/ 301
+/docs/queries /docs/reference/queries/ 301
+/docs/queries/ /docs/reference/queries/ 301
+/docs/callouts /docs/reference/callouts/ 301
+/docs/callouts/ /docs/reference/callouts/ 301
+/docs/macros /docs/reference/macros-and-data/ 301
+/docs/macros/ /docs/reference/macros-and-data/ 301
+/docs/running-shotlist /docs/reference/cli/ 301
+/docs/running-shotlist/ /docs/reference/cli/ 301
+/docs/check /docs/tutorials/keeping-a-screenshot-current/ 301
+/docs/check/ /docs/tutorials/keeping-a-screenshot-current/ 301
+/docs/security /docs/explanation/security-model/ 301
+/docs/security/ /docs/explanation/security-model/ 301

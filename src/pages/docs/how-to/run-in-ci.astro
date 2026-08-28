@@ -51,7 +51,7 @@ const env = `SHOTLIST_ENV=ADMIN_PASSWORD npx shotlist --login admin --using sign
   <p>
     It assumes your screenshots are already published with <code>--install</code> and committed, along
     with <code>shotlist.baseline.json</code>. If they are not, work through
-    <a href="/docs/tutorials/keeping-a-screenshot-current">Keeping a screenshot current</a> first.
+    <a href="/docs/tutorials/keeping-a-screenshot-current/">Keeping a screenshot current</a> first.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Step 1: make the job start the application</h2>
@@ -79,7 +79,7 @@ const env = `SHOTLIST_ENV=ADMIN_PASSWORD npx shotlist --login admin --using sign
     <li>
       <code>--lint</code> parses every file and reports all of them at once. It opens no browser, so it
       finishes in about a second and catches a misspelled key before the slow step starts. See
-      <a href="/docs/how-to/lint">Check your files without a browser</a>.
+      <a href="/docs/how-to/lint/">Check your files without a browser</a>.
     </li>
     <li>
       <code>--check</code> re-takes every screenshot, compares it with the committed one, and exits non-zero
@@ -133,7 +133,7 @@ const env = `SHOTLIST_ENV=ADMIN_PASSWORD npx shotlist --login admin --using sign
     the application being photographed. A fork can change all three, so run them on an isolated
     runner with no secrets and no access to private network services. Do not start a fork's
     <code>npm run preview</code> on a privileged runner and treat this flag as its sandbox. See
-    <a href="/docs/explanation/security-model">What a configuration can do</a> for the full policy.
+    <a href="/docs/explanation/security-model/">What a configuration can do</a> for the full policy.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Sign in without a person present</h2>
@@ -149,7 +149,7 @@ const env = `SHOTLIST_ENV=ADMIN_PASSWORD npx shotlist --login admin --using sign
 
   <p>
     <code>SHOTLIST_ENV</code> takes a list of names, and adds to whatever
-    <code>--allow-env</code> allowed. See <a href="/docs/how-to/sign-in"
+    <code>--allow-env</code> allowed. See <a href="/docs/how-to/sign-in/"
       >Capture a page behind a sign-in</a
     >.
   </p>
@@ -164,14 +164,14 @@ const env = `SHOTLIST_ENV=ADMIN_PASSWORD npx shotlist --login admin --using sign
 
   <p>
     The reliable fix is to take the committed screenshots on the same platform the job uses. See
-    <a href="/docs/explanation/image-drift">Why screenshots drift</a>.
+    <a href="/docs/explanation/image-drift/">Why screenshots drift</a>.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Related</h2>
 
   <ul>
-    <li><a href="/docs/reference/cli">Command line reference</a></li>
-    <li><a href="/docs/how-to/start-the-site">Start the site automatically</a></li>
-    <li><a href="/docs/how-to/hide-changing-data">Hide data that changes</a></li>
+    <li><a href="/docs/reference/cli/">Command line reference</a></li>
+    <li><a href="/docs/how-to/start-the-site/">Start the site automatically</a></li>
+    <li><a href="/docs/how-to/hide-changing-data/">Hide data that changes</a></li>
   </ul>
 </Docs>

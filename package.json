@@ -7,14 +7,15 @@
   },
   "scripts": {
     "dev": "node scripts/build-example.mjs && astro dev",
-    "build": "node scripts/check-examples.mjs && node scripts/build-example.mjs && astro build && node scripts/compress-html.mjs && node scripts/check-spacing.mjs",
+    "build": "node scripts/check-examples.mjs && node scripts/build-example.mjs && astro build && node scripts/compress-html.mjs && node scripts/check-spacing.mjs && node scripts/check-site-contract.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check:spacing": "node scripts/check-spacing.mjs",
     "check:examples": "node scripts/check-examples.mjs",
-    "shots": "shotlist --all --install"
+    "shots": "shotlist --all --install",
+    "check:site": "node scripts/check-site-contract.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

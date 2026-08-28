@@ -10,10 +10,13 @@ interface Props {
   description: string
   /** Appended to the site name in the tab, unless this page is the site's front door. */
   bare?: boolean
+  /** Utility pages stay useful to visitors without entering the search index. */
+  indexable?: boolean
 }
 
-const { title, description, bare = false } = Astro.props
-const canonical = new URL(Astro.url.pathname, Astro.site).href
+const { title, description, bare = false, indexable = true } = Astro.props
+const pathname = Astro.url.pathname === '/' ? '/' : `${Astro.url.pathname.replace(/\/$/, '')}/`
+const canonical = new URL(pathname, Astro.site).href
 const fullTitle = bare ? title : `${title} — shotlist`
 
 /*
@@ -40,23 +43,33 @@ const cardAlt = 'shotlist — annotated UI screenshots, described as data'
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=Inter:wght@400..600&family=JetBrains+Mono:wght@400;500&display=swap"
     />
 
-    <SEO
-      title={fullTitle}
-      description={description}
-      canonical={canonical}
-      openGraph={{
-        basic: { title: fullTitle, type: 'website', image: card, url: canonical },
-        optional: { description, siteName: 'shotlist' },
-        image: { alt: cardAlt, width: 2400, height: 1260, type: 'image/png' },
-      }}
-      twitter={{
-        card: 'summary_large_image',
-        title: fullTitle,
-        description,
-        image: card,
-        imageAlt: cardAlt,
-      }}
-    />
+    {
+      indexable ? (
+        <SEO
+          title={fullTitle}
+          description={description}
+          canonical={canonical}
+          openGraph={{
+            basic: { title: fullTitle, type: 'website', image: card, url: canonical },
+            optional: { description, siteName: 'shotlist' },
+            image: { alt: cardAlt, width: 2400, height: 1260, type: 'image/png' },
+          }}
+          twitter={{
+            card: 'summary_large_image',
+            title: fullTitle,
+            description,
+            image: card,
+            imageAlt: cardAlt,
+          }}
+        />
+      ) : (
+        <>
+          <title>{fullTitle}</title>
+          <meta name="description" content={description} />
+          <meta name="robots" content="noindex, follow" />
+        </>
+      )
+    }
 
     {
       /*
