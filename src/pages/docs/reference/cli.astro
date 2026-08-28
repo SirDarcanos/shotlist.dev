@@ -12,8 +12,7 @@ Signing in at https://app.example.com with \`sign-in\`, which may type ADMIN_PAS
 
 const report = `{
   "changed": 1,
-  "total": 2,
-  "drift": [{ "field": "chromium", "was": "141.0.0.0", "now": "139.0.0.0" }],
+  "total": 1,
   "results": [
     {
       "name": "order-row",
@@ -23,19 +22,29 @@ const report = `{
       "against": "content/guide/images/order-row.png",
       "diff": "screenshots/out/diff/order-row.png"
     }
-  ]
+  ],
+  "failures": [],
+  "drift": [{ "field": "chromium", "was": "141.0.0.0", "now": "139.0.0.0" }],
+  "operatorDestinations": []
 }`
 
-const api = `import { check, loadConfig, loadLibrary, shoot, withNumbering } from 'shotlist'
+const api = `import { lint, openRun, type CheckReport } from 'shotlist'
 
-const loaded = loadConfig()
-const { paths, finders } = loaded.config
-const library = loadLibrary({ ...paths, finders })
+const authority = { untrusted: false }
+const run = openRun(authority, 'shotlist.config.yaml')
 
-const recipe = withNumbering(library.recipes.get('order-row')!)
-await shoot(recipe, library, loaded, { install: true })
+await run.capture({ recipes: ['order-row'], install: true })
 
-const results = await check([recipe], library, loaded)`
+const controller = new AbortController()
+const report: CheckReport = await run.check({
+  all: true,
+  diff: true,
+  keepGoing: true,
+  signal: controller.signal,
+  onProgress: async (progress) => console.log(progress.type),
+})
+
+const review = lint(authority, 'shotlist.config.yaml')`
 
 const schema = `# yaml-language-server: $schema=../../node_modules/shotlist/dist/recipe.schema.json`
 ---
@@ -85,13 +94,20 @@ const schema = `# yaml-language-server: $schema=../../node_modules/shotlist/dist
         'With <code>--login</code>, sign in by running a macro',
       ],
       ['<code>--untrusted</code>', 'Run with the restrictions listed below'],
-      ['<code>--allow &lt;host&gt;</code>', 'Permit an extra host; repeatable'],
+      [
+        '<code>--allow &lt;destination&gt;</code>',
+        'Approve one network protocol, host and port; repeatable',
+      ],
       ['<code>--allow-path &lt;dir&gt;</code>', 'Permit an extra directory; repeatable'],
       [
         '<code>--allow-env &lt;name&gt;</code>',
         "Permit a recipe to read this variable from the run's environment; repeatable",
       ],
       ['<code>--deny &lt;name&gt;</code>', 'Forbid a file or folder name; repeatable'],
+      [
+        '<code>--work-limit &lt;name=value&gt;</code>',
+        'Change one numerical Work limit for this Run; repeatable',
+      ],
       ['<code>--help</code>', 'Print the option list'],
       ['<code>--version</code>', 'Print the version'],
     ]}
@@ -167,6 +183,14 @@ const schema = `# yaml-language-server: $schema=../../node_modules/shotlist/dist
       ],
       ['<code>SHOTLIST_DENY</code>', 'Forbidden names, separated by commas or colons'],
       [
+        '<code>SHOTLIST_ALLOW</code>',
+        'Network destinations approved by the operator, separated by commas or whitespace',
+      ],
+      [
+        '<code>SHOTLIST_WORK_LIMITS</code>',
+        'Work limit changes as comma-separated <code>name=value</code> settings',
+      ],
+      [
         '<code>SHOTLIST_UNTRUSTED</code>',
         'Set to <code>1</code> for the effect of <code>--untrusted</code>',
       ],
@@ -180,6 +204,17 @@ const schema = `# yaml-language-server: $schema=../../node_modules/shotlist/dist
     <a href="/docs/how-to/sign-in">Capture a page behind a sign-in</a>.
   </p>
 
+  <h2 class="mt-14 text-2xl font-bold">Network destinations</h2>
+
+  <p>
+    A bare host approves HTTPS on port 443. Prefix it with <code>*.</code> to approve its HTTPS subdomains.
+    HTTP, WebSocket and non-default ports use a full destination, such as
+    <code>http://localhost:4321</code> or <code>wss://events.example.com</code>. Protocols match
+    exactly; HTTP and WebSocket connections use separate approvals. An approved HTTP destination
+    also permits a redirect to HTTPS port 443 on the same host. A TCP readiness probe uses
+    <code>tcp://localhost:4321</code>.
+  </p>
+
   <h2 class="mt-14 text-2xl font-bold">Check statuses</h2>
 
   <DocTable
@@ -190,6 +225,8 @@ const schema = `# yaml-language-server: $schema=../../node_modules/shotlist/dist
       ['<code>new</code>', 'Nothing is committed at the destination'],
       ['<code>skipped</code>', 'The recipe installs nowhere, so there is nothing to compare'],
       ['<code>failed</code>', 'The recipe could not be taken'],
+      ['<code>cancelled</code>', 'The caller cancelled this recipe'],
+      ['<code>not-attempted</code>', 'An earlier failure stopped the request'],
     ]}
   />
 
@@ -213,6 +250,40 @@ const schema = `# yaml-language-server: $schema=../../node_modules/shotlist/dist
       ['<code>results[].shot</code>', 'string', 'Path to the image just taken'],
       ['<code>results[].against</code>', 'string', 'Path to the committed image'],
       ['<code>results[].diff</code>', 'string', 'Path to the diff image, with <code>--diff</code>'],
+      ['<code>results[].ignored</code>', 'number', 'Regions omitted from comparison'],
+      ['<code>failures</code>', 'array', 'Site, browser or baseline failures outside one recipe'],
+      [
+        '<code>operatorDestinations</code>',
+        'array',
+        'Canonical destinations granted by the operator',
+      ],
+      ['<code>cancellation</code>', 'object', 'Request cancellation detail, when cancelled'],
+      ['<code>warnings</code>', 'array', 'Progress-observer warnings'],
+    ]}
+  />
+
+  <h2 class="mt-14 text-2xl font-bold">Work limits</h2>
+
+  <DocTable
+    head={['Name', 'Default', 'Measures']}
+    rows={[
+      ['<code>recipeBytes</code>', '<code>1048576</code>', 'Bytes in one recipe document'],
+      ['<code>macroBytes</code>', '<code>1048576</code>', 'Bytes in one macro document'],
+      ['<code>dataBytes</code>', '<code>10485760</code>', 'Bytes in one data document'],
+      ['<code>authoredSteps</code>', '<code>1000</code>', 'Steps written in one document'],
+      ['<code>stepDepth</code>', '<code>32</code>', 'Nested Step depth'],
+      ['<code>macroDepth</code>', '<code>32</code>', 'Nested Macro expansion depth'],
+      ['<code>expandedSteps</code>', '<code>5000</code>', 'Steps after Macro expansion'],
+      ['<code>executedSteps</code>', '<code>10000</code>', 'Steps run by a recipe or sign-in'],
+      [
+        '<code>eachItems</code>',
+        '<code>1000</code>',
+        'Items processed by one <code>each</code> Step',
+      ],
+      ['<code>matchingCharacters</code>', '<code>256</code>', 'Characters in one matching pattern'],
+      ['<code>recipeMilliseconds</code>', '<code>600000</code>', 'Elapsed recipe work'],
+      ['<code>teardownSteps</code>', '<code>1000</code>', 'Steps run during teardown'],
+      ['<code>teardownMilliseconds</code>', '<code>60000</code>', 'Elapsed teardown work'],
     ]}
   />
 
@@ -225,7 +296,10 @@ const schema = `# yaml-language-server: $schema=../../node_modules/shotlist/dist
 
   <h2 class="mt-14 text-2xl font-bold">Node.js API</h2>
 
-  <p>The command line is a wrapper over exported functions.</p>
+  <p>
+    <code>openRun()</code> takes explicit Operator authority and opens the configuration and Library.
+    Capture and Checking requests run through that object.
+  </p>
 
   <div class="mt-6">
     <RecipeCard code={api} lang="ts" />
@@ -234,18 +308,32 @@ const schema = `# yaml-language-server: $schema=../../node_modules/shotlist/dist
   <DocTable
     head={['Export', 'Purpose']}
     rows={[
-      ['<code>loadConfig()</code>', 'Read and validate <code>shotlist.config.yaml</code>'],
-      ['<code>loadLibrary()</code>', 'Read recipes, macros and data files'],
-      ['<code>shoot()</code>', 'Take one recipe; pass <code>browser</code> to reuse one'],
-      ['<code>check()</code>', 'Compare recipes against installed images'],
-      ['<code>withNumbering()</code>', 'Expand <code>numbered</code> into callouts'],
+      ['<code>openRun()</code>', 'Open a Project and Library under Operator authority'],
+      ['<code>run.capture()</code>', 'Capture a named selection and optionally install it'],
+      ['<code>run.check()</code>', 'Compare a named selection with installed images'],
+      ['<code>lint()</code>', 'Review a Project under Operator authority'],
+      ['<code>readSession()</code>', 'Read a configured Session by name through a Run'],
+      ['<code>signIn()</code>', 'Write a configured Session by name through a Run'],
       [
-        '<code>parseConfig()</code>, <code>parseRecipe()</code>, <code>parseQuery()</code>',
-        'Validate a parsed YAML document',
+        '<code>parseConfig()</code>, <code>parseRecipe()</code>, <code>parseMacro()</code>, <code>parseLibrary()</code>, <code>parseQuery()</code>',
+        'Validate a value already in memory',
       ],
-      ['<code>Macro</code>', 'The macro schema'],
     ]}
   />
+
+  <p>
+    A request selects <code>{'{ recipes: names }'}</code> or <code>{'{ all: true }'}</code>.
+    <code>keepGoing</code>, <code>signal</code> and <code>onProgress</code> apply to Capture and Checking;
+    <code>install</code> applies to Capture and <code>diff</code> to Checking. Progress observers are
+    awaited in order. Their failures appear in <code>warnings</code> rather than changing a Recipe result.
+  </p>
+
+  <p>
+    Capture installs images only after every selected Recipe and owned resource has finished
+    cleanup. Its report separates Recipe results, resource failures, Installation outcomes and
+    Baseline recording. A Run accepts one request at a time and remains reusable after that request
+    settles.
+  </p>
 
   <h2 class="mt-14 text-2xl font-bold">JSON Schemas</h2>
 

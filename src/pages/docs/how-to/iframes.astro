@@ -21,6 +21,10 @@ marks:
 callouts:
   - { mark: card, text: Your card is never sent to us, place: right }`
 
+const crossOrigin = `site:
+  allow:
+    - checkout.example.com`
+
 const drive = `setup:
   - fill:
       frame: { css: 'iframe[title="Payment"]' }
@@ -101,10 +105,17 @@ const settle = `setup:
 
   <h2 class="mt-14 text-2xl font-bold">Cross-origin frames</h2>
 
+  <p>Add the frame's destination to <code>site.allow</code>:</p>
+
+  <div class="mt-6">
+    <RecipeCard code={crossOrigin} file="shotlist.config.yaml" />
+  </div>
+
   <p>
-    They work. Resolution goes through the browser rather than the page's own JavaScript, which is
-    why a hosted payment field or an embedded checkout on another origin is reachable — the page it
-    sits in could not read into it, and neither could a query written any other way.
+    Resolution goes through the browser rather than the page's own JavaScript, so a query can reach
+    into the approved frame even though the page containing it cannot. The destination approval is
+    separate because the frame makes its own network requests rather than inheriting permission from
+    the page around it.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">A frame inside a frame</h2>

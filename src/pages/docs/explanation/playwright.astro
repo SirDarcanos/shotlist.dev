@@ -15,8 +15,9 @@ postinstall downloads browsers. Install it with:
 
   <p class="text-lg">
     shotlist needs a browser to take a screenshot, but it does not depend on Playwright directly.
-    You install Playwright yourself, alongside shotlist. This page explains why, and what follows
-    from it.
+    You install Playwright 1.48 or later alongside shotlist, because request-level WebSocket routing
+    is what lets the Run enforce network destinations. This page explains why the dependency remains
+    optional, and what follows from it.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">The cost of installing a browser</h2>

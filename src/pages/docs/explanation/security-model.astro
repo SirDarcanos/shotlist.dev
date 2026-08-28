@@ -33,13 +33,23 @@ import DocTable from '../../../components/DocTable.astro'
 
   <h2 class="mt-14 text-2xl font-bold">Limits that always hold</h2>
 
-  <h3>A run stays on its own site</h3>
+  <h3>Every network destination is approved</h3>
 
   <p>
-    <code>site.url</code> decides what a run may open: that host, and everything under it. There is no
-    flag to remove this, because wandering off the site under test is a mistake far more often than an
-    intention. <code>site.allow</code> adds specific hosts, for a sign-in flow that legitimately passes
-    through one.
+    shotlist checks the protocol, host and port of every browser request, redirect and WebSocket,
+    along with hosted fonts and the HTTP or TCP probe that waits for <code>site.serve</code>. A
+    trusted Project approves the destination in <code>site.url</code> and any destinations in <code
+      >site.allow</code
+    >. Everything else is blocked before shotlist writes an Output image, because checking only the
+    page's first URL would leave its subresources and redirects free to reach somewhere else.
+  </p>
+
+  <p>
+    A bare approval such as <code>assets.example.com</code> means HTTPS port 443. HTTP and unusual ports
+    are explicit, as in <code>http://localhost:4321</code>, and
+    <code>*.example.com</code> covers proper HTTPS subdomains rather than the apex. The exact destination
+    is the unit because <code>http://example.com</code> and <code>https://example.com</code> do not offer
+    the same transport.
   </p>
 
   <h3>Some files are never touched</h3>
@@ -99,12 +109,16 @@ import DocTable from '../../../components/DocTable.astro'
     no shell. See <a href="/docs/explanation/no-code">Why recipes cannot run code</a>.
   </p>
 
-  <h3>A run cannot be made to hang</h3>
+  <h3>Work is bounded</h3>
 
   <p>
-    <code>site.timeout</code> bounds how long a query may take, viewport and scale are held to what a
-    browser can paint, and <code>retries</code> and <code>repeat</code> are capped. A configuration can
-    waste your time, but it cannot take a machine out of service by asking for a billion iterations.
+    Every Run limits document bytes, authored and expanded Step structure, Macro depth, executed
+    Steps,
+    <code>each</code> items, matching patterns and elapsed Recipe work. Lint rejects excess, and
+    <code>--lint --warnings</code> reports use at 80%, so predictable excess stops before the site or
+    browser starts rather than consuming the runner first. The Operator can raise a numerical limit with
+    <code>--work-limit</code> or
+    <code>SHOTLIST_WORK_LIMITS</code>; the Project cannot raise its own allowance.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">
@@ -115,10 +129,15 @@ import DocTable from '../../../components/DocTable.astro'
     head={['Capability', 'Default', 'With --untrusted']}
     rows={[
       ['<code>site.serve</code> starts a process', 'yes', '<strong>refused</strong>'],
-      ['Opens <code>file:</code> and <code>data:</code> URLs', 'yes', '<strong>refused</strong>'],
-      ['Opens localhost, private ranges, cloud metadata', 'yes', '<strong>refused</strong>'],
+      ['Uses Project network approvals', 'yes', '<strong>none</strong>'],
+      ['Uses Operator network approvals', 'yes', 'yes'],
+      [
+        'Navigates an Application Recipe to <code>file:</code>',
+        '<strong>refused</strong>',
+        '<strong>refused</strong>',
+      ],
       ['Reads or writes outside the project', 'yes', '<strong>refused</strong>'],
-      ['<code>site.allow</code> widens the scope', 'yes', '<strong>ignored</strong>'],
+      ['<code>site.allow</code> approves destinations', 'yes', '<strong>ignored</strong>'],
       ['<code>allowEnv</code> names readable variables', 'yes', '<strong>ignored</strong>'],
       ['Loads a session', 'yes', '<strong>refused</strong>'],
       ['Reads <code>${env.NAME}</code>', 'named ones', '<strong>none</strong>'],
@@ -130,8 +149,9 @@ import DocTable from '../../../components/DocTable.astro'
   <p>
     <code>site.allow</code> is a claim made by the thing you have decided not to trust. Honoring it in
     an untrusted run would mean the configuration could grant itself the permission the flag exists to
-    withhold. What the operator typed on the command line still counts, and outlives it — which is why
-    <code>--allow</code> and <code>--allow-path</code> exist and cannot be set from a configuration file.
+    withhold. <code>site.url</code> is ignored for the same reason. What the operator typed on the command
+    line still counts and outlives the flag, which is why <code>--allow</code> and
+    <code>--allow-path</code> exist and cannot be set from a configuration file.
   </p>
 
   <p>The principle behind that: a control the configuration can switch off is not a control.</p>
@@ -155,12 +175,12 @@ import DocTable from '../../../components/DocTable.astro'
   <h3 id="sessions">What a session file holds</h3>
 
   <p>
-    The cookies and local storage of <code>site.url</code> and everything under it, plus
-    <code>site.allow</code>, and nothing else. A sign-in that goes through an identity provider
-    collects that provider's session on the way — one round trip through Google leaves cookies for
-    <code>google.com</code>, <code>accounts.google.com</code> and <code>youtube.com</code> in the browser
-    — and none of it is written. Those cookies are the person's account rather than a shot list's credential:
-    they outlive the password if it is rotated, and no shot ever sends them anywhere.
+    The cookies and local storage for the host in <code>site.url</code>, and nothing else by
+    default. A sign-in that goes through an identity provider collects that provider's session on
+    the way — one round trip through Google leaves cookies for <code>google.com</code>,
+    <code>accounts.google.com</code> and <code>youtube.com</code> in the browser — and none of it is written.
+    Those cookies are the person's account rather than a shot list's credential: they outlive the password
+    if it is rotated, and no shot needs them.
   </p>
 
   <p>
@@ -181,12 +201,11 @@ import DocTable from '../../../components/DocTable.astro'
   </p>
 
   <p>
-    A session's cookies travel to every host <code>site.allow</code> names. A recipe's
-    <code>url</code> is checked against the hosts the run may open, and the session is loaded into that
-    same browser — so a configuration holding both <code>site.allow</code> for a provider and a session
-    that kept its cookies can photograph a page of that account, and <code>--install</code>
-    writes the image into the project. Without <code>keep</code> there are no such cookies to carry, which
-    is why the default does more work here than any check.
+    <code>keep</code> controls credential retention rather than network access. Reaching the provider
+    still needs a separate destination approval in <code>site.allow</code> or from the Operator. A configuration
+    holding both approvals can photograph a page of that account, and
+    <code>--install</code> writes the image into the project. Without <code>keep</code> there are no such
+    cookies to carry, which is why network permission alone does not expose the provider's session.
   </p>
 
   <p>
@@ -234,12 +253,12 @@ import DocTable from '../../../components/DocTable.astro'
   </p>
 
   <p>
-    Two of those three are the configuration's own, and they compose.
-    <code>allowEnv</code> names a variable, <code>site.allow</code> names a host the run may open, and
-    a reference in a step is substituted before the URL is checked — so a
-    <code>goto</code> carrying <code>${'{'}env.TOKEN{'}'}</code> in its query string leaves with the value
-    on it, and nobody typed a flag. Neither key is the hole; having both is. That is what
-    <code>--untrusted</code> empties the list and drops <code>site.allow</code> together for.
+    Two Project grants compose. <code>allowEnv</code> names a variable,
+    <code>site.allow</code> names a destination, and a reference in a Step is substituted before the URL
+    is checked — so a <code>goto</code> carrying <code>${'{'}env.TOKEN{'}'}</code> in its query string
+    leaves with the value on it. Neither key is the hole; having both is. An
+    <code>--untrusted</code> Run drops both Project grants together rather than letting the Project grant
+    itself either half.
   </p>
 
   <p>
@@ -254,9 +273,9 @@ import DocTable from '../../../components/DocTable.astro'
   <h2 class="mt-14 text-2xl font-bold">What none of this covers</h2>
 
   <p>
-    The host check reads the name out of the URL. It cannot see that a name you allowed resolves to
-    an address it would have refused, so a determined DNS rebinding attack gets through. It is a
-    fence, not a boundary.
+    A destination approval reads the name from the URL. It does not pin that name to an IP address,
+    so DNS rebinding can make an approved name resolve somewhere the approval did not intend. The
+    policy is a fence rather than a network boundary.
   </p>
 
   <p>
@@ -284,17 +303,16 @@ import DocTable from '../../../components/DocTable.astro'
 
   <p>
     <code>--untrusted</code> answers a configuration that is not yours everywhere except here: it refuses
-    sessions, and <code>--login</code> is the command that makes one. There is no mode in which signing
-    in against a configuration you have not read is safe, and it is the command most likely to be run
-    on a repository cloned five minutes ago, because it is what a project's README tells a new contributor
-    to run first.
+    sessions and Project destinations, and <code>--login</code> is the command that makes a session. There
+    is no mode in which signing in against a configuration you have not read is safe, and it is the command
+    most likely to be run on a repository cloned five minutes ago, because it is what a project's README
+    tells a new contributor to run first.
   </p>
 
   <p>
-    Two things a configuration decides on your behalf. <code>site.url</code> is the host the browser opens,
-    and the scope of hosts a run may reach is derived from it, so the check that a URL is "this site"
-    can never refuse it — a host resembling yours gets a browser opened at it, with you at the keyboard.
-    And <code>allowEnv</code> grants variables to <code>${'{'}env.NAME{'}'}</code>
+    Two things a trusted configuration decides on your behalf. <code>site.url</code> approves and opens
+    its exact destination, so a host resembling yours still gets a browser opened at it, with you at the
+    keyboard. And <code>allowEnv</code> grants variables to <code>${'{'}env.NAME{'}'}</code>
     without <code>--allow-env</code> being typed by anyone, which a <code>--using</code> macro then fills
     into whatever <code>site.url</code> named.
   </p>

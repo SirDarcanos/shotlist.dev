@@ -32,6 +32,13 @@ const sessions = `site:
       verify: '[data-signed-in]'
       keep: [accounts.google.com]`
 
+const destinations = `site:
+  allow:
+    - assets.example.com
+    - '*.payments.example.com'
+    - http://localhost:4400
+    - wss://events.example.com`
+
 const allowEnv = `allowEnv:
   - ADMIN_PASSWORD
   - READER_PASSWORD`
@@ -77,7 +84,7 @@ const finders = `finders:
         '—',
         'Command that starts the site when nothing answers at <code>url</code>',
       ],
-      ['<code>allow</code>', '<code>[]</code>', 'Extra hosts a recipe may open'],
+      ['<code>allow</code>', '<code>[]</code>', 'Extra network destinations the project approves'],
       ['<code>viewport</code>', '<code>1280 × 800</code>', 'Browser size'],
       ['<code>scale</code>', '<code>2</code>', 'Device pixel ratio'],
       [
@@ -96,6 +103,20 @@ const finders = `finders:
       ['<code>sessions</code>', '<code>{}</code>', 'Signed-in browser states by name'],
     ]}
   />
+
+  <h3>site.allow</h3>
+
+  <div class="mt-6">
+    <RecipeCard code={destinations} file="shotlist.config.yaml" />
+  </div>
+
+  <p>
+    A bare host means HTTPS port 443. <code>*.example.com</code> means its HTTPS subdomains but not
+    <code>example.com</code> itself. HTTP, WebSocket and non-default ports use a full destination. Each
+    approval matches its protocol, host and port. HTTP and WebSocket connections use separate entries.
+    An
+    <code>--untrusted</code> Run ignores this list and <code>site.url</code>.
+  </p>
 
   <h3>site.serve</h3>
 
@@ -140,11 +161,10 @@ const finders = `finders:
   />
 
   <p>
-    A session file holds the cookies and local storage of <code>site.url</code> and everything under it,
-    plus <code>site.allow</code>. <code>keep</code> adds hosts to that, and the file then signs in as
-    those accounts too — see
-    <a href="/docs/explanation/security-model#sessions">what a session file holds</a>. Ignored by an
-    <code>--untrusted</code> run, which loads no session at all.
+    A session file holds the cookies and local storage for the host in <code>site.url</code>.
+    <code>keep</code> adds credential hosts; it does not approve a network destination. See
+    <a href="/docs/explanation/security-model#sessions">what a session file holds</a>. An
+    <code>--untrusted</code> Run loads no session.
   </p>
 
   <h2 id="paths" class="mt-14 text-2xl font-bold">paths</h2>

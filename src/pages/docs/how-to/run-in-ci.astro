@@ -14,6 +14,7 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
+      - run: npm run build
       - run: npx shotlist --lint --warnings
       - run: npx shotlist --check --keep-going --diff
       - uses: actions/upload-artifact@v4
@@ -31,7 +32,7 @@ const serve = `site:
 
 const json = `npx shotlist --check --json > report.json`
 
-const untrusted = `npx shotlist --check --untrusted`
+const untrusted = `npx shotlist --check --untrusted --allow http://localhost:4321`
 
 const env = `SHOTLIST_ENV=ADMIN_PASSWORD npx shotlist --login admin --using sign-in`
 ---
@@ -112,8 +113,8 @@ const env = `SHOTLIST_ENV=ADMIN_PASSWORD npx shotlist --login admin --using sign
   <h2 class="mt-14 text-2xl font-bold">Handle pull requests from forks</h2>
 
   <p>
-    A pull request from a fork can edit <code>shotlist.config.yaml</code>, and the runner it lands
-    on has your credentials and your network. Run those builds with <code>--untrusted</code>:
+    A pull request from a fork can edit <code>shotlist.config.yaml</code>. Run shotlist with
+    <code>--untrusted</code> after an operator-controlled process has started the application:
   </p>
 
   <div class="mt-6">
@@ -121,10 +122,18 @@ const env = `SHOTLIST_ENV=ADMIN_PASSWORD npx shotlist --login admin --using sign
   </div>
 
   <p>
-    This refuses to start a process, open <code>file:</code> or <code>data:</code> URLs, reach private
-    network addresses, read or write outside the project, load a session, or resolve any environment variable.
-    See <a href="/docs/explanation/security-model">What a configuration can do</a> for the full list and
-    for what stays true in every mode.
+    An untrusted Project cannot start <code>site.serve</code> or approve even its own
+    <code>site.url</code>. The operator's <code>--allow http://localhost:4321</code> grants that exact
+    destination; the Run still refuses Project-provided destinations, paths outside the project, sessions
+    and environment variables.
+  </p>
+
+  <p>
+    <code>--untrusted</code> confines shotlist rather than <code>npm ci</code>, a build script or
+    the application being photographed. A fork can change all three, so run them on an isolated
+    runner with no secrets and no access to private network services. Do not start a fork's
+    <code>npm run preview</code> on a privileged runner and treat this flag as its sandbox. See
+    <a href="/docs/explanation/security-model">What a configuration can do</a> for the full policy.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Sign in without a person present</h2>

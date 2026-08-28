@@ -3,6 +3,11 @@ site:
   serve: npm run dev
   viewport: { width: 1280, height: 800 }
   scale: 2
+  allow:
+    - ws://localhost:4321
+    - fonts.googleapis.com
+    - fonts.gstatic.com
+    - cdn.usefathom.com
 
 paths:
   recipes: screenshots/recipes

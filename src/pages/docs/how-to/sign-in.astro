@@ -40,6 +40,8 @@ session: admin
 clip: { css: '.panel' }`
 
 const keep = `site:
+  allow:
+    - accounts.google.com
   sessions:
     admin:
       path: .shotlist/admin.json
@@ -207,7 +209,8 @@ const ignore = `.shotlist/`
   <p>
     Once the file is loaded there is nothing special about it. shotlist reads the process
     environment, so <code>SHOTLIST_ENV</code>, <code>SHOTLIST_ENV_DENY</code>,
-    <code>SHOTLIST_DENY</code> and <code>SHOTLIST_UNTRUSTED</code> can all live in
+    <code>SHOTLIST_ALLOW</code>, <code>SHOTLIST_WORK_LIMITS</code>, <code>SHOTLIST_DENY</code> and
+    <code>SHOTLIST_UNTRUSTED</code> can all live in
     <code>.env</code> alongside the secrets themselves. For why shotlist will not load it for you, see
     <a href="/docs/explanation/security-model#dotenv">What a configuration can do</a>.
   </p>
@@ -223,7 +226,8 @@ const ignore = `.shotlist/`
 
   <p>
     Almost no application does: its own session is a cookie or a token under its own origin, and
-    that is what gets kept. Where one genuinely needs the provider's, name the host on the session:
+    that is what gets kept. Where one genuinely needs the provider's, approve its destination and
+    name the credential host on the session:
   </p>
 
   <div class="mt-6">
@@ -231,9 +235,10 @@ const ignore = `.shotlist/`
   </div>
 
   <p>
-    The file then signs in as that Google account as well as yours, and <code>--login</code> says so every
-    time it writes one. Treat it as the credential it is: what is on disk is no longer only a screenshot
-    session.
+    <code>site.allow</code> lets the browser reach the provider; <code>keep</code> retains that provider's
+    cookies. The file then signs in as that Google account as well as yours, and <code>--login</code
+    > says so every time it writes one. Treat it as the credential it is: what is on disk is no longer
+    only a screenshot session.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Keep the session file out of version control</h2>

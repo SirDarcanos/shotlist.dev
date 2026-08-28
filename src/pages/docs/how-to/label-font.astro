@@ -19,7 +19,12 @@ const stylesheet = `style:
     fontUrl: fonts/inter.css
     font: 'Inter'`
 
-const remote = `style:
+const remote = `site:
+  allow:
+    - fonts.googleapis.com
+    - fonts.gstatic.com
+
+style:
   label:
     fontUrl: https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap
     font: 'Inter, Arial, sans-serif'`
@@ -97,10 +102,10 @@ const stroke = `style:
   </div>
 
   <p>
-    The stylesheet is fetched when the callouts are drawn, so the machine taking screenshots needs
-    network access at that moment. The wait is bounded by <code>site.timeout</code>; past that,
-    labels are drawn in whatever the browser had and the run warns. A slow font server delays a run,
-    it never holds one open.
+    Approve the stylesheet's destination and every font destination it references. The stylesheet is
+    fetched when the callouts are drawn, and an unapproved request fails the Recipe before it writes
+    an Output image. The wait is bounded by <code>site.timeout</code>; a server that does not answer
+    falls back to the available font and produces a warning rather than holding the Run open.
   </p>
 
   <h2 class="mt-14 text-2xl font-bold">Adjust the outline around the glyphs</h2>

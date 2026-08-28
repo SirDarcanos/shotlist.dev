@@ -48,8 +48,10 @@ cp -R node_modules/shotlist/skills/shotlist .claude/skills/`
   <CommandTabs commands={install} class="mt-6" />
 
   <p>
-    Playwright is a separate install because its own install step downloads browser binaries.
-    shotlist needs a browser whenever it writes an image, including for <code>--check</code>. See
+    Playwright 1.48 or later is a separate install because its own install step downloads browser
+    binaries. shotlist needs a browser whenever it writes an image, including for <code
+      >--check</code
+    >. See
     <a href="/docs/explanation/playwright">Why Playwright is a peer dependency</a> for which commands
     run without one.
   </p>

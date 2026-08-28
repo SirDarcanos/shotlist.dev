@@ -8,6 +8,8 @@ public/shotlist-example.zip
 examples/shotlist-example/public/images/
 # generated types
 .astro/
+# local coding-agent task state
+.pi/
 
 # dependencies
 node_modules/
