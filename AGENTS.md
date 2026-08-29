@@ -14,6 +14,22 @@ Run `npm run format` before committing. Prettier decides formatting here as it d
 the package, and it reformats between edits — check that a search-and-replace landed
 rather than that the command exited.
 
+## Agent skills
+
+### Issue tracker
+
+Issues and specs are tracked in GitHub Issues with the `gh` CLI. See
+`docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The canonical triage role names are used directly as GitHub labels. See
+`docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This is a single-context repository. See `docs/agents/domain.md`.
+
 ## Voice
 
 The same voice as the package, and the docs pages are held to it hardest: there, the prose
