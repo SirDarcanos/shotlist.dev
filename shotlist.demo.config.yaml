@@ -1,0 +1,12 @@
+site:
+  url: http://localhost:3000
+  serve: npm --prefix examples/shotlist-example run dev
+  viewport: { width: 1280, height: 800 }
+  scale: 2
+
+paths:
+  recipes: screenshots/demo
+  out: screenshots/out
+
+install:
+  public: public/images

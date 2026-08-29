@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro'
 import RecipeCard from '../components/RecipeCard.astro'
 import CommandTabs from '../components/CommandTabs.astro'
-import { heroRecipe, minimalRecipe, configExample } from '../lib/recipes'
+import { heroRecipe, ledgerRecipe, configExample } from '../lib/recipes'
 
 /**
  * The rest of what it does, one line each.
@@ -92,7 +92,7 @@ const anatomy = [
 
 <Base
   title="shotlist — annotated UI screenshots, described as data"
-  description="shotlist opens your running site, drives it to the state you describe, clips a region, draws the callouts, and writes the image where you want it. Each screenshot is a YAML file."
+  description="Annotated screenshot automation from YAML for product documentation. shotlist drives a running site, clips a region, draws callouts, and writes the image."
   bare
 >
   <!-- Hero. Grid for the surface; the blooms are the dark section's alone. -->
@@ -111,13 +111,24 @@ const anatomy = [
           <span class="text-mark">MIT</span> · Node 20+ · driven by Playwright
         </p>
 
-        <p class="mt-7 max-w-xl text-lg leading-relaxed text-muted">
+        <p class="mt-7 max-w-xl text-lg font-semibold text-ink">
+          Annotated screenshot automation for product documentation.
+        </p>
+
+        <p class="mt-3 max-w-xl leading-relaxed text-muted">
           shotlist opens your running site, drives it to the state you describe, clips a region,
           draws the callouts on it, and writes the image where you want it. Each screenshot is a
           YAML file. There is no per-screenshot code.
         </p>
 
-        <CommandTabs commands={install} class="mt-6 max-w-md" />
+        <a
+          href="/docs/tutorials/first-screenshot/"
+          class="mt-7 inline-block rounded-lg bg-mark px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-red-deep"
+        >
+          Take your first screenshot
+        </a>
+        <p class="mt-6 font-mono text-xs text-muted">Or install shotlist now:</p>
+        <CommandTabs commands={install} class="mt-2 max-w-md" />
       </div>
 
       <figure class="min-w-0 lg:-mr-4">
@@ -172,7 +183,7 @@ const anatomy = [
     also carries far more of the red before it registers as color, so the blooms are the
     strongest on the page.
   -->
-  <section class="tone-dark relative overflow-hidden">
+  <section id="ledger-demo" class="tone-dark relative overflow-hidden">
     <div class="paper-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
     <div
       class="glow"
@@ -187,10 +198,8 @@ const anatomy = [
     >
     </div>
 
-    <div
-      class="relative mx-auto grid max-w-6xl gap-12 px-6 py-24 sm:py-28 lg:grid-cols-2 lg:items-center lg:gap-16"
-    >
-      <div>
+    <div class="relative mx-auto max-w-6xl px-6 py-24 sm:py-28">
+      <div class="max-w-2xl">
         <h2 class="text-[clamp(1.9rem,3.6vw,2.6rem)] leading-tight font-extrabold">
           A recipe is data
         </h2>
@@ -210,11 +219,34 @@ const anatomy = [
         </div>
       </div>
 
-      <div class="min-w-0">
-        <RecipeCard code={minimalRecipe} file="screenshots/recipes/order-row.yaml" />
-        <p class="mt-4 text-sm text-muted">
-          Find an element by CSS, role, label or text, then narrow it down until one thing matches.
-        </p>
+      <div
+        class="mt-12 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-12"
+      >
+        <figure class="min-w-0 lg:order-2" data-ledger-result>
+          <div
+            class="tone-light overflow-hidden rounded-lg border border-rule-strong bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04),0_12px_32px_-12px_rgba(28,25,23,0.12)]"
+          >
+            <img
+              src="/images/order-row.png"
+              width="1652"
+              height="446"
+              alt="Ledger order row annotated at its amount and status"
+              class="h-auto w-full"
+            />
+          </div>
+          <figcaption class="mt-4 text-sm text-muted">
+            Ledger's Acme Corp order row. “What they owe” points to $42.00; “Where it stands” points
+            to Open.
+          </figcaption>
+        </figure>
+
+        <div class="min-w-0 lg:order-1">
+          <RecipeCard code={ledgerRecipe} file="screenshots/demo/order-row.yaml" />
+          <p class="mt-4 text-sm text-muted">
+            <code class="text-paper">npm run demo:generate</code> runs this file against the Ledger example
+            and regenerates the image.
+          </p>
+        </div>
       </div>
     </div>
   </section>

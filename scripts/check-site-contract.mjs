@@ -196,6 +196,66 @@ for (const [route, html] of documents) {
 
 if (!saw404) fail('dist/404.html is missing')
 
+const ledgerAsset = '/images/order-row.png'
+const ledgerFilename = path.join(dist, ledgerAsset.slice(1))
+let ledgerImage
+try {
+  ledgerImage = await readFile(ledgerFilename)
+} catch {
+  fail(`${ledgerAsset} is missing from the production build`)
+}
+if (ledgerImage) {
+  const pngSignature = '89504e470d0a1a0a'
+  if (ledgerImage.subarray(0, 8).toString('hex') !== pngSignature) {
+    fail(`${ledgerAsset} must be a PNG image`)
+  } else {
+    const width = ledgerImage.readUInt32BE(16)
+    const height = ledgerImage.readUInt32BE(20)
+    if (width !== 1652 || height !== 446) {
+      fail(`${ledgerAsset} must be the canonical 1652×446 Ledger output, got ${width}×${height}`)
+    }
+  }
+}
+
+for (const route of ['/', '/docs/tutorials/first-screenshot/']) {
+  const html = documents.get(route)
+  if (!html) continue
+  const imageTags = (html.match(/<img\b[^>]*>/gi) ?? []).filter((tag) =>
+    tag.includes(`src="${ledgerAsset}"`),
+  )
+  if (imageTags.length !== 1) {
+    fail(`${route} must show the canonical Ledger output once`)
+    continue
+  }
+  if (!/\balt=["'][^"']+["']/i.test(imageTags[0])) {
+    fail(`${route} Ledger output must have concise alt text`)
+  }
+  if (!/<figure\b[^>]*>[\s\S]*?\/images\/order-row\.png[\s\S]*?<figcaption\b/i.test(html)) {
+    fail(`${route} Ledger output must appear in a figure with a visible caption`)
+  }
+}
+
+const homepage = documents.get('/')
+if (homepage) {
+  const category = 'Annotated screenshot automation for product documentation.'
+  if (!homepage.includes(category)) fail(`homepage must state the product category: ${category}`)
+  const expectedDescription =
+    'Annotated screenshot automation from YAML for product documentation. shotlist drives a running site, clips a region, draws callouts, and writes the image.'
+  if (metaContent(homepage, 'description') !== expectedDescription) {
+    fail('homepage search description must name annotated screenshot automation from YAML')
+  }
+  if (
+    !/<a\b[^>]*href=["']\/docs\/tutorials\/first-screenshot\/["'][^>]*class=["'][^"']*bg-mark/i.test(
+      homepage,
+    )
+  ) {
+    fail('homepage primary action must lead to the first tutorial')
+  }
+  if (!homepage.includes('Or install shotlist now:') || !homepage.includes('data-command-tabs')) {
+    fail('homepage must retain the install command as a secondary path')
+  }
+}
+
 for (const route of expectedRoutes) {
   if (!actualRoutes.has(route)) fail(`canonical route is missing from dist: ${route}`)
 }

@@ -16,7 +16,7 @@ import { Macro, parseConfig, parseQuery, parseRecipe } from 'shotlist'
 import { parse } from 'yaml'
 
 const DOCS = 'src/pages/docs'
-const RECIPES = 'screenshots/recipes'
+const RECIPE_DIRS = ['screenshots/recipes', 'screenshots/demo']
 const CONFIG_KEYS = [
   'site:',
   'paths:',
@@ -37,14 +37,21 @@ const fail = (label, error) => {
 
 // The files a run would actually read.
 const config = parseConfig(parse(readFileSync('shotlist.config.yaml', 'utf8')))
-for (const file of readdirSync(RECIPES).filter((f) => f.endsWith('.yaml'))) {
-  try {
-    parseRecipe(parse(readFileSync(join(RECIPES, file), 'utf8')), {
-      name: file.replace(/\.yaml$/, ''),
-      finders: config.finders,
-    })
-  } catch (error) {
-    fail(`${RECIPES}/${file}`, error)
+try {
+  parseConfig(parse(readFileSync('shotlist.demo.config.yaml', 'utf8')))
+} catch (error) {
+  fail('shotlist.demo.config.yaml', error)
+}
+for (const directory of RECIPE_DIRS) {
+  for (const file of readdirSync(directory).filter((f) => f.endsWith('.yaml'))) {
+    try {
+      parseRecipe(parse(readFileSync(join(directory, file), 'utf8')), {
+        name: file.replace(/\.yaml$/, ''),
+        finders: config.finders,
+      })
+    } catch (error) {
+      fail(`${directory}/${file}`, error)
+    }
   }
 }
 
