@@ -605,8 +605,12 @@ if (homepage) {
   ) {
     fail('homepage primary action must lead to the first tutorial')
   }
-  if (!homepage.includes('Or install shotlist now:') || !homepage.includes('data-command-tabs')) {
-    fail('homepage must retain the install command as a secondary path')
+  if (
+    !homepage.includes('Or install:') ||
+    !homepage.includes('data-hero-install') ||
+    !homepage.includes('npm i -D shotlist playwright')
+  ) {
+    fail('homepage must retain the npm install command as a secondary path')
   }
 }
 

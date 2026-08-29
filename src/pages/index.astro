@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro'
 import RecipeCard from '../components/RecipeCard.astro'
-import CommandTabs from '../components/CommandTabs.astro'
+import CopyButton from '../components/CopyButton.astro'
 import { heroRecipe, ledgerRecipe, configExample } from '../lib/recipes'
 import { homepageStructuredData } from '../lib/structured-data.mjs'
 
@@ -14,12 +14,7 @@ import { homepageStructuredData } from '../lib/structured-data.mjs'
 /** The one command someone reading this page is here to copy. */
 const description =
   'Annotated screenshot automation from YAML for product documentation. shotlist drives a running site, clips a region, draws callouts, and writes the image.'
-
-const install = [
-  { label: 'npm', code: 'npm i -D shotlist playwright' },
-  { label: 'pnpm', code: 'pnpm add -D shotlist playwright' },
-  { label: 'yarn', code: 'yarn add -D shotlist playwright' },
-]
+const install = 'npm i -D shotlist playwright'
 
 const rest = [
   {
@@ -132,8 +127,13 @@ const anatomy = [
         >
           Take your first screenshot
         </a>
-        <p class="mt-6 font-mono text-xs text-muted">Or install shotlist now:</p>
-        <CommandTabs commands={install} class="mt-2 max-w-md" trackInstallCopy />
+        <div class="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-muted">
+          <span>Or install:</span>
+          <div class="flex items-center gap-1" data-code-card data-hero-install>
+            <pre><code class="text-ink">{install}</code></pre>
+            <CopyButton trackInstall class="-my-1" />
+          </div>
+        </div>
       </div>
 
       <figure class="min-w-0 lg:-mr-4">
@@ -203,8 +203,10 @@ const anatomy = [
     >
     </div>
 
-    <div class="relative mx-auto max-w-6xl px-6 py-24 sm:py-28">
-      <div class="max-w-2xl">
+    <div
+      class="relative mx-auto grid min-w-0 max-w-6xl gap-10 px-6 py-24 sm:py-28 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-x-12 lg:gap-y-10"
+    >
+      <div class="max-w-2xl lg:col-start-2">
         <h2 class="text-[clamp(1.9rem,3.6vw,2.6rem)] leading-tight font-extrabold">
           A recipe is data
         </h2>
@@ -224,35 +226,31 @@ const anatomy = [
         </div>
       </div>
 
-      <div
-        class="mt-12 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-12"
-      >
-        <figure class="min-w-0 lg:order-2" data-ledger-result>
-          <div
-            class="tone-light overflow-hidden rounded-lg border border-rule-strong bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04),0_12px_32px_-12px_rgba(28,25,23,0.12)]"
-          >
-            <img
-              src="/images/order-row.png"
-              width="1652"
-              height="446"
-              alt="Ledger order row annotated at its amount and status"
-              class="h-auto w-full"
-            />
-          </div>
-          <figcaption class="mt-4 text-sm text-muted">
-            Ledger's Acme Corp order row. “What they owe” points to $42.00; “Where it stands” points
-            to Open.
-          </figcaption>
-        </figure>
-
-        <div class="min-w-0 lg:order-1">
-          <RecipeCard code={ledgerRecipe} file="screenshots/demo/order-row.yaml" />
-          <p class="mt-4 text-sm text-muted">
-            <code class="text-paper">npm run demo:generate</code> runs this file against the Ledger example
-            and regenerates the image.
-          </p>
-        </div>
+      <div class="min-w-0 lg:col-start-1 lg:row-start-1 lg:row-end-3">
+        <RecipeCard code={ledgerRecipe} file="screenshots/demo/order-row.yaml" />
+        <p class="mt-4 text-sm text-muted">
+          <code class="text-paper">npm run demo:generate</code> runs this file against the Ledger example
+          and regenerates the image.
+        </p>
       </div>
+
+      <figure class="min-w-0 lg:col-start-2" data-ledger-result>
+        <div
+          class="tone-light overflow-hidden rounded-lg border border-rule-strong bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04),0_12px_32px_-12px_rgba(28,25,23,0.12)]"
+        >
+          <img
+            src="/images/order-row.png"
+            width="1652"
+            height="446"
+            alt="Ledger order row annotated at its amount and status"
+            class="h-auto w-full"
+          />
+        </div>
+        <figcaption class="mt-4 text-sm text-muted">
+          Ledger's Acme Corp order row. “What they owe” points to $42.00; “Where it stands” points
+          to Open.
+        </figcaption>
+      </figure>
     </div>
   </section>
 

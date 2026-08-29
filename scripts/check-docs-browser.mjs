@@ -147,8 +147,8 @@ try {
   const ledgerRecipe = await mobilePage.locator('#ledger-demo [data-code-card]').boundingBox()
   assert.ok(ledgerResult && ledgerRecipe, 'the homepage shows the Ledger result and recipe')
   assert.ok(
-    ledgerResult.y < ledgerRecipe.y,
-    'the Ledger result appears before its recipe on a narrow screen',
+    ledgerRecipe.y < ledgerResult.y,
+    'the Ledger recipe appears before its result on a narrow screen',
   )
   await mobile.close()
 

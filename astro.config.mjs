@@ -13,6 +13,7 @@ export default defineConfig({
   // came out with the spaces missing. Sixty-nine of them, before this was noticed.
   compressHTML: false,
   trailingSlash: 'always',
+  devToolbar: { enabled: false },
   // `/og` and its topic variants exist only to be photographed, so none enters the sitemap.
   integrations: [
     sitemap({
