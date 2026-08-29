@@ -235,6 +235,57 @@ for (const route of ['/', '/docs/tutorials/first-screenshot/']) {
   }
 }
 
+const keepingCurrentRoute = '/docs/tutorials/keeping-a-screenshot-current/'
+const keepingCurrent = documents.get(keepingCurrentRoute)
+const driftAssets = new Map([
+  ['/images/keeping-current/committed.png', [1652, 446]],
+  ['/images/keeping-current/changed.png', [1652, 446]],
+  ['/images/keeping-current/diff.png', [4980, 446]],
+])
+let committedDriftImage
+for (const [asset, [expectedWidth, expectedHeight]] of driftAssets) {
+  let image
+  try {
+    image = await readFile(path.join(dist, asset.slice(1)))
+  } catch {
+    fail(`${asset} is missing from the production build`)
+    continue
+  }
+  if (asset.endsWith('/committed.png')) committedDriftImage = image
+  if (image.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a') {
+    fail(`${asset} must be a PNG image`)
+    continue
+  }
+  const width = image.readUInt32BE(16)
+  const height = image.readUInt32BE(20)
+  if (width !== expectedWidth || height !== expectedHeight) {
+    fail(`${asset} must be ${expectedWidth}×${expectedHeight}, got ${width}×${height}`)
+  }
+
+  if (!keepingCurrent) continue
+  const imageTags = (keepingCurrent.match(/<img\b[^>]*>/gi) ?? []).filter((tag) =>
+    tag.includes(`src="${asset}"`),
+  )
+  if (imageTags.length !== 1) {
+    fail(`${keepingCurrentRoute} must show ${asset} once`)
+    continue
+  }
+  const widthAttribute = imageTags[0].match(/\bwidth=["'](\d+)["']/i)?.[1]
+  const heightAttribute = imageTags[0].match(/\bheight=["'](\d+)["']/i)?.[1]
+  if (widthAttribute !== String(expectedWidth) || heightAttribute !== String(expectedHeight)) {
+    fail(`${keepingCurrentRoute} must declare ${asset} at ${expectedWidth}×${expectedHeight}`)
+  }
+  const figures = (keepingCurrent.match(/<figure\b[^>]*>[\s\S]*?<\/figure>/gi) ?? []).filter(
+    (figure) => figure.includes(`src="${asset}"`),
+  )
+  if (figures.length !== 1 || !/<figcaption\b/i.test(figures[0])) {
+    fail(`${asset} must appear in one figure with a visible caption`)
+  }
+}
+if (ledgerImage && committedDriftImage && committedDriftImage.compare(ledgerImage) !== 0) {
+  fail('/images/keeping-current/committed.png must match the Ledger image installed by shotlist')
+}
+
 const homepage = documents.get('/')
 if (homepage) {
   const category = 'Annotated screenshot automation for product documentation.'

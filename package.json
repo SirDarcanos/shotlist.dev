@@ -16,6 +16,7 @@
     "check:examples": "node scripts/check-examples.mjs",
     "shots": "shotlist --all --install",
     "demo:generate": "shotlist order-row --config shotlist.demo.config.yaml --install",
+    "demo:drift": "node scripts/generate-keeping-current.mjs",
     "check:site": "node scripts/check-site-contract.mjs",
     "check:browser": "node scripts/check-docs-browser.mjs",
     "check:performance": "npm run build && node scripts/check-performance.mjs"
