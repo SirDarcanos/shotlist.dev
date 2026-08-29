@@ -1,6 +1,8 @@
 ---
 import Base from './Base.astro'
+import DocsProvenance from '../components/DocsProvenance.astro'
 import { prepareDocsContent } from '../lib/docs-navigation'
+import { docsProvenance } from '../lib/docs-provenance.mjs'
 
 interface Props {
   title: string
@@ -10,6 +12,8 @@ interface Props {
 
 const { title, description, pageEvent } = Astro.props
 const path = Astro.url.pathname === '/' ? '/' : `${Astro.url.pathname.replace(/\/$/, '')}/`
+const provenance = docsProvenance(path)
+if (!provenance) throw new Error(`No documentation provenance source for ${path}`)
 const { content, headings } = prepareDocsContent(await Astro.slots.render('default'))
 
 /**
@@ -191,7 +195,10 @@ const sections = [
       </nav>
     </div>
 
-    <article class="min-w-0 max-w-2xl" set:html={content} />
+    <article class="min-w-0 max-w-2xl">
+      <Fragment set:html={content} />
+      <DocsProvenance {...provenance} />
+    </article>
   </div>
 </Base>
 

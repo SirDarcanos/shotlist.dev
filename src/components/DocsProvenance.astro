@@ -1,0 +1,56 @@
+---
+interface Props {
+  version: string
+  maintainer: string
+  published?: string
+  modified?: string
+  sourceUrl: string
+  editUrl: string
+}
+
+const { version, maintainer, published, modified, sourceUrl, editUrl } = Astro.props
+const dateFormat = new Intl.DateTimeFormat('en-US', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+})
+const displayDate = (date: string) => dateFormat.format(new Date(`${date}T00:00:00Z`))
+---
+
+<aside
+  aria-label="Page provenance"
+  class="mt-14 border-t border-rule pt-5 font-mono text-xs leading-6 text-muted"
+  data-doc-provenance
+  data-history={published && modified ? 'complete' : 'unavailable'}
+  data-shotlist-version={version}
+>
+  <p>
+    Applies to shotlist {version} · Maintained by {maintainer}
+  </p>
+  <p>
+    {
+      published ? (
+        <>
+          Published <time datetime={published}>{displayDate(published)}</time>
+        </>
+      ) : (
+        'Published date unavailable'
+      )
+    }
+    {' · '}
+    {
+      modified ? (
+        <>
+          Updated <time datetime={modified}>{displayDate(modified)}</time>
+        </>
+      ) : (
+        'Updated date unavailable'
+      )
+    }
+    {' · '}
+    <a href={sourceUrl}>View source</a>
+    {' · '}
+    <a href={editUrl}>Propose a correction</a>
+  </p>
+</aside>

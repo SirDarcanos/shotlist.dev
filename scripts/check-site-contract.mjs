@@ -4,6 +4,10 @@ import { canonicalRoutes, legacyRedirects, siteOrigin } from './route-contract.m
 
 const dist = path.resolve('dist')
 const failures = []
+const shotlistMetadata = JSON.parse(
+  await readFile(path.resolve('node_modules/shotlist/package.json'), 'utf8'),
+)
+const sourceRepository = 'https://github.com/SirDarcanos/shotlist.dev'
 
 function fail(message) {
   failures.push(message)
@@ -78,6 +82,16 @@ function linkHrefs(html, rel, type) {
 
 function markdownRouteFor(route) {
   return route === '/' ? '/index.md' : `${route.slice(0, -1)}.md`
+}
+
+function validDate(date) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false
+  const parsed = new Date(`${date}T00:00:00Z`)
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === date
+}
+
+function docsSourcePath(route) {
+  return route === '/docs/' ? 'src/pages/docs/index.astro' : `src/pages${route.slice(0, -1)}.astro`
 }
 
 function visibleText(html) {
@@ -174,6 +188,7 @@ for (const family of [
 }
 const actualRoutes = new Set()
 const documents = new Map()
+const docsModificationDates = new Map()
 let saw404 = false
 
 for (const filename of htmlFiles) {
@@ -267,6 +282,56 @@ for (const filename of htmlFiles) {
     }
     if (tocHrefs.some((href) => !href.startsWith('#') || !headingIds.includes(href.slice(1)))) {
       fail(`${route} section navigation contains a broken fragment`)
+    }
+
+    const provenanceBlocks =
+      html.match(/<aside\b[^>]*\bdata-doc-provenance\b[^>]*>[\s\S]*?<\/aside>/gi) ?? []
+    if (provenanceBlocks.length !== 1) {
+      fail(`${route} must expose one page provenance block`)
+    } else {
+      const provenance = provenanceBlocks[0]
+      const openingTag = provenance.match(/^<aside\b[^>]*>/i)?.[0] ?? ''
+      const history = attributeValue(openingTag, 'data-history')
+      const version = attributeValue(openingTag, 'data-shotlist-version')
+      const text = visibleText(provenance)
+      if (
+        version !== shotlistMetadata.version ||
+        !text.includes(`shotlist ${shotlistMetadata.version}`)
+      ) {
+        fail(`${route} provenance must use the installed shotlist version`)
+      }
+      if (!text.includes(`Maintained by ${shotlistMetadata.author}`)) {
+        fail(`${route} provenance must name the package maintainer`)
+      }
+
+      const dates = [...provenance.matchAll(/<time\b[^>]*\bdatetime=["']([^"']+)["'][^>]*>/gi)].map(
+        (match) => match[1],
+      )
+      for (const date of dates) {
+        if (!validDate(date)) fail(`${route} provenance contains invalid date ${date}`)
+      }
+      if (history === 'complete') {
+        if (dates.length !== 2) fail(`${route} complete provenance must publish two dates`)
+        if (dates.length === 2 && dates[0] > dates[1]) {
+          fail(`${route} publication date follows its modification date`)
+        }
+        docsModificationDates.set(route, dates[1])
+      } else if (history === 'unavailable') {
+        if (dates.length) fail(`${route} unavailable history must not publish guessed dates`)
+        docsModificationDates.set(route, undefined)
+      } else {
+        fail(`${route} provenance must declare whether source history is complete`)
+      }
+
+      const sourcePath = docsSourcePath(route)
+      const expectedLinks = [
+        `${sourceRepository}/blob/main/${sourcePath}`,
+        `${sourceRepository}/edit/main/${sourcePath}`,
+      ]
+      const provenanceLinks = valuesFor(provenance, 'a', 'href')
+      for (const link of expectedLinks) {
+        if (!provenanceLinks.includes(link)) fail(`${route} provenance is missing ${link}`)
+      }
     }
   }
 }
@@ -578,11 +643,18 @@ const sitemapFiles = (await filesBelow(dist)).filter((filename) =>
   /sitemap-\d+\.xml$/.test(filename),
 )
 const sitemapLocations = new Set()
+const sitemapLastmods = new Map()
 for (const filename of sitemapFiles) {
   const xml = await readFile(filename, 'utf8')
-  for (const [, location] of xml.matchAll(/<loc>([^<]+)<\/loc>/g)) {
+  for (const [, entry] of xml.matchAll(/<url>([\s\S]*?)<\/url>/g)) {
+    const location = entry.match(/<loc>([^<]+)<\/loc>/)?.[1]
+    if (!location) {
+      fail(`${path.basename(filename)} contains a sitemap entry without a location`)
+      continue
+    }
     if (sitemapLocations.has(location)) fail(`duplicate sitemap location: ${location}`)
     sitemapLocations.add(location)
+    sitemapLastmods.set(new URL(location).pathname, entry.match(/<lastmod>([^<]+)<\/lastmod>/)?.[1])
   }
 }
 const sitemapRoutes = new Set(
@@ -600,6 +672,22 @@ for (const route of expectedRoutes) {
 for (const location of sitemapLocations) {
   if (!expectedRoutes.has(new URL(location).pathname)) {
     fail(`non-canonical route is present in the sitemap: ${location}`)
+  }
+}
+for (const [route, visibleDate] of docsModificationDates) {
+  const sitemapDate = sitemapLastmods.get(route)
+  if (!visibleDate && sitemapDate) {
+    fail(`${route} sitemap lastmod must be omitted when source history is unavailable`)
+  } else if (visibleDate && !sitemapDate) {
+    fail(`${route} sitemap is missing the visible modification date`)
+  } else if (visibleDate && sitemapDate) {
+    const parsedSitemapDate = new Date(sitemapDate)
+    if (
+      Number.isNaN(parsedSitemapDate.getTime()) ||
+      parsedSitemapDate.toISOString().slice(0, 10) !== visibleDate
+    ) {
+      fail(`${route} sitemap lastmod disagrees with the visible modification date`)
+    }
   }
 }
 
