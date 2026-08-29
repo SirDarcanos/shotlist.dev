@@ -47,7 +47,6 @@ const { class: className = '', trackInstall = false } = Astro.props
     stroke-linecap="round"
     stroke-linejoin="round"
     aria-hidden="true"
-    hidden
   >
     <path d="M20 6 9 17l-5-5"></path>
   </svg>
@@ -62,6 +61,8 @@ const { class: className = '', trackInstall = false } = Astro.props
 
 <script>
   for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
+    // The button stays hidden until its SVG state is ready, so the two marks never flash together.
+    button.querySelector<SVGElement>('.done-mark')?.toggleAttribute('hidden', true)
     button.hidden = false
   }
 

@@ -17,11 +17,18 @@ interface Props {
 }
 
 const { size = 28, decorative = false, class: className = '' } = Astro.props
-
-const labelling = decorative ? { 'aria-hidden': 'true' } : { role: 'img', 'aria-label': 'shotlist' }
 ---
 
-<svg width={size} height={size} viewBox="0 0 40 40" fill="none" class={className} {...labelling}>
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 40 40"
+  fill="none"
+  class={className}
+  role={decorative ? undefined : 'img'}
+  aria-label={decorative ? undefined : 'shotlist'}
+  aria-hidden={decorative || undefined}
+>
   <rect x="2.5" y="2.5" width="35" height="35" rx="7" stroke="var(--color-mark)" stroke-width="5"
   ></rect>
 </svg>
