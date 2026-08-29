@@ -41,14 +41,75 @@ function metaContent(html, name) {
   }
 }
 
-function linkHrefs(html, rel) {
+function linkHrefs(html, rel, type) {
   const hrefs = []
   for (const tag of html.match(/<link\b[^>]*>/gi) ?? []) {
     const relation = tag.match(/\brel=["']([^"']+)["']/i)?.[1]
     const href = tag.match(/\bhref=["']([^"']+)["']/i)?.[1]
-    if (relation?.split(/\s+/).includes(rel) && href) hrefs.push(href)
+    const contentType = tag.match(/\btype=["']([^"']+)["']/i)?.[1]
+    if (relation?.split(/\s+/).includes(rel) && href && (!type || contentType === type)) {
+      hrefs.push(href)
+    }
   }
   return hrefs
+}
+
+function markdownRouteFor(route) {
+  return route === '/' ? '/index.md' : `${route.slice(0, -1)}.md`
+}
+
+function visibleText(html) {
+  return html
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function markdownVisibleText(markdown) {
+  return markdown
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/`+([^`]*)`+/g, '$1')
+    .replace(/[~*_]/g, '')
+    .replace(/\\([\\[\]])/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function markdownHeadings(markdown) {
+  const headings = []
+  let fence
+  for (const line of markdown.split('\n')) {
+    const openingFence = line.match(/^\s*(`{3,})/)
+    if (openingFence) {
+      if (!fence) fence = openingFence[1]
+      else if (openingFence[1].length >= fence.length) fence = undefined
+      continue
+    }
+    if (fence) continue
+    const heading = line.match(/^\s{0,3}(#{1,6})\s+(.+)$/)
+    if (heading) headings.push({ level: heading[1].length, label: markdownVisibleText(heading[2]) })
+  }
+  return headings
+}
+
+function headerRules(text) {
+  const rules = new Map()
+  let route
+  for (const line of text.split('\n')) {
+    if (!line.trim() || line.trimStart().startsWith('#')) continue
+    if (!line.startsWith(' ') && line.startsWith('/')) {
+      route = line.trim()
+      rules.set(route, new Map())
+      continue
+    }
+    const match = line.match(/^\s+([^:]+):\s*(.+)$/)
+    if (route && match) rules.get(route).set(match[1].toLowerCase(), match[2])
+  }
+  return rules
 }
 
 function fontPreloads(html) {
@@ -122,6 +183,14 @@ for (const filename of htmlFiles) {
   const expectedCanonical = `${siteOrigin}${route}`
   if (canonicals.length !== 1 || canonicals[0] !== expectedCanonical) {
     fail(`${route} must have one canonical link to ${expectedCanonical}`)
+  }
+  const markdownRoute = markdownRouteFor(route)
+  const markdownAlternates = linkHrefs(html, 'alternate', 'text/markdown')
+  if (
+    markdownAlternates.length !== 1 ||
+    markdownAlternates[0] !== `${siteOrigin}${markdownRoute}`
+  ) {
+    fail(`${route} must advertise ${markdownRoute} as its text/markdown alternate`)
   }
 
   if (route === '/' || route === '/docs/') {
@@ -312,6 +381,98 @@ for (const route of expectedRoutes) {
 }
 for (const route of actualRoutes) {
   if (!expectedRoutes.has(route)) fail(`unexpected canonical route in dist: ${route}`)
+}
+
+const headers = headerRules(await readFile(path.join(dist, '_headers'), 'utf8'))
+for (const route of expectedRoutes) {
+  const markdownRoute = markdownRouteFor(route)
+  let markdown
+  try {
+    markdown = await readFile(path.join(dist, markdownRoute.slice(1)), 'utf8')
+  } catch {
+    fail(`${markdownRoute} is missing from the production build`)
+    continue
+  }
+
+  const html = documents.get(route)
+  const contentHtml = route.startsWith('/docs/')
+    ? html?.match(/<article\b[^>]*>([\s\S]*?)<\/article>/i)?.[1]
+    : html?.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1]
+  const title = contentHtml?.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i)?.[1]
+  if (!title || !markdown.startsWith(`# ${visibleText(title)}\n`)) {
+    fail(`${markdownRoute} must preserve the visible page title`)
+  }
+  const sourceHeadings = [
+    ...(contentHtml ?? '').matchAll(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi),
+  ].map((match) => ({ level: Number(match[1]), label: visibleText(match[2]) }))
+  const remainingHeadings = markdownHeadings(markdown)
+  for (const sourceHeading of sourceHeadings) {
+    const index = remainingHeadings.findIndex(
+      (heading) => heading.level === sourceHeading.level && heading.label === sourceHeading.label,
+    )
+    if (index === -1) {
+      fail(
+        `${markdownRoute} must preserve its h${sourceHeading.level} heading: ${sourceHeading.label}`,
+      )
+    } else {
+      remainingHeadings.splice(index, 1)
+    }
+  }
+  const firstLink = contentHtml?.match(/<a\b[^>]*\bhref=["']([^"']+)["'][^>]*>/i)?.[1]
+  if (firstLink && !markdown.includes(`](${firstLink})`)) {
+    fail(`${markdownRoute} must preserve its first content link`)
+  }
+  const firstImage = contentHtml?.match(/<img\b[^>]*>/i)?.[0]
+  const firstImageAlt = firstImage?.match(/\balt=["']([^"']+)["']/i)?.[1]
+  const firstImageSource = firstImage?.match(/\bsrc=["']([^"']+)["']/i)?.[1]
+  if (
+    firstImageAlt &&
+    firstImageSource &&
+    !markdown.includes(`![${firstImageAlt}](${firstImageSource})`)
+  ) {
+    fail(`${markdownRoute} must preserve meaningful image text`)
+  }
+  if (/<pre\b/i.test(contentHtml ?? '') && !/^```/m.test(markdown)) {
+    fail(`${markdownRoute} must preserve code blocks`)
+  }
+  if (/<table\b/i.test(contentHtml ?? '') && !/^\| .* \|\n\|(?: --- \|)+$/m.test(markdown)) {
+    fail(`${markdownRoute} must preserve tables`)
+  }
+  if (/<(?:ul|ol)\b/i.test(contentHtml ?? '') && !/^(?:- |\d+\. )/m.test(markdown)) {
+    fail(`${markdownRoute} must preserve lists`)
+  }
+  for (const forbidden of ['Skip to content', 'Back to top', 'install_command_copied']) {
+    if (markdown.includes(forbidden)) fail(`${markdownRoute} contains non-content UI: ${forbidden}`)
+  }
+
+  const rule = headers.get(markdownRoute)
+  if (rule?.get('content-type') !== 'text/markdown; charset=utf-8') {
+    fail(`${markdownRoute} must be served as UTF-8 text/markdown`)
+  }
+  if (rule?.get('x-robots-tag') !== 'noindex') {
+    fail(`${markdownRoute} must carry an X-Robots-Tag: noindex header`)
+  }
+  const expectedLink = `<${siteOrigin}${route}>; rel="canonical"`
+  if (rule?.get('link') !== expectedLink) {
+    fail(`${markdownRoute} must identify ${siteOrigin}${route} as canonical`)
+  }
+}
+
+const llms = await readFile(path.join(dist, 'llms.txt'), 'utf8')
+const expectedLlmsAlternates = new Set(
+  [...expectedRoutes].map((route) => `${siteOrigin}${markdownRouteFor(route)}`),
+)
+const actualLlmsAlternates = new Set(
+  [...llms.matchAll(/\]\((https:\/\/shotlist\.dev\/[^)]*\.md)\)/g)].map((match) => match[1]),
+)
+for (const alternate of expectedLlmsAlternates) {
+  if (!actualLlmsAlternates.has(alternate)) fail(`llms.txt is missing ${alternate}`)
+}
+for (const alternate of actualLlmsAlternates) {
+  if (!expectedLlmsAlternates.has(alternate)) fail(`llms.txt lists unknown alternate ${alternate}`)
+}
+if (/there are no markdown versions/i.test(llms)) {
+  fail('llms.txt still claims that Markdown alternates do not exist')
 }
 
 const sitemapFiles = (await filesBelow(dist)).filter((filename) =>

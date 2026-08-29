@@ -19,6 +19,8 @@ interface Props {
 const { title, description, bare = false, indexable = true, pageEvent } = Astro.props
 const pathname = Astro.url.pathname === '/' ? '/' : `${Astro.url.pathname.replace(/\/$/, '')}/`
 const canonical = new URL(pathname, Astro.site).href
+const markdownPath = pathname === '/' ? '/index.md' : `${pathname.slice(0, -1)}.md`
+const markdownAlternate = new URL(markdownPath, Astro.site).href
 const fullTitle = bare ? title : `${title} — shotlist`
 
 /*
@@ -94,6 +96,7 @@ const analyticsScript = `
           title={fullTitle}
           description={description}
           canonical={canonical}
+          extend={{ link: [{ rel: 'alternate', type: 'text/markdown', href: markdownAlternate }] }}
           openGraph={{
             basic: { title: fullTitle, type: 'website', image: card, url: canonical },
             optional: { description, siteName: 'shotlist' },
