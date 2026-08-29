@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro'
 import RecipeCard from '../components/RecipeCard.astro'
 import CommandTabs from '../components/CommandTabs.astro'
 import { heroRecipe, ledgerRecipe, configExample } from '../lib/recipes'
+import { homepageStructuredData } from '../lib/structured-data.mjs'
 
 /**
  * The rest of what it does, one line each.
@@ -11,6 +12,9 @@ import { heroRecipe, ledgerRecipe, configExample } from '../lib/recipes'
  * sentence needs the docs page it links to instead.
  */
 /** The one command someone reading this page is here to copy. */
+const description =
+  'Annotated screenshot automation from YAML for product documentation. shotlist drives a running site, clips a region, draws callouts, and writes the image.'
+
 const install = [
   { label: 'npm', code: 'npm i -D shotlist playwright' },
   { label: 'pnpm', code: 'pnpm add -D shotlist playwright' },
@@ -92,7 +96,8 @@ const anatomy = [
 
 <Base
   title="shotlist — annotated UI screenshots, described as data"
-  description="Annotated screenshot automation from YAML for product documentation. shotlist drives a running site, clips a region, draws callouts, and writes the image."
+  description={description}
+  structuredData={homepageStructuredData(description)}
   bare
 >
   <!-- Hero. Grid for the surface; the blooms are the dark section's alone. -->

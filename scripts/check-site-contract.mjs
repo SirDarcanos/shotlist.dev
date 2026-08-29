@@ -84,6 +84,42 @@ function markdownRouteFor(route) {
   return route === '/' ? '/index.md' : `${route.slice(0, -1)}.md`
 }
 
+function containsProperty(value, property) {
+  if (!value || typeof value !== 'object') return false
+  if (Object.hasOwn(value, property)) return true
+  return Object.values(value).some((child) => containsProperty(child, property))
+}
+
+function jsonLdNodes(route, html) {
+  const nodes = []
+  const scripts =
+    html.match(/<script\b[^>]*\btype=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi) ?? []
+  for (const script of scripts) {
+    const source = script.replace(/^<script\b[^>]*>/i, '').replace(/<\/script>$/i, '')
+    let document
+    try {
+      document = JSON.parse(source)
+    } catch (error) {
+      fail(`${route} contains invalid JSON-LD: ${error.message}`)
+      continue
+    }
+    if (document['@context'] !== 'https://schema.org') {
+      fail(`${route} JSON-LD must use the Schema.org context`)
+    }
+    for (const unsupported of ['aggregateRating', 'review', 'offers']) {
+      if (containsProperty(document, unsupported)) {
+        fail(`${route} structured data must not claim ${unsupported}`)
+      }
+    }
+    nodes.push(...(Array.isArray(document['@graph']) ? document['@graph'] : [document]))
+  }
+  return nodes
+}
+
+function schemaType(node, type) {
+  return (Array.isArray(node['@type']) ? node['@type'] : [node['@type']]).includes(type)
+}
+
 function validDate(date) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false
   const parsed = new Date(`${date}T00:00:00Z`)
@@ -299,6 +335,9 @@ for (const filename of htmlFiles) {
         !text.includes(`shotlist ${shotlistMetadata.version}`)
       ) {
         fail(`${route} provenance must use the installed shotlist version`)
+      }
+      if (!text.includes(`Written by ${shotlistMetadata.author}`)) {
+        fail(`${route} provenance must name the documentation author`)
       }
       if (!text.includes(`Maintained by ${shotlistMetadata.author}`)) {
         fail(`${route} provenance must name the package maintainer`)
@@ -521,6 +560,37 @@ if (defaultCardImage) {
 
 const homepage = documents.get('/')
 if (homepage) {
+  const nodes = jsonLdNodes('/', homepage)
+  const website = nodes.find((node) => schemaType(node, 'WebSite'))
+  const software = nodes.find((node) => schemaType(node, 'SoftwareApplication'))
+  if (!website || !software) {
+    fail('homepage JSON-LD must describe WebSite and SoftwareApplication entities')
+  } else {
+    if (website.mainEntity?.['@id'] !== software['@id']) {
+      fail('homepage WebSite must connect its main entity to the SoftwareApplication')
+    }
+    if (website.url !== siteOrigin || software.url !== siteOrigin) {
+      fail('homepage structured entities must use the canonical site URL')
+    }
+    if (
+      software.name !== shotlistMetadata.name ||
+      software.author?.name !== shotlistMetadata.author
+    ) {
+      fail('homepage SoftwareApplication must use maintained package metadata')
+    }
+    if (software.softwareRequirements !== 'Node.js 20 or later' || software.operatingSystem) {
+      fail(
+        'homepage SoftwareApplication must describe Node.js as a requirement, not an operating system',
+      )
+    }
+    if (software.description !== metaContent(homepage, 'description')) {
+      fail('homepage SoftwareApplication description must match the visible search claim')
+    }
+    for (const unsupported of ['aggregateRating', 'review', 'offers']) {
+      if (unsupported in software)
+        fail(`homepage SoftwareApplication must not claim ${unsupported}`)
+    }
+  }
   const category = 'Annotated screenshot automation for product documentation.'
   if (!homepage.includes(category)) fail(`homepage must state the product category: ${category}`)
   const expectedDescription =
@@ -537,6 +607,87 @@ if (homepage) {
   }
   if (!homepage.includes('Or install shotlist now:') || !homepage.includes('data-command-tabs')) {
     fail('homepage must retain the install command as a secondary path')
+  }
+}
+
+const howToRoutes = new Set([
+  '/docs/tutorials/first-screenshot/',
+  '/docs/tutorials/keeping-a-screenshot-current/',
+  '/docs/tutorials/document-a-wordpress-site/',
+  '/docs/how-to/annotate-an-image/',
+  '/docs/how-to/install/',
+  '/docs/how-to/run-in-ci/',
+  '/docs/how-to/sign-in/',
+])
+for (const [route, html] of documents) {
+  if (!route.startsWith('/docs/')) continue
+  const nodes = jsonLdNodes(route, html)
+  const breadcrumb = nodes.find((node) => schemaType(node, 'BreadcrumbList'))
+  const article = nodes.find((node) => schemaType(node, 'TechArticle'))
+  const howTo = nodes.find((node) => schemaType(node, 'HowTo'))
+  const articleHtml = html.match(
+    /<article\b[^>]*>([\s\S]*?)<aside\b[^>]*\bdata-doc-provenance/i,
+  )?.[1]
+  const visibleTitle = visibleText(articleHtml?.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i)?.[1] ?? '')
+  const description = metaContent(html, 'description')
+  const image = metaProperty(html, 'og:image')
+
+  if (!breadcrumb || !article) {
+    fail(`${route} JSON-LD must describe its BreadcrumbList and TechArticle`)
+    continue
+  }
+  const visibleBreadcrumb = html.match(
+    /<nav\b[^>]*\baria-label=["']Breadcrumb["'][^>]*>([\s\S]*?)<\/nav>/i,
+  )?.[1]
+  const visibleCrumbs = visibleBreadcrumb
+    ? [
+        ...visibleBreadcrumb.matchAll(
+          /<(?:a|span)\b[^>]*\bdata-breadcrumb-name\b[^>]*>([\s\S]*?)<\/(?:a|span)>/gi,
+        ),
+      ].map((match) => visibleText(match[1]))
+    : []
+  const schemaCrumbs = (breadcrumb.itemListElement ?? []).map((item) => item.name)
+  if (!visibleCrumbs.length || JSON.stringify(schemaCrumbs) !== JSON.stringify(visibleCrumbs)) {
+    fail(`${route} BreadcrumbList must match its visible breadcrumb hierarchy`)
+  }
+  if (article.headline !== visibleTitle || article.description !== description) {
+    fail(`${route} TechArticle title and description must agree with the page`)
+  }
+  if (article.url !== `${siteOrigin}${route}` || article.image !== image) {
+    fail(`${route} TechArticle URL and image must agree with canonical page metadata`)
+  }
+  if (
+    article.author?.name !== shotlistMetadata.author ||
+    article.version !== shotlistMetadata.version
+  ) {
+    fail(`${route} TechArticle must use visible maintainer and version metadata`)
+  }
+  const sourcePath = docsSourcePath(route)
+  if (article.isBasedOn !== `${sourceRepository}/blob/main/${sourcePath}`) {
+    fail(`${route} TechArticle must identify its visible source`)
+  }
+  const provenance =
+    html.match(/<aside\b[^>]*\bdata-doc-provenance\b[^>]*>[\s\S]*?<\/aside>/i)?.[0] ?? ''
+  const dates = [...provenance.matchAll(/<time\b[^>]*\bdatetime=["']([^"']+)["'][^>]*>/gi)].map(
+    (match) => match[1],
+  )
+  if (article.datePublished !== dates[0] || article.dateModified !== dates[1]) {
+    fail(`${route} TechArticle dates must agree with visible provenance`)
+  }
+
+  if (howToRoutes.has(route)) {
+    if (!howTo) fail(`${route} must describe its ordered procedure as HowTo`)
+    else {
+      const visibleSteps = [...(articleHtml ?? '').matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/gi)]
+        .map((match) => visibleText(match[1]))
+        .filter((heading) => /^Step \d+:/.test(heading))
+      const schemaSteps = (howTo.step ?? []).map((step) => step.name)
+      if (JSON.stringify(schemaSteps) !== JSON.stringify(visibleSteps)) {
+        fail(`${route} HowTo steps must follow the visible step order`)
+      }
+    }
+  } else if (howTo) {
+    fail(`${route} must not claim HowTo semantics without one ordered procedure`)
   }
 }
 

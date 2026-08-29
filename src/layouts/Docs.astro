@@ -1,8 +1,11 @@
 ---
 import Base from './Base.astro'
+import Breadcrumbs from '../components/Breadcrumbs.astro'
 import DocsProvenance from '../components/DocsProvenance.astro'
 import { prepareDocsContent } from '../lib/docs-navigation'
 import { docsProvenance } from '../lib/docs-provenance.mjs'
+import { socialCardFor } from '../lib/social-cards.mjs'
+import { docsBreadcrumbs, docsStructuredData } from '../lib/structured-data.mjs'
 
 interface Props {
   title: string
@@ -14,7 +17,20 @@ const { title, description, pageEvent } = Astro.props
 const path = Astro.url.pathname === '/' ? '/' : `${Astro.url.pathname.replace(/\/$/, '')}/`
 const provenance = docsProvenance(path)
 if (!provenance) throw new Error(`No documentation provenance source for ${path}`)
-const { content, headings } = prepareDocsContent(await Astro.slots.render('default'))
+const { content, headings, pageTitle, howToSteps } = prepareDocsContent(
+  await Astro.slots.render('default'),
+)
+const topicCard = socialCardFor(path)
+const image = new URL(topicCard ? `/social/${topicCard.slug}.png` : '/og.png', Astro.site).href
+const breadcrumbs = docsBreadcrumbs(path, pageTitle)
+const structuredData = docsStructuredData({
+  route: path,
+  title: pageTitle,
+  description,
+  provenance,
+  image,
+  steps: howToSteps,
+})
 
 /**
  * The documentation, grouped by what the reader is doing.
@@ -109,7 +125,7 @@ const sections = [
 ]
 ---
 
-<Base title={title} description={description} pageEvent={pageEvent}>
+<Base title={title} description={description} pageEvent={pageEvent} structuredData={structuredData}>
   <div
     class="docs-page mx-auto max-w-6xl gap-12 px-6 py-12 md:grid md:grid-cols-[13rem_minmax(0,1fr)] md:py-16"
   >
@@ -195,10 +211,13 @@ const sections = [
       </nav>
     </div>
 
-    <article class="min-w-0 max-w-2xl">
-      <Fragment set:html={content} />
-      <DocsProvenance {...provenance} />
-    </article>
+    <div class="min-w-0 max-w-2xl">
+      <Breadcrumbs crumbs={breadcrumbs} />
+      <article>
+        <Fragment set:html={content} />
+        <DocsProvenance {...provenance} />
+      </article>
+    </div>
   </div>
 </Base>
 

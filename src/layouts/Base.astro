@@ -15,14 +15,24 @@ interface Props {
   indexable?: boolean
   /** A page view on the measured adoption path. */
   pageEvent?: 'tutorial_viewed'
+  /** Truthful entities represented by the visible page. */
+  structuredData?: Record<string, unknown>
 }
 
-const { title, description, bare = false, indexable = true, pageEvent } = Astro.props
+const {
+  title,
+  description,
+  bare = false,
+  indexable = true,
+  pageEvent,
+  structuredData,
+} = Astro.props
 const pathname = Astro.url.pathname === '/' ? '/' : `${Astro.url.pathname.replace(/\/$/, '')}/`
 const canonical = new URL(pathname, Astro.site).href
 const markdownPath = pathname === '/' ? '/index.md' : `${pathname.slice(0, -1)}.md`
 const markdownAlternate = new URL(markdownPath, Astro.site).href
 const fullTitle = bare ? title : `${title} — shotlist`
+const jsonLd = structuredData && JSON.stringify(structuredData).replace(/</g, '\\u003c')
 
 /*
  * Priority documentation routes use the matching topic card; every other route keeps the
@@ -122,6 +132,8 @@ const analyticsScript = `
         </>
       )
     }
+
+    {jsonLd && <script type="application/ld+json" is:inline set:html={jsonLd} />}
 
     {
       /*

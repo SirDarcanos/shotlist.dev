@@ -1,6 +1,7 @@
 ---
 interface Props {
   version: string
+  author: string
   maintainer: string
   published?: string
   modified?: string
@@ -8,7 +9,7 @@ interface Props {
   editUrl: string
 }
 
-const { version, maintainer, published, modified, sourceUrl, editUrl } = Astro.props
+const { version, author, maintainer, published, modified, sourceUrl, editUrl } = Astro.props
 const dateFormat = new Intl.DateTimeFormat('en-US', {
   day: 'numeric',
   month: 'long',
@@ -26,7 +27,7 @@ const displayDate = (date: string) => dateFormat.format(new Date(`${date}T00:00:
   data-shotlist-version={version}
 >
   <p>
-    Applies to shotlist {version} · Maintained by {maintainer}
+    Written by {author} · Applies to shotlist {version} · Maintained by {maintainer}
   </p>
   <p>
     {

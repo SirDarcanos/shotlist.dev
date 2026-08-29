@@ -9,6 +9,13 @@ export interface DocsHeading {
   label: string
 }
 
+interface PreparedDocsContent {
+  content: string
+  headings: DocsHeading[]
+  pageTitle: string
+  howToSteps: DocsHeading[]
+}
+
 function elementsBelow(node: Node): Element[] {
   if (!('childNodes' in node)) return []
   return node.childNodes.flatMap((child) => [
@@ -32,13 +39,19 @@ function slug(label: string): string {
     .replace(/^-|-$/g, '')
 }
 
-/** Adds deterministic fragment targets while the article is still being rendered. */
-export function prepareDocsContent(html: string): { content: string; headings: DocsHeading[] } {
+/** Adds deterministic fragment targets and extracts the page's public document structure. */
+export function prepareDocsContent(html: string): PreparedDocsContent {
   const fragment = parseFragment(html)
+  const elements = elementsBelow(fragment)
+  const pageTitle = elements
+    .filter((element) => element.tagName === 'h1')
+    .map((heading) => textBelow(heading).replace(/\s+/g, ' ').trim())[0]
+  if (!pageTitle) throw new Error('Documentation pages need one visible h1')
+
   const headings: DocsHeading[] = []
   const usedIds = new Set<string>()
 
-  for (const heading of elementsBelow(fragment).filter((element) => element.tagName === 'h2')) {
+  for (const heading of elements.filter((element) => element.tagName === 'h2')) {
     const label = textBelow(heading).replace(/\s+/g, ' ').trim()
     const authoredId = heading.attrs.find((attribute) => attribute.name === 'id')
     const baseId = authoredId?.value || slug(label) || 'section'
@@ -52,5 +65,12 @@ export function prepareDocsContent(html: string): { content: string; headings: D
     headings.push({ id, label })
   }
 
-  return { content: serialize(fragment), headings }
+  const numberedSteps = headings
+    .map((heading) => ({ heading, number: Number(heading.label.match(/^Step (\d+):/)?.[1]) }))
+    .filter(({ number }) => Number.isInteger(number))
+  const howToSteps = numberedSteps.every(({ number }, index) => number === index + 1)
+    ? numberedSteps.map(({ heading }) => heading)
+    : []
+
+  return { content: serialize(fragment), headings, pageTitle, howToSteps }
 }

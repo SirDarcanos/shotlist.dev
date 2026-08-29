@@ -52,6 +52,7 @@ export function docsProvenance(route) {
 
   return {
     version: packageMetadata.version,
+    author: packageMetadata.author,
     maintainer: packageMetadata.author,
     sourcePath,
     sourceUrl: `${sourceRepository}/blob/main/${sourcePath}`,
