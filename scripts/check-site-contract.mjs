@@ -51,8 +51,44 @@ function linkHrefs(html, rel) {
   return hrefs
 }
 
+function fontPreloads(html) {
+  return (html.match(/<link\b[^>]*>/gi) ?? []).filter((tag) => {
+    const rel = tag.match(/\brel=["']([^"']+)["']/i)?.[1]
+    const as = tag.match(/\bas=["']([^"']+)["']/i)?.[1]
+    return rel?.split(/\s+/).includes('preload') && as === 'font'
+  })
+}
+
 const expectedRoutes = new Set(canonicalRoutes)
-const htmlFiles = (await filesBelow(dist)).filter((filename) => filename.endsWith('.html'))
+const builtFiles = await filesBelow(dist)
+const htmlFiles = builtFiles.filter((filename) => filename.endsWith('.html'))
+const css = (
+  await Promise.all(
+    builtFiles
+      .filter((filename) => filename.endsWith('.css'))
+      .map((filename) => readFile(filename, 'utf8')),
+  )
+).join('\n')
+for (const family of [
+  'Fraunces fallback',
+  'Fraunces Android fallback',
+  'Fraunces Windows fallback',
+  'Inter fallback',
+  'Inter Android fallback',
+  'Inter Noto fallback',
+  'JetBrains Mono fallback',
+  'JetBrains Mono Android fallback',
+  'JetBrains Mono Noto fallback',
+]) {
+  const face = css.match(new RegExp(`@font-face\\{font-family:${family};[^}]+\\}`))?.[0]
+  if (!face) {
+    fail(`built CSS is missing ${family}`)
+    continue
+  }
+  for (const descriptor of ['size-adjust:', 'ascent-override:', 'descent-override:']) {
+    if (!face.includes(descriptor)) fail(`${family} is missing ${descriptor.slice(0, -1)}`)
+  }
+}
 const actualRoutes = new Set()
 const documents = new Map()
 let saw404 = false
@@ -86,6 +122,22 @@ for (const filename of htmlFiles) {
   const expectedCanonical = `${siteOrigin}${route}`
   if (canonicals.length !== 1 || canonicals[0] !== expectedCanonical) {
     fail(`${route} must have one canonical link to ${expectedCanonical}`)
+  }
+
+  if (route === '/' || route === '/docs/') {
+    const externalStyles = linkHrefs(html, 'stylesheet').filter((href) => /^https?:/.test(href))
+    if (externalStyles.length) fail(`${route} loads a third-party stylesheet`)
+
+    const preloads = fontPreloads(html)
+    if (preloads.length !== 3) fail(`${route} must preload its three above-the-fold fonts`)
+    for (const preload of preloads) {
+      if (!/\bcrossorigin(?:=["'][^"']*["'])?(?:\s|\/?>)/i.test(preload)) {
+        fail(`${route} font preload must carry crossorigin`)
+      }
+      if (!/\btype=["']font\/woff2["']/i.test(preload)) {
+        fail(`${route} font preload must declare font/woff2`)
+      }
+    }
   }
 
   for (const href of valuesFor(html, 'a', 'href')) {

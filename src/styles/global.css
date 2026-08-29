@@ -1,5 +1,110 @@
 @import 'tailwindcss';
 
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 600 900;
+  font-display: optional;
+  src: url('/fonts/fraunces-latin-v38.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Fraunces fallback';
+  src: local('Georgia');
+  size-adjust: 95.8719%;
+  ascent-override: 102.0112%;
+  descent-override: 26.598%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Fraunces Android fallback';
+  src: local('Noto Serif');
+  size-adjust: 107.6923%;
+  ascent-override: 90.8143%;
+  descent-override: 23.6786%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Fraunces Windows fallback';
+  src: local('Times New Roman');
+  size-adjust: 127.5077%;
+  ascent-override: 76.7013%;
+  descent-override: 19.9988%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: optional;
+  src: url('/fonts/inter-latin-v20.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter fallback';
+  src: local('Arial');
+  size-adjust: 107.1194%;
+  ascent-override: 90.4365%;
+  descent-override: 22.518%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Inter Android fallback';
+  src: local('Roboto');
+  size-adjust: 107.3546%;
+  ascent-override: 90.2384%;
+  descent-override: 22.4686%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Inter Noto fallback';
+  src: local('Noto Sans');
+  size-adjust: 100.7466%;
+  ascent-override: 96.1571%;
+  descent-override: 23.9423%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: optional;
+  src: url('/fonts/jetbrains-mono-latin-v24.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono fallback';
+  src: local('Menlo');
+  size-adjust: 100%;
+  ascent-override: 102%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Android fallback';
+  src: local('Roboto Mono');
+  size-adjust: 99.9837%;
+  ascent-override: 102.0166%;
+  descent-override: 30.0049%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Noto fallback';
+  src: local('Noto Sans Mono');
+  size-adjust: 100%;
+  ascent-override: 102%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+}
+
 /*
  * Markdown is not a source of classes. Tailwind scans the whole project, so the gotcha
  * in AGENTS.md — which names `text-[--muted]` in order to warn against it — was being
@@ -25,9 +130,15 @@
   --color-grid-line: color-mix(in oklab, var(--color-ink) 7%, transparent);
   --color-red-deep: color-mix(in oklab, var(--color-mark) 74%, var(--color-ink));
 
-  --font-display: 'Fraunces', ui-serif, Georgia, serif;
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display:
+    'Fraunces', 'Fraunces fallback', 'Fraunces Android fallback', 'Fraunces Windows fallback',
+    ui-serif, Georgia, serif;
+  --font-sans:
+    'Inter', 'Inter fallback', 'Inter Android fallback', 'Inter Noto fallback', ui-sans-serif,
+    system-ui, sans-serif;
+  --font-mono:
+    'JetBrains Mono', 'JetBrains Mono fallback', 'JetBrains Mono Android fallback',
+    'JetBrains Mono Noto fallback', ui-monospace, Menlo, monospace;
 }
 
 @layer base {

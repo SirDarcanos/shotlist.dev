@@ -16,7 +16,8 @@
     "check:examples": "node scripts/check-examples.mjs",
     "shots": "shotlist --all --install",
     "check:site": "node scripts/check-site-contract.mjs",
-    "check:browser": "node scripts/check-docs-browser.mjs"
+    "check:browser": "node scripts/check-docs-browser.mjs",
+    "check:performance": "npm run build && node scripts/check-performance.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
@@ -27,6 +28,7 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "lighthouse": "^12.8.2",
     "playwright": "^1.62.1",
     "prettier": "^3.9.6",
     "prettier-plugin-astro": "^0.14.1",

@@ -1,5 +1,6 @@
-# build output
+# build and local validation output
 dist/
+artifacts/
 # what a shoot writes before `--install` copies it where it belongs
 screenshots/out/
 # packaged from examples/shotlist-example/ by the build, so the folder stays the source of truth

@@ -30,6 +30,75 @@ try {
   await waitForServer()
   browser = await chromium.launch({ headless: true })
 
+  const fallbackCls = new Map()
+  const fallbackContext = await browser.newContext({ viewport: { width: 390, height: 844 } })
+  await fallbackContext.route('**/fonts/*.woff2', (route) => route.abort())
+  await fallbackContext.addInitScript(() => {
+    window.__fontCls = 0
+    new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        if (!entry.hadRecentInput) window.__fontCls += entry.value
+      }
+    }).observe({ type: 'layout-shift', buffered: true })
+  })
+  for (const route of ['/', '/docs/']) {
+    const page = await fallbackContext.newPage()
+    await page.goto(`${origin}${route}`)
+    await page.waitForTimeout(500)
+    fallbackCls.set(route, await page.evaluate(() => window.__fontCls))
+    await page.close()
+  }
+  await fallbackContext.close()
+
+  const fontContext = await browser.newContext({ viewport: { width: 390, height: 844 } })
+  await fontContext.route('**/fonts/*.woff2', async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 400))
+    await route.continue()
+  })
+  await fontContext.addInitScript(() => {
+    window.__fontCls = 0
+    new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        if (!entry.hadRecentInput) window.__fontCls += entry.value
+      }
+    }).observe({ type: 'layout-shift', buffered: true })
+  })
+  for (const route of ['/', '/docs/']) {
+    const page = await fontContext.newPage()
+    await page.goto(`${origin}${route}`)
+    await page.evaluate(() => document.fonts.ready)
+    await page.waitForTimeout(100)
+    assert.equal(
+      await page.evaluate(() => window.__fontCls),
+      fallbackCls.get(route),
+      `${route} font loading adds no mobile layout shift`,
+    )
+    assert.deepEqual(
+      await page.evaluate(() =>
+        ['Inter', 'Fraunces', 'JetBrains Mono'].map((family) =>
+          document.fonts.check(`16px "${family}"`),
+        ),
+      ),
+      [true, true, true],
+      `${route} loads every site font`,
+    )
+    const fontResources = await page.evaluate(() =>
+      performance
+        .getEntriesByType('resource')
+        .filter((entry) => entry.name.includes('/fonts/'))
+        .map((entry) => ({ name: entry.name, decodedBodySize: entry.decodedBodySize })),
+    )
+    assert.equal(fontResources.length, 3, `${route} fetches exactly three font resources`)
+    assert.ok(
+      fontResources.every(
+        ({ name, decodedBodySize }) => new URL(name).origin === origin && decodedBodySize > 0,
+      ),
+      `${route} fetches successful fonts from its own origin`,
+    )
+    await page.close()
+  }
+  await fontContext.close()
+
   const mobile = await browser.newContext({
     javaScriptEnabled: false,
     viewport: { width: 390, height: 844 },
@@ -118,7 +187,7 @@ try {
   )
   await scripted.close()
 
-  console.log('Documentation navigation holds in mobile and desktop browsers.')
+  console.log('Fonts and documentation navigation hold in mobile and desktop browsers.')
 } finally {
   await browser?.close()
   server.kill('SIGTERM')

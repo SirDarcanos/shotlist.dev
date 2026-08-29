@@ -13,8 +13,12 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), camera=(), microphone=(), browsing-topics=()
   Cross-Origin-Opener-Policy: same-origin
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://cdn.usefathom.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://cdn.usefathom.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://cdn.usefathom.com https://cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://cdn.usefathom.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.usefathom.com; font-src 'self'; connect-src 'self' https://cdn.usefathom.com https://cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
 
 # Content-hashed build assets never change under a given URL — cache forever.
 /_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Font filenames carry their upstream version, so deployed copies are immutable too.
+/fonts/*
   Cache-Control: public, max-age=31536000, immutable
