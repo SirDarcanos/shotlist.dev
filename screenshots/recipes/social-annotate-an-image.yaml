@@ -1,0 +1,6 @@
+name: annotate-an-image
+install: social
+url: http://localhost:4321/og/annotate-an-image/
+viewport: { width: 1200, height: 630 }
+scale: 2
+clip: viewport

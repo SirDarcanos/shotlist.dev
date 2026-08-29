@@ -4,7 +4,7 @@
 # for it, and the card would stop being 1200×630.
 name: og
 install: public
-url: http://localhost:4321/og
+url: http://localhost:4321/og/
 viewport: { width: 1200, height: 630 }
 scale: 2
 clip: viewport

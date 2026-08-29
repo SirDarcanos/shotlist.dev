@@ -1,0 +1,93 @@
+---
+/**
+ * The maintained template for documentation link cards, photographed at 1200×630.
+ *
+ * Its page-specific text lives in `social-cards.mjs`, so metadata and the image route
+ * select the same title rather than maintaining two copies.
+ */
+import Wordmark from '../../components/Wordmark.astro'
+import { socialCards } from '../../lib/social-cards.mjs'
+import '../../styles/global.css'
+
+export function getStaticPaths() {
+  return socialCards.map((card) => ({ params: { slug: card.slug }, props: { card } }))
+}
+
+const { card } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>{card.title} — shotlist</title>
+    <link
+      rel="preload"
+      href="/fonts/fraunces-latin-v38.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/inter-latin-v20.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/jetbrains-mono-latin-v24.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+  </head>
+
+  <body>
+    <div class="relative flex h-[630px] w-[1200px] flex-col justify-between overflow-hidden p-20">
+      <div class="paper-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
+      <div
+        class="pointer-events-none absolute -right-28 -bottom-52 size-[610px] rounded-full border-[34px] border-mark opacity-[0.09]"
+        aria-hidden="true"
+      >
+      </div>
+
+      <div class="relative flex items-center justify-between">
+        <Wordmark size={42} />
+        <span class="font-mono text-[19px] tracking-[0.14em] text-mark uppercase">
+          {card.section}
+        </span>
+      </div>
+
+      <div class="relative">
+        <h1 class="max-w-[24ch] text-[76px] leading-[1.02] font-extrabold text-balance">
+          {card.title}
+        </h1>
+        <p class="mt-8 max-w-[41ch] text-[26px] leading-snug text-muted">
+          Annotated screenshot automation for product documentation.
+        </p>
+      </div>
+
+      <div class="relative flex items-center gap-5 font-mono text-[20px] text-muted">
+        <span class="text-ink">shotlist.dev</span>
+        <span aria-hidden="true">·</span>
+        <span>{card.route}</span>
+      </div>
+    </div>
+  </body>
+</html>
+
+<style>
+  body {
+    margin: 0;
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+  }
+
+  :global(astro-dev-toolbar) {
+    display: none;
+  }
+</style>

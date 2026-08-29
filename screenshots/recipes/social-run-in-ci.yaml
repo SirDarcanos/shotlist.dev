@@ -1,0 +1,6 @@
+name: run-in-ci
+install: social
+url: http://localhost:4321/og/run-in-ci/
+viewport: { width: 1200, height: 630 }
+scale: 2
+clip: viewport

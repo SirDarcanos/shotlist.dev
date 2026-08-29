@@ -3,6 +3,7 @@ import { SEO } from 'astro-seo'
 import Nav from '../components/Nav.astro'
 import Footer from '../components/Footer.astro'
 import BackToTop from '../components/BackToTop.astro'
+import { socialCardFor } from '../lib/social-cards.mjs'
 import '../styles/global.css'
 
 interface Props {
@@ -24,11 +25,14 @@ const markdownAlternate = new URL(markdownPath, Astro.site).href
 const fullTitle = bare ? title : `${title} — shotlist`
 
 /*
- * The card a shared link unfurls into. It is `src/pages/og.astro`, photographed by
- * `npm run shots` and committed — the site advertising itself with the thing it is for.
+ * Priority documentation routes use the matching topic card; every other route keeps the
+ * homepage card, so adding a page does not silently declare an image that was never generated.
  */
-const card = new URL('/og.png', Astro.site).href
-const cardAlt = 'shotlist — annotated UI screenshots, described as data'
+const topicCard = socialCardFor(pathname)
+const card = new URL(topicCard ? `/social/${topicCard.slug}.png` : '/og.png', Astro.site).href
+const cardAlt = topicCard
+  ? `shotlist documentation — ${topicCard.title}`
+  : 'shotlist — annotated UI screenshots, described as data'
 
 const analyticsScript = `
   (() => {

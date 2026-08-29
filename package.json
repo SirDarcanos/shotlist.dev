@@ -15,6 +15,7 @@
     "check:spacing": "node scripts/check-spacing.mjs",
     "check:examples": "node scripts/check-examples.mjs",
     "shots": "shotlist --all --install",
+    "shots:social": "shotlist docs first-screenshot keeping-a-screenshot-current document-a-wordpress-site run-in-ci annotate-an-image --install",
     "demo:generate": "shotlist order-row --config shotlist.demo.config.yaml --install",
     "demo:drift": "node scripts/generate-keeping-current.mjs",
     "check:site": "node scripts/check-site-contract.mjs",

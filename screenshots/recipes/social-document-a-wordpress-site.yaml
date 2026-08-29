@@ -1,0 +1,6 @@
+name: document-a-wordpress-site
+install: social
+url: http://localhost:4321/og/document-a-wordpress-site/
+viewport: { width: 1200, height: 630 }
+scale: 2
+clip: viewport

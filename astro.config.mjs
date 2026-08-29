@@ -12,8 +12,8 @@ export default defineConfig({
   // came out with the spaces missing. Sixty-nine of them, before this was noticed.
   compressHTML: false,
   trailingSlash: 'always',
-  // `/og` exists only to be photographed into the card, so it is not a page to index.
-  integrations: [sitemap({ filter: (page) => !page.endsWith('/og/') })],
+  // `/og` and its topic variants exist only to be photographed, so none enters the sitemap.
+  integrations: [sitemap({ filter: (page) => !new URL(page).pathname.startsWith('/og/') })],
   vite: {
     plugins: [tailwindcss()],
   },

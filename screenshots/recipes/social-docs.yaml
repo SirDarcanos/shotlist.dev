@@ -1,0 +1,6 @@
+name: docs
+install: social
+url: http://localhost:4321/og/docs/
+viewport: { width: 1200, height: 630 }
+scale: 2
+clip: viewport

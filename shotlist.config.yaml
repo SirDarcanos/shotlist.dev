@@ -15,3 +15,4 @@ paths:
 
 install:
   public: public
+  social: public/social

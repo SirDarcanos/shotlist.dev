@@ -33,11 +33,33 @@ function valuesFor(html, element, attribute) {
   return values
 }
 
+function attributeValue(tag, attribute) {
+  const escaped = attribute.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return tag
+    .match(new RegExp(`\\b${escaped}=(?:"([^"]*)"|'([^']*)')`, 'i'))
+    ?.slice(1)
+    .find(Boolean)
+}
+
 function metaContent(html, name) {
   const tags = html.match(/<meta\b[^>]*>/gi) ?? []
   for (const tag of tags) {
-    const metaName = tag.match(/\bname=["']([^"']+)["']/i)?.[1]
-    if (metaName?.toLowerCase() === name) return tag.match(/\bcontent=["']([^"']*)["']/i)?.[1]
+    const metaName = attributeValue(tag, 'name')
+    if (metaName?.toLowerCase() === name) {
+      const content = attributeValue(tag, 'content')
+      return content === undefined ? undefined : visibleText(content)
+    }
+  }
+}
+
+function metaProperty(html, property) {
+  const tags = html.match(/<meta\b[^>]*>/gi) ?? []
+  for (const tag of tags) {
+    const metaProperty = attributeValue(tag, 'property')
+    if (metaProperty?.toLowerCase() === property) {
+      const content = attributeValue(tag, 'content')
+      return content === undefined ? undefined : visibleText(content)
+    }
   }
 }
 
@@ -168,8 +190,8 @@ for (const filename of htmlFiles) {
     continue
   }
 
-  if (route === '/og/') {
-    if (!noindex) fail('/og/ must carry a noindex robots directive')
+  if (route.startsWith('/og/')) {
+    if (!noindex) fail(`${route} must carry a noindex robots directive`)
     continue
   }
 
@@ -353,6 +375,83 @@ for (const [asset, [expectedWidth, expectedHeight]] of driftAssets) {
 }
 if (ledgerImage && committedDriftImage && committedDriftImage.compare(ledgerImage) !== 0) {
   fail('/images/keeping-current/committed.png must match the Ledger image installed by shotlist')
+}
+
+function checkCardMetadata(route, html, card, alt) {
+  for (const [label, actual, expected] of [
+    ['Open Graph image', metaProperty(html, 'og:image'), card],
+    ['Open Graph image URL', metaProperty(html, 'og:image:url'), card],
+    ['Open Graph image alt', metaProperty(html, 'og:image:alt'), alt],
+    ['Open Graph image width', metaProperty(html, 'og:image:width'), '2400'],
+    ['Open Graph image height', metaProperty(html, 'og:image:height'), '1260'],
+    ['Open Graph image type', metaProperty(html, 'og:image:type'), 'image/png'],
+    ['Twitter image', metaContent(html, 'twitter:image'), card],
+    ['Twitter image alt', metaContent(html, 'twitter:image:alt'), alt],
+  ]) {
+    if (actual !== expected) fail(`${route} ${label} must be ${expected}`)
+  }
+}
+
+const socialCards = new Map([
+  ['/docs/', ['docs', 'Documentation']],
+  ['/docs/tutorials/first-screenshot/', ['first-screenshot', 'Your first screenshot']],
+  [
+    '/docs/tutorials/keeping-a-screenshot-current/',
+    ['keeping-a-screenshot-current', 'Keeping a screenshot current'],
+  ],
+  [
+    '/docs/tutorials/document-a-wordpress-site/',
+    ['document-a-wordpress-site', "Document a client's WordPress site"],
+  ],
+  ['/docs/how-to/run-in-ci/', ['run-in-ci', 'Run shotlist in CI']],
+  ['/docs/how-to/annotate-an-image/', ['annotate-an-image', 'Annotate an existing image']],
+])
+const defaultCard = `${siteOrigin}/og.png`
+for (const [route, [slug, title]] of socialCards) {
+  const html = documents.get(route)
+  if (!html) continue
+  const card = `${siteOrigin}/social/${slug}.png`
+  const alt = `shotlist documentation — ${title}`
+  checkCardMetadata(route, html, card, alt)
+
+  let image
+  const asset = `/social/${slug}.png`
+  try {
+    image = await readFile(path.join(dist, asset.slice(1)))
+  } catch {
+    fail(`${asset} is missing from the production build`)
+    continue
+  }
+  if (image.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a') {
+    fail(`${asset} must be a crawlable PNG image`)
+    continue
+  }
+  const width = image.readUInt32BE(16)
+  const height = image.readUInt32BE(20)
+  if (width !== 2400 || height !== 1260) {
+    fail(`${asset} must be 2400×1260, got ${width}×${height}`)
+  }
+}
+const defaultCardAlt = 'shotlist — annotated UI screenshots, described as data'
+for (const [route, html] of documents) {
+  if (!socialCards.has(route)) checkCardMetadata(route, html, defaultCard, defaultCardAlt)
+}
+let defaultCardImage
+try {
+  defaultCardImage = await readFile(path.join(dist, 'og.png'))
+} catch {
+  fail('/og.png is missing from the production build')
+}
+if (defaultCardImage) {
+  if (defaultCardImage.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a') {
+    fail('/og.png must be a crawlable PNG image')
+  } else {
+    const width = defaultCardImage.readUInt32BE(16)
+    const height = defaultCardImage.readUInt32BE(20)
+    if (width !== 2400 || height !== 1260) {
+      fail(`/og.png must be 2400×1260, got ${width}×${height}`)
+    }
+  }
 }
 
 const homepage = documents.get('/')

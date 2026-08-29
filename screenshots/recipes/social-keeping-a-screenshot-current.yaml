@@ -1,0 +1,6 @@
+name: keeping-a-screenshot-current
+install: social
+url: http://localhost:4321/og/keeping-a-screenshot-current/
+viewport: { width: 1200, height: 630 }
+scale: 2
+clip: viewport
