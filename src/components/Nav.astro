@@ -31,6 +31,7 @@ const path = Astro.url.pathname
                   ? 'text-mark'
                   : 'text-muted',
               ]}
+              data-npm-link={link.label === 'npm' || undefined}
               {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             >
               {link.label}

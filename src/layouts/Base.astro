@@ -12,9 +12,11 @@ interface Props {
   bare?: boolean
   /** Utility pages stay useful to visitors without entering the search index. */
   indexable?: boolean
+  /** A page view on the measured adoption path. */
+  pageEvent?: 'tutorial_viewed'
 }
 
-const { title, description, bare = false, indexable = true } = Astro.props
+const { title, description, bare = false, indexable = true, pageEvent } = Astro.props
 const pathname = Astro.url.pathname === '/' ? '/' : `${Astro.url.pathname.replace(/\/$/, '')}/`
 const canonical = new URL(pathname, Astro.site).href
 const fullTitle = bare ? title : `${title} — shotlist`
@@ -25,6 +27,34 @@ const fullTitle = bare ? title : `${title} — shotlist`
  */
 const card = new URL('/og.png', Astro.site).href
 const cardAlt = 'shotlist — annotated UI screenshots, described as data'
+
+const analyticsScript = `
+  (() => {
+    const pending = []
+    const send = (name) => {
+      if (window.fathom?.trackEvent) window.fathom.trackEvent(name)
+      else pending.push(name)
+    }
+    const flush = () => {
+      if (!window.fathom?.trackEvent) return
+      while (pending.length) window.fathom.trackEvent(pending.shift())
+    }
+
+    document.getElementById('fathom-script')?.addEventListener('load', flush)
+    window.addEventListener('load', flush, { once: true })
+    document.addEventListener('DOMContentLoaded', () => {
+      if (document.body.dataset.pageEvent === 'tutorial_viewed') send('tutorial_viewed')
+    }, { once: true })
+    document.addEventListener('click', (event) => {
+      if (!(event.target instanceof Element)) return
+      if (event.target.closest('[data-example-download]')) send('example_downloaded')
+      else if (event.target.closest('[data-npm-link]')) send('npm_opened')
+    })
+    document.addEventListener('shotlist:install-command-copied', () => {
+      send('install_command_copied')
+    })
+  })()
+`
 ---
 
 <!doctype html>
@@ -95,12 +125,21 @@ const cardAlt = 'shotlist — annotated UI screenshots, described as data'
     }
     {
       import.meta.env.PROD && (
-        <script src="https://cdn.usefathom.com/script.js" data-site="HKHUOFHQ" defer is:inline />
+        <>
+          <script
+            id="fathom-script"
+            src="https://cdn.usefathom.com/script.js"
+            data-site="HKHUOFHQ"
+            defer
+            is:inline
+          />
+          <script is:inline set:html={analyticsScript} />
+        </>
       )
     }
   </head>
 
-  <body id="top" class="min-h-screen antialiased">
+  <body id="top" class="min-h-screen antialiased" data-page-event={pageEvent}>
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"

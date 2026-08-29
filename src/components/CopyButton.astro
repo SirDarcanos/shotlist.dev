@@ -7,14 +7,17 @@
  */
 interface Props {
   class?: string
+  /** Records a successful copy of a package installation command. */
+  trackInstall?: boolean
 }
 
-const { class: className = '' } = Astro.props
+const { class: className = '', trackInstall = false } = Astro.props
 ---
 
 <button
   type="button"
   data-copy
+  data-install-copy={trackInstall || undefined}
   hidden
   aria-label="Copy to clipboard"
   class:list={[
@@ -91,6 +94,10 @@ const { class: className = '' } = Astro.props
     } catch {
       button.setAttribute('aria-label', 'Copy failed — select the code and copy it')
       return
+    }
+
+    if (button.hasAttribute('data-install-copy')) {
+      document.dispatchEvent(new Event('shotlist:install-command-copied'))
     }
 
     show(copy, false)

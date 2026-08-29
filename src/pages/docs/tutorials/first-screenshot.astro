@@ -75,6 +75,7 @@ const listRecipes = `npx shotlist`
 <Docs
   title="Tutorial: your first screenshot"
   description="A step-by-step lesson that installs shotlist into a small example application and produces an annotated screenshot of one of its pages."
+  pageEvent="tutorial_viewed"
 >
   <h1 class="text-4xl font-extrabold">Your first screenshot</h1>
 
@@ -97,9 +98,9 @@ const listRecipes = `npx shotlist`
   <h2 class="mt-14 text-2xl font-bold">Step 1: get the example application</h2>
 
   <p>
-    Download <a href="/shotlist-example.zip" download>shotlist-example.zip</a> and unzip it wherever you
-    keep projects. Inside is a small fake invoicing screen called Ledger, with a documentation page alongside
-    it. It has no dependencies of its own.
+    Download <a href="/shotlist-example.zip" download data-example-download>shotlist-example.zip</a> and
+    unzip it wherever you keep projects. Inside is a small fake invoicing screen called Ledger, with a
+    documentation page alongside it. It has no dependencies of its own.
   </p>
 
   <p>Start it:</p>
@@ -127,7 +128,7 @@ const listRecipes = `npx shotlist`
 
   <h2 class="mt-14 text-2xl font-bold">Step 2: install shotlist</h2>
 
-  <CommandTabs commands={install} class="mt-6" />
+  <CommandTabs commands={install} class="mt-6" trackInstallCopy />
 
   <p>
     This takes a minute or two, because Playwright downloads a copy of Chromium. shotlist uses that

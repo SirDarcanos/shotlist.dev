@@ -32,6 +32,7 @@ try {
 
   const fallbackCls = new Map()
   const fallbackContext = await browser.newContext({ viewport: { width: 390, height: 844 } })
+  await fallbackContext.route('https://cdn.usefathom.com/**', (route) => route.abort())
   await fallbackContext.route('**/fonts/*.woff2', (route) => route.abort())
   await fallbackContext.addInitScript(() => {
     window.__fontCls = 0
@@ -51,6 +52,7 @@ try {
   await fallbackContext.close()
 
   const fontContext = await browser.newContext({ viewport: { width: 390, height: 844 } })
+  await fontContext.route('https://cdn.usefathom.com/**', (route) => route.abort())
   await fontContext.route('**/fonts/*.woff2', async (route) => {
     await new Promise((resolve) => setTimeout(resolve, 400))
     await route.continue()
@@ -103,6 +105,7 @@ try {
     javaScriptEnabled: false,
     viewport: { width: 390, height: 844 },
   })
+  await mobile.route('https://cdn.usefathom.com/**', (route) => route.abort())
   const mobilePage = await mobile.newPage()
   await mobilePage.goto(`${origin}/docs/reference/configuration/#check`)
 
@@ -153,6 +156,7 @@ try {
     javaScriptEnabled: false,
     viewport: { width: 1280, height: 900 },
   })
+  await desktop.route('https://cdn.usefathom.com/**', (route) => route.abort())
   const desktopPage = await desktop.newPage()
   await desktopPage.goto(`${origin}/docs/reference/configuration/`)
   assert.equal(
@@ -170,7 +174,69 @@ try {
   )
   await desktop.close()
 
+  const analytics = await browser.newContext({ viewport: { width: 1280, height: 900 } })
+  await analytics.route('https://cdn.usefathom.com/**', (route) => route.abort())
+  await analytics.route('https://www.npmjs.com/**', (route) => route.abort())
+  await analytics.addInitScript(() => {
+    window.__analyticsCalls = []
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: async () => {} },
+    })
+  })
+  const analyticsPage = await analytics.newPage()
+  await analyticsPage.goto(`${origin}/docs/tutorials/first-screenshot/`)
+  const fathomScript = analyticsPage.locator('#fathom-script')
+  assert.deepEqual(
+    await fathomScript.evaluate((script) => ({
+      src: script.getAttribute('src'),
+      site: script.getAttribute('data-site'),
+      defer: script.hasAttribute('defer'),
+    })),
+    {
+      src: 'https://cdn.usefathom.com/script.js',
+      site: 'HKHUOFHQ',
+      defer: true,
+    },
+    'production loads the deferred Fathom script for the configured site',
+  )
+  assert.deepEqual(
+    await analyticsPage.evaluate(() => window.__analyticsCalls),
+    [],
+    'a direct first-tutorial landing waits while Fathom is unavailable',
+  )
+  await analyticsPage.evaluate(() => {
+    window.fathom = {
+      trackEvent: (...args) => window.__analyticsCalls.push(args),
+    }
+    document.getElementById('fathom-script').dispatchEvent(new Event('load'))
+  })
+  assert.deepEqual(
+    await analyticsPage.evaluate(() => window.__analyticsCalls),
+    [['tutorial_viewed']],
+    'a direct first-tutorial landing flushes once after delayed Fathom loading',
+  )
+
+  await analyticsPage.locator('a[download][href="/shotlist-example.zip"]').click()
+  await analyticsPage.locator('[data-command-tabs] [data-copy]').click()
+  await analyticsPage
+    .locator('[data-code-card]:not([data-command-tabs]) [data-copy]')
+    .first()
+    .click()
+  const popupPromise = analyticsPage.waitForEvent('popup')
+  await analyticsPage.locator('nav a[href="https://www.npmjs.com/package/shotlist"]').click()
+  const npmPage = await popupPromise
+  await npmPage.close()
+
+  assert.deepEqual(
+    await analyticsPage.evaluate(() => window.__analyticsCalls),
+    [['tutorial_viewed'], ['example_downloaded'], ['install_command_copied'], ['npm_opened']],
+    'each adoption action records one fixed event name and no payload',
+  )
+  await analytics.close()
+
   const scripted = await browser.newContext({ viewport: { width: 390, height: 844 } })
+  await scripted.route('https://cdn.usefathom.com/**', (route) => route.abort())
   const scriptedPage = await scripted.newPage()
   await scriptedPage.addInitScript(() => {
     window.__docsNavOpenChanges = []
@@ -196,7 +262,54 @@ try {
   )
   await scripted.close()
 
-  console.log('Fonts and documentation navigation hold in mobile and desktop browsers.')
+  const devOrigin = 'http://127.0.0.1:4323'
+  const devServer = spawn(
+    process.execPath,
+    ['node_modules/astro/bin/astro.mjs', 'dev', '--host', '127.0.0.1', '--port', '4323'],
+    { stdio: ['ignore', 'pipe', 'pipe'] },
+  )
+  let devOutput = ''
+  devServer.stdout.on('data', (chunk) => (devOutput += chunk))
+  devServer.stderr.on('data', (chunk) => (devOutput += chunk))
+  try {
+    let ready = false
+    for (let attempt = 0; attempt < 50; attempt++) {
+      try {
+        const response = await fetch(`${devOrigin}/docs/tutorials/first-screenshot/`)
+        if (response.ok) {
+          ready = true
+          break
+        }
+      } catch {}
+      await new Promise((resolve) => setTimeout(resolve, 100))
+    }
+    assert.ok(ready, `Astro development server starts.\n${devOutput}`)
+
+    const development = await browser.newContext()
+    await development.addInitScript(() => {
+      window.__analyticsCalls = []
+      window.fathom = {
+        trackEvent: (...args) => window.__analyticsCalls.push(args),
+      }
+    })
+    const developmentPage = await development.newPage()
+    await developmentPage.goto(`${devOrigin}/docs/tutorials/first-screenshot/`)
+    assert.equal(
+      await developmentPage.locator('script[src="https://cdn.usefathom.com/script.js"]').count(),
+      0,
+      'development does not load production analytics',
+    )
+    assert.deepEqual(
+      await developmentPage.evaluate(() => window.__analyticsCalls),
+      [],
+      'development does not report a tutorial view as production traffic',
+    )
+    await development.close()
+  } finally {
+    devServer.kill('SIGTERM')
+  }
+
+  console.log('Fonts, navigation, and adoption analytics hold in rendered browsers.')
 } finally {
   await browser?.close()
   server.kill('SIGTERM')

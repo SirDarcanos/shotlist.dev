@@ -13,9 +13,11 @@ import { codeTheme } from '../lib/code-theme'
 interface Props {
   commands: { label: string; code: string }[]
   class?: string
+  /** Records a successful copy when these are package installation commands. */
+  trackInstallCopy?: boolean
 }
 
-const { commands, class: className = '' } = Astro.props
+const { commands, class: className = '', trackInstallCopy = false } = Astro.props
 // Unique per instance, so two on a page do not answer to each other's buttons.
 const id = `tabs-${Math.random().toString(36).slice(2, 9)}`
 ---
@@ -47,7 +49,7 @@ const id = `tabs-${Math.random().toString(36).slice(2, 9)}`
         ))
       }
     </div>
-    <CopyButton class="ml-auto" />
+    <CopyButton class="ml-auto" trackInstall={trackInstallCopy} />
   </div>
   {
     commands.map((command, i) => (
